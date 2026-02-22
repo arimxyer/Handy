@@ -55,12 +55,13 @@ function getSectionIcon(title: string) {
 
 /** Convert structured sections to natural-language prompt text */
 function sectionsToPromptText(sections: InsightsSection[]): string {
-  return sections
+  const instructions = sections
     .map(
       (s) =>
         `## ${s.title}\n${s.summary}\n\nInstruction: ${s.prompt_suggestion}`,
     )
     .join("\n\n");
+  return `${instructions}\n\n\${output}`;
 }
 
 const DEFAULT_PROMPT_ID = "default_improve_transcriptions";
@@ -189,7 +190,7 @@ export const InsightsSettings: React.FC = () => {
     const promptText =
       persistedResult.sections && persistedResult.sections.length > 0
         ? sectionsToPromptText(persistedResult.sections)
-        : persistedResult.analysis;
+        : `${persistedResult.analysis}\n\n\${output}`;
     try {
       const result = await commands.addPostProcessPrompt(
         t("settings.insights.actions.generatedPromptName"),
@@ -210,7 +211,7 @@ export const InsightsSettings: React.FC = () => {
         ? `Insights - ${sectionTitle}`
         : t("settings.insights.actions.generatedPromptName");
       try {
-        const result = await commands.addPostProcessPrompt(name, suggestion);
+        const result = await commands.addPostProcessPrompt(name, `${suggestion}\n\n\${output}`);
         if (result.status === "ok") {
           await refreshSettings();
           toast.success(t("settings.insights.actions.promptCreated"));
