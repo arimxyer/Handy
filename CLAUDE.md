@@ -48,81 +48,37 @@ curl -o src-tauri/resources/models/silero_vad_v4.onnx https://blob.handy.compute
 
 ## Architecture Overview
 
-Handy is a cross-platform desktop speech-to-text app built with Tauri 2.x (Rust backend + React/TypeScript frontend).
+Handy is a cross-platform desktop speech-to-text app built with Tauri 2.x (Rust backend + React/TypeScript frontend). See subdirectory CLAUDE.md files for per-file details.
 
-### Backend Structure (src-tauri/src/)
+### Backend (`src-tauri/src/`)
 
-- `lib.rs` - Main entry point, Tauri setup, plugin/manager initialization
-- `main.rs` - CLI argument parsing before Tauri launch
-- `settings.rs` - Application settings (AppSettings struct, persistence)
-- `managers/` - Core business logic:
-  - `audio.rs` - Audio recording and device management
-  - `model.rs` - Model downloading and management
-  - `transcription.rs` - Speech-to-text processing pipeline
-  - `history.rs` - Transcription history storage (SQLite)
-- `commands/` - Tauri command handlers:
-  - `audio.rs`, `history.rs`, `models.rs`, `transcription.rs` - Core commands
-  - `insights.rs` - Speech pattern analysis commands (insiders)
-- `audio_toolkit/` - Low-level audio processing:
-  - `audio/` - Device enumeration, recording, resampling
-  - `vad/` - Voice Activity Detection (Silero VAD)
-- `actions.rs` - Post-transcription actions (clipboard, paste, post-process)
-- `clipboard.rs` - Clipboard operations
-- `cli.rs` - CLI argument definitions (clap derive)
-- `input.rs` - Text input/typing simulation
-- `llm_client.rs` - OpenAI-compatible LLM client for post-processing
-- `overlay.rs` - Recording overlay window management
-- `shortcut/` - Global keyboard shortcut handling
-- `signal_handle.rs` - Unix signal handlers for remote control
-- `transcription_coordinator.rs` - Orchestrates recording → transcription → output
-- `tray.rs` - System tray menu and icon management
+- `managers/` — Long-lived stateful services (audio, model, transcription, history)
+- `commands/` — Tauri command handlers (frontend-backend bridge)
+- `audio_toolkit/` — Low-level audio processing and Voice Activity Detection
+- `shortcut/` — Global keyboard shortcut handling
+- `helpers/` — Platform-specific helpers (clamshell mode detection)
+- Key entry points: `lib.rs` (app setup), `main.rs` (CLI parsing), `settings.rs` (AppSettings persistence), `transcription_coordinator.rs` (recording pipeline)
 
-### Frontend Structure (src/)
+### Frontend (`src/`)
 
-- `App.tsx` - Main component with onboarding flow
-- `bindings.ts` - Auto-generated Tauri type bindings (via tauri-specta)
-- `components/settings/` - Settings UI (35+ files)
-  - `insights/` - Speech insights UI (insiders)
-  - `history/` - History settings, version viewer, post-process drawer (insiders)
-- `components/model-selector/` - Model management interface
-- `components/onboarding/` - First-run experience
-- `hooks/useSettings.ts` - Settings state management hook
-- `hooks/useOsType.ts` - Platform detection hook
-- `hooks/usePostProcessDrawer.ts` - Post-process drawer state (insiders)
-- `stores/settingsStore.ts` - Zustand store for settings
-- `overlay/` - Recording overlay window code
+- `components/settings/` — Settings UI (35+ files, one per setting)
+- `components/model-selector/` — Model download/selection interface
+- `components/onboarding/` — First-run experience
+- `stores/` — Zustand stores (settings, model state)
+- `hooks/` — React hooks (settings, platform detection)
+- `overlay/` — Separate Tauri window for recording indicator
+- `i18n/` — Internationalization (i18next, 17 locales)
+- `bindings.ts` — **Auto-generated** by tauri-specta. Do not edit manually.
 
 ### Key Patterns
 
-**Manager Pattern:** Core functionality organized into managers (Audio, Model, Transcription) initialized at startup and managed via Tauri state.
+**Manager Pattern:** Core functionality organized into managers (Audio, Model, Transcription, History) initialized at startup and managed via Tauri state.
 
 **Command-Event Architecture:** Frontend → Backend via Tauri commands; Backend → Frontend via events.
 
-**Pipeline Processing:** Audio → VAD → Whisper/Parakeet → Text output → Clipboard/Paste
+**Pipeline:** Audio → VAD → Whisper/Parakeet → Text → Clipboard/Paste
 
 **State Flow:** Zustand → Tauri Command → Rust State → Persistence (tauri-plugin-store)
-
-## Insiders Features
-
-These features exist on the `insiders` branch only:
-
-- **History post-processing** — Re-run LLM post-processing on past transcriptions with version tracking
-- **Version history viewer** — Browse and restore previous versions of any transcription
-- **Post-process config drawer** — Compare results across different models
-- **Speech pattern insights** — Analyze speech patterns with structured LLM output, history, and prompt enhancement
-
-Key insiders files: `commands/insights.rs`, `llm_client.rs`, `InsightsSettings.tsx`, `useInsightsProviderState.ts`, `VersionHistory.tsx`, `PostProcessDrawer.tsx`, `usePostProcessDrawer.ts`
-
-## Internationalization (i18n)
-
-All user-facing strings must use i18next translations. ESLint enforces this (no hardcoded strings in JSX).
-
-**Adding new text:**
-
-1. Add key to `src/i18n/locales/en/translation.json`
-2. Use in component: `const { t } = useTranslation(); t('key.path')`
-
-17 supported locales: ar, cs, de, en (source), es, fr, it, ja, ko, pl, pt, ru, tr, uk, vi, zh, zh-TW
 
 ## Code Style
 
@@ -141,13 +97,7 @@ All user-facing strings must use i18next translations. ESLint enforces this (no 
 
 ## Commit Guidelines
 
-Use conventional commits:
-
-- `feat:` new features
-- `fix:` bug fixes
-- `docs:` documentation
-- `refactor:` code refactoring
-- `chore:` maintenance
+Use conventional commits: `feat:`, `fix:`, `docs:`, `refactor:`, `chore:`
 
 ## Fork Workflow
 
@@ -160,30 +110,3 @@ git checkout insiders && git rebase main
 - `main` mirrors upstream exactly — never commit directly to main
 - `insiders` carries all experimental features rebased on main
 - Patches can be exported/applied via `mise run export-patches` / `mise run apply-patches`
-
-## CLI Parameters
-
-Handy supports command-line parameters on all platforms for integration with scripts, window managers, and autostart configurations.
-
-**Implementation files:** `cli.rs` (clap definitions), `main.rs` (parsing), `lib.rs` (applying overrides), `signal_handle.rs` (shared toggle logic)
-
-| Flag                     | Description                                                     |
-| ------------------------ | --------------------------------------------------------------- |
-| `--toggle-transcription` | Toggle recording on/off on a running instance                   |
-| `--toggle-post-process`  | Toggle recording with post-processing on/off                    |
-| `--cancel`               | Cancel the current operation on a running instance              |
-| `--start-hidden`         | Launch without showing the main window                          |
-| `--no-tray`              | Launch without the system tray icon                             |
-| `--debug`                | Enable debug mode with verbose (Trace) logging                  |
-
-CLI flags are runtime-only overrides — they do NOT modify persisted settings. Remote control flags work via `tauri_plugin_single_instance`.
-
-## Debug Mode
-
-Access debug features: `Cmd+Shift+D` (macOS) or `Ctrl+Shift+D` (Windows/Linux)
-
-## Platform Notes
-
-- **macOS**: Metal acceleration, accessibility permissions required
-- **Windows**: Vulkan acceleration, code signing
-- **Linux**: OpenBLAS + Vulkan, limited Wayland support, overlay disabled by default. Requires `libasound2-dev` for building.

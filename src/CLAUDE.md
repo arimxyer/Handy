@@ -20,6 +20,7 @@ Tauri frontend built with React, TypeScript, and Tailwind CSS v4.
 - `hooks/` — React hooks for settings, platform detection, drawer state
 - `i18n/` — Internationalization (i18next, 17 locales)
 - `lib/` — Constants and utility functions
+- `utils/` — Shared utility helpers
 
 ## Patterns
 

@@ -19,6 +19,8 @@ Tauri 2.x backend for Handy. All Tauri commands are defined in `commands/` and r
 - `audio_feedback.rs` — Start/stop recording sound playback
 - `apple_intelligence.rs` — macOS Apple Intelligence availability check
 - `utils.rs` — Shared utility functions
+- `helpers/` — Platform-specific helpers:
+  - `clamshell.rs` — Clamshell (closed-lid) mode detection for macOS microphone switching
 
 ## Patterns
 
