@@ -1,4 +1,6 @@
-use crate::managers::history::{HistoryEntry, HistoryManager};
+use crate::actions::post_process_transcription;
+use crate::managers::history::{HistoryEntry, HistoryManager, TranscriptionVersion};
+use crate::settings::LLMPrompt;
 use std::sync::Arc;
 use tauri::{AppHandle, State};
 
@@ -98,4 +100,160 @@ pub async fn update_recording_retention_period(
         .map_err(|e| e.to_string())?;
 
     Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub async fn change_history_post_process_enabled_setting(
+    app: AppHandle,
+    enabled: bool,
+) -> Result<(), String> {
+    let mut settings = crate::settings::get_settings(&app);
+    settings.history_post_process_enabled = enabled;
+    crate::settings::write_settings(&app, settings);
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub async fn post_process_history_entry(
+    app: AppHandle,
+    history_manager: State<'_, Arc<HistoryManager>>,
+    id: i64,
+    override_provider_id: Option<String>,
+    override_api_key: Option<String>,
+    override_model_id: Option<String>,
+    override_prompt_text: Option<String>,
+) -> Result<String, String> {
+    // Enforce three-level feature gate on the backend
+    let settings = crate::settings::get_settings(&app);
+    if !settings.experimental_enabled
+        || !settings.post_process_enabled
+        || !settings.history_post_process_enabled
+    {
+        return Err("HISTORY_POST_PROCESS_DISABLED".to_string());
+    }
+
+    // Get the history entry
+    let entry = history_manager
+        .get_entry_by_id(id)
+        .await
+        .map_err(|e| e.to_string())?
+        .ok_or_else(|| format!("History entry {} not found", id))?;
+
+    if entry.transcription_text.trim().is_empty() {
+        return Err("TRANSCRIPTION_EMPTY".to_string());
+    }
+
+    // Build effective settings by applying drawer overrides on top of persisted settings
+    let mut effective_settings = settings.clone();
+
+    if let Some(ref provider_id) = override_provider_id {
+        effective_settings.post_process_provider_id = provider_id.clone();
+    }
+
+    let effective_provider_id = effective_settings.post_process_provider_id.clone();
+
+    if let Some(ref api_key) = override_api_key {
+        effective_settings
+            .post_process_api_keys
+            .insert(effective_provider_id.clone(), api_key.clone());
+    }
+
+    if let Some(ref model_id) = override_model_id {
+        effective_settings
+            .post_process_models
+            .insert(effective_provider_id.clone(), model_id.clone());
+    }
+
+    // For prompt text override, inject a synthetic prompt into the settings
+    // so that post_process_transcription picks it up via the normal path.
+    if let Some(ref prompt_text) = override_prompt_text {
+        let synthetic_id = "__drawer_override__".to_string();
+        effective_settings.post_process_prompts.push(LLMPrompt {
+            id: synthetic_id.clone(),
+            name: "Drawer Override".to_string(),
+            prompt: prompt_text.clone(),
+        });
+        effective_settings.post_process_selected_prompt_id = Some(synthetic_id);
+    }
+
+    // Run post-processing with effective settings
+    let processed_text = post_process_transcription(&effective_settings, &entry.transcription_text)
+        .await
+        .ok_or_else(|| "POST_PROCESS_FAILED".to_string())?;
+
+    // Determine the prompt text that was used (for version history)
+    let effective_prompt_text = if let Some(ref prompt_text) = override_prompt_text {
+        prompt_text.clone()
+    } else {
+        effective_settings
+            .post_process_selected_prompt_id
+            .as_ref()
+            .and_then(|prompt_id| {
+                effective_settings
+                    .post_process_prompts
+                    .iter()
+                    .find(|p| &p.id == prompt_id)
+                    .map(|p| p.prompt.clone())
+            })
+            .unwrap_or_default()
+    };
+
+    // Save version and update entry atomically
+    let effective_model_id = effective_settings
+        .post_process_models
+        .get(&effective_provider_id)
+        .map(|s| s.as_str());
+    history_manager
+        .save_version_and_update(
+            id,
+            &processed_text,
+            &effective_prompt_text,
+            effective_model_id,
+        )
+        .map_err(|e| e.to_string())?;
+
+    Ok(processed_text)
+}
+
+#[tauri::command]
+#[specta::specta]
+pub async fn restore_version(
+    app: AppHandle,
+    history_manager: State<'_, Arc<HistoryManager>>,
+    entry_id: i64,
+    version_id: Option<i64>,
+) -> Result<(), String> {
+    // Enforce three-level feature gate on the backend
+    let settings = crate::settings::get_settings(&app);
+    if !settings.experimental_enabled
+        || !settings.post_process_enabled
+        || !settings.history_post_process_enabled
+    {
+        return Err("HISTORY_POST_PROCESS_DISABLED".to_string());
+    }
+
+    history_manager
+        .restore_version(entry_id, version_id)
+        .map_err(|e| {
+            let msg = e.to_string();
+            if msg.contains("VERSION_NOT_FOUND") {
+                "VERSION_NOT_FOUND".to_string()
+            } else {
+                msg
+            }
+        })
+}
+
+#[tauri::command]
+#[specta::specta]
+pub async fn get_transcription_versions(
+    _app: AppHandle,
+    history_manager: State<'_, Arc<HistoryManager>>,
+    entry_id: i64,
+) -> Result<Vec<TranscriptionVersion>, String> {
+    history_manager
+        .get_versions(entry_id)
+        .map_err(|e| e.to_string())
 }

@@ -123,6 +123,8 @@ const settingUpdaters: {
   history_limit: (value) => commands.updateHistoryLimit(value as number),
   post_process_enabled: (value) =>
     commands.changePostProcessEnabledSetting(value as boolean),
+  history_post_process_enabled: (value) =>
+    commands.changeHistoryPostProcessEnabledSetting(value as boolean),
   post_process_selected_prompt_id: (value) =>
     commands.setPostProcessSelectedPrompt(value as string),
   mute_while_recording: (value) =>
@@ -135,6 +137,12 @@ const settingUpdaters: {
     commands.changeExperimentalEnabledSetting(value as boolean),
   show_tray_icon: (value) =>
     commands.changeShowTrayIconSetting(value as boolean),
+  insights_provider_id: (value) =>
+    commands.changeInsightsProviderId(value as string),
+  insights_entry_count: (value) =>
+    commands.changeInsightsEntryCount(value as number),
+  insights_use_all_history: (value) =>
+    commands.changeInsightsUseAllHistory(value as boolean),
 };
 
 export const useSettingsStore = create<SettingsStore>()(

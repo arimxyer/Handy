@@ -172,19 +172,23 @@ function App() {
         }}
       />
       {/* Main content area that takes remaining space */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex min-h-0 overflow-hidden">
         <Sidebar
           activeSection={currentSection}
           onSectionChange={setCurrentSection}
         />
-        {/* Scrollable content area */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <div className="flex-1 overflow-y-auto">
+        {/* Scrollable content area + drawer portal */}
+        <div className="flex-1 flex min-h-0 overflow-hidden">
+          <div className="flex-1 min-h-0 overflow-y-auto">
             <div className="flex flex-col items-center p-4 gap-4">
               <AccessibilityPermissions />
               {renderSettingsContent(currentSection)}
             </div>
           </div>
+          <div
+            id="drawer-portal"
+            className="relative h-full min-h-0 w-80 flex-shrink-0 overflow-hidden [&:empty]:w-0"
+          />
         </div>
       </div>
       {/* Fixed footer at bottom */}

@@ -5,6 +5,7 @@ export { DebugSettings } from "./debug/DebugSettings";
 export { HistorySettings } from "./history/HistorySettings";
 export { AboutSettings } from "./about/AboutSettings";
 export { PostProcessingSettings } from "./post-processing/PostProcessingSettings";
+export { InsightsSettings } from "./insights/InsightsSettings";
 export { ModelsSettings } from "./models/ModelsSettings";
 
 // Individual setting components

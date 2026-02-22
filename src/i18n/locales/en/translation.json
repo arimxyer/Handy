@@ -13,6 +13,7 @@
     "advanced": "Advanced",
     "postProcessing": "Post Process",
     "history": "History",
+    "insights": "Insights",
     "debug": "Debug",
     "about": "About"
   },
@@ -390,10 +391,125 @@
       "loading": "Loading history...",
       "empty": "No transcriptions yet. Start recording to build your history!",
       "copyToClipboard": "Copy transcription to clipboard",
+      "copyOriginal": "Copy original transcription",
+      "copyEnhanced": "Copy enhanced transcription",
       "save": "Save transcription",
       "unsave": "Remove from saved",
       "delete": "Delete entry",
-      "deleteError": "Failed to delete entry. Please try again."
+      "deleteError": "Failed to delete entry. Please try again.",
+      "postProcess": "Enhance transcription",
+      "postProcessError": "Post-processing failed. Check your provider settings.",
+      "postProcessDisabled": "History post-processing is not enabled.",
+      "postProcessEmptyText": "Transcription text is empty.",
+      "postProcessNotConfigured": "Set up post-processing in settings first",
+      "showOriginal": "Show original",
+      "showEnhanced": "Show enhanced",
+      "versionHistory": "Version History",
+      "versionCount": "({{count}} versions)",
+      "activeVersion": "Active",
+      "originalVersion": "Original transcription",
+      "restore": "Restore",
+      "confirmRestore": "Confirm restore?",
+      "restoreError": "Failed to restore version",
+      "versionNotFound": "Version not found",
+      "showMore": "Show more",
+      "showLess": "Show less",
+      "promptLabel": "Prompt",
+      "drawer": {
+        "title": "Post-Process Config",
+        "description": "Override model and prompt for history post-processing. Changes are temporary unless saved.",
+        "provider": "Provider",
+        "apiKey": "API Key",
+        "apiKeyPlaceholder": "Enter API key",
+        "model": "Model",
+        "modelPlaceholder": "Enter model name",
+        "prompt": "Prompt",
+        "promptText": "Prompt Text",
+        "promptTextPlaceholder": "Edit the prompt instructions...",
+        "newPrompt": "+ New",
+        "saveAsDefault": "Save as Default",
+        "saveAsDefaultDescription": "Persist to global settings",
+        "compareModels": "Compare Models",
+        "compareModelsDescription": "Run multiple models in parallel",
+        "compareNote": "Each model runs independently. Pick your favorite from the results.",
+        "addModel": "+ Add Model",
+        "addModelProvider": "Provider",
+        "addModelBaseUrl": "Base URL",
+        "addModelApiKey": "API Key",
+        "addModelModel": "Model",
+        "addModelCancel": "Cancel",
+        "addModelAdd": "Add",
+        "primary": "Primary"
+      }
+    },
+    "insights": {
+      "title": "Speech Insights",
+      "description": "Analyze your transcription history for speech patterns and get prompt improvement suggestions.",
+      "api": {
+        "title": "API Configuration",
+        "description": "Configure a separate model for analysis. Uses post-process model if left empty.",
+        "provider": "Provider",
+        "apiKey": "API Key",
+        "apiKeyPlaceholder": "Enter API key",
+        "model": "Model",
+        "modelPlaceholder": "Enter model name"
+      },
+      "scope": {
+        "title": "Analysis Scope",
+        "entryCount": "Number of entries",
+        "useAllHistory": "Analyze all history",
+        "tokenEstimate": "~{{count}} tokens will be sent for analysis"
+      },
+      "analyze": "Analyze Speech Patterns",
+      "analyzing": "Analyzing...",
+      "processingMessage": "Analyzing your speech patterns across transcriptions...",
+      "noResults": "Run an analysis to see speech pattern insights.",
+      "results": {
+        "title": "Analysis Results",
+        "model": "Model",
+        "entriesAnalyzed": "{{count}} entries analyzed",
+        "ranAt": "Ran"
+      },
+      "badges": {
+        "model": "Model",
+        "entries": "Entries",
+        "range": "Range",
+        "analyzed": "Analyzed"
+      },
+      "severity": {
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low"
+      },
+      "frequency": {
+        "very common": "Very Common",
+        "common": "Common",
+        "occasional": "Occasional"
+      },
+      "sections": {
+        "promptSuggestion": "Prompt Suggestion",
+        "patterns": "Patterns",
+        "examples": "Examples",
+        "useAsPrompt": "Use as Prompt",
+        "copied": "Copied!"
+      },
+      "history": {
+        "label": "Past analyses",
+        "clear": "Clear history"
+      },
+      "actions": {
+        "createPrompt": "Create Prompt from Insights",
+        "enhancePrompt": "Enhance Default Prompt",
+        "enhancePreviewTitle": "Preview enhanced prompt",
+        "saveEnhancedPrompt": "Save as New Prompt",
+        "generatedPromptName": "Insights-Generated Prompt",
+        "promptCreated": "Prompt created! Find it in the Post Process settings."
+      },
+      "errors": {
+        "disabled": "Insights requires experimental and post-process features enabled.",
+        "failed": "Analysis failed. Please check your API configuration.",
+        "empty": "No transcription history to analyze."
+      }
     },
     "debug": {
       "title": "Debug",
@@ -443,6 +559,10 @@
       "postProcessingToggle": {
         "label": "Post Processing",
         "description": "Enable AI-powered text refinement after transcription"
+      },
+      "historyPostProcessToggle": {
+        "label": "Post-process History",
+        "description": "Add a button to enhance past transcriptions from the History tab"
       },
       "muteWhileRecording": {
         "label": "Mute While Recording",
