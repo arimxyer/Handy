@@ -1,4 +1,11 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+  useLayoutEffect,
+} from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { Info, Plus, RefreshCcw, Sparkles, X } from "lucide-react";
@@ -69,6 +76,17 @@ export const PostProcessDrawer: React.FC<PostProcessDrawerProps> = ({
   const [newBaseUrl, setNewBaseUrl] = useState("");
   const [newApiKey, setNewApiKey] = useState("");
   const [newModel, setNewModel] = useState("");
+  const bodyScrollRef = useRef<HTMLDivElement>(null);
+
+  const preserveBodyScroll = useCallback((update: () => void) => {
+    const previousScrollTop = bodyScrollRef.current?.scrollTop ?? 0;
+    update();
+    requestAnimationFrame(() => {
+      const body = bodyScrollRef.current;
+      if (!body) return;
+      body.scrollTop = previousScrollTop;
+    });
+  }, []);
 
   // Pre-populate API key when newProvider changes
   useEffect(() => {
@@ -86,6 +104,18 @@ export const PostProcessDrawer: React.FC<PostProcessDrawerProps> = ({
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, close]);
+
+  useLayoutEffect(() => {
+    if (!isOpen) return;
+    const body = bodyScrollRef.current;
+    if (!body) return;
+    body.scrollTop = 0;
+    requestAnimationFrame(() => {
+      if (bodyScrollRef.current) {
+        bodyScrollRef.current.scrollTop = 0;
+      }
+    });
+  }, [isOpen]);
 
   // Determine the effective provider for the drawer
   const drawerProviderId =
@@ -233,7 +263,11 @@ export const PostProcessDrawer: React.FC<PostProcessDrawerProps> = ({
       </div>
 
       {/* Body */}
-      <div className="flex-1 min-h-0 overflow-y-auto px-4 py-4 space-y-4">
+      <div
+        ref={bodyScrollRef}
+        className="flex-1 min-h-0 overflow-y-auto px-4 py-4 space-y-4"
+        style={{ overflowAnchor: "none" }}
+      >
         {/* Description */}
         <p className="text-xs text-text/60">
           {t("settings.history.drawer.description")}
@@ -385,7 +419,9 @@ export const PostProcessDrawer: React.FC<PostProcessDrawerProps> = ({
               type="checkbox"
               className="sr-only peer"
               checked={saveAsDefault}
-              onChange={(e) => setSaveAsDefault(e.target.checked)}
+              onChange={(e) =>
+                preserveBodyScroll(() => setSaveAsDefault(e.target.checked))
+              }
             />
             <div className="relative w-9 h-5 bg-mid-gray/20 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-logo-primary rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-background-ui" />
           </label>
@@ -406,7 +442,9 @@ export const PostProcessDrawer: React.FC<PostProcessDrawerProps> = ({
               type="checkbox"
               className="sr-only peer"
               checked={compareEnabled}
-              onChange={(e) => setCompareEnabled(e.target.checked)}
+              onChange={(e) =>
+                preserveBodyScroll(() => setCompareEnabled(e.target.checked))
+              }
             />
             <div className="relative w-9 h-5 bg-mid-gray/20 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-logo-primary rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-background-ui" />
           </label>
