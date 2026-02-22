@@ -2,6 +2,15 @@ import { useState, useCallback } from "react";
 import { useSettings } from "./useSettings";
 import type { LLMPrompt } from "@/bindings";
 
+export interface CompareModel {
+  id: string;
+  provider: string;
+  model: string;
+  apiKey: string;
+  baseUrl: string;
+  enabled: boolean;
+}
+
 export interface DrawerOverrides {
   providerId: string | null;
   apiKey: string | null;
@@ -24,6 +33,8 @@ export function usePostProcessDrawer() {
   const [overrides, setOverrides] = useState<DrawerOverrides>({
     ...EMPTY_OVERRIDES,
   });
+  const [compareEnabled, setCompareEnabled] = useState(false);
+  const [compareModels, setCompareModels] = useState<CompareModel[]>([]);
 
   // Effective values: override if set, else fall back to global setting
   const effectiveProviderId =
@@ -51,6 +62,8 @@ export function usePostProcessDrawer() {
 
   const resetOverrides = useCallback(() => {
     setOverrides({ ...EMPTY_OVERRIDES });
+    setCompareEnabled(false);
+    setCompareModels([]);
   }, []);
 
   const open = useCallback(() => setIsOpen(true), []);
@@ -71,5 +84,9 @@ export function usePostProcessDrawer() {
     effectivePromptId,
     effectivePromptText,
     prompts,
+    compareEnabled,
+    setCompareEnabled,
+    compareModels,
+    setCompareModels,
   };
 }

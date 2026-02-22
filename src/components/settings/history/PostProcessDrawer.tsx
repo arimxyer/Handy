@@ -13,17 +13,11 @@ import { ModelSelect } from "../PostProcessingSettingsApi/ModelSelect";
 import { BaseUrlField } from "../PostProcessingSettingsApi/BaseUrlField";
 import { usePostProcessProviderState } from "../PostProcessingSettingsApi/usePostProcessProviderState";
 import type { LLMPrompt } from "@/bindings";
-import type { DrawerOverrides } from "@/hooks/usePostProcessDrawer";
+import type {
+  CompareModel,
+  DrawerOverrides,
+} from "@/hooks/usePostProcessDrawer";
 import type { ModelOption } from "../PostProcessingSettingsApi/types";
-
-interface CompareModel {
-  id: string;
-  provider: string;
-  model: string;
-  apiKey: string;
-  baseUrl: string;
-  enabled: boolean;
-}
 
 interface PostProcessDrawerProps {
   isOpen: boolean;
@@ -38,6 +32,10 @@ interface PostProcessDrawerProps {
   effectivePromptId: string;
   effectivePromptText: string;
   prompts: LLMPrompt[];
+  compareEnabled: boolean;
+  setCompareEnabled: (enabled: boolean) => void;
+  compareModels: CompareModel[];
+  setCompareModels: React.Dispatch<React.SetStateAction<CompareModel[]>>;
 }
 
 export const PostProcessDrawer: React.FC<PostProcessDrawerProps> = ({
@@ -50,6 +48,10 @@ export const PostProcessDrawer: React.FC<PostProcessDrawerProps> = ({
   effectivePromptId,
   effectivePromptText,
   prompts,
+  compareEnabled,
+  setCompareEnabled,
+  compareModels,
+  setCompareModels,
 }) => {
   const { t } = useTranslation();
   const {
@@ -62,8 +64,6 @@ export const PostProcessDrawer: React.FC<PostProcessDrawerProps> = ({
   const providerState = usePostProcessProviderState();
 
   const [saveAsDefault, setSaveAsDefault] = useState(false);
-  const [compareEnabled, setCompareEnabled] = useState(false);
-  const [compareModels, setCompareModels] = useState<CompareModel[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [newProvider, setNewProvider] = useState("");
   const [newBaseUrl, setNewBaseUrl] = useState("");

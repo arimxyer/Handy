@@ -399,6 +399,7 @@
       "deleteError": "Failed to delete entry. Please try again.",
       "postProcess": "Enhance transcription",
       "postProcessError": "Post-processing failed. Check your provider settings.",
+      "compareModelFailed": "Comparison model {{model}} failed.",
       "postProcessDisabled": "History post-processing is not enabled.",
       "postProcessEmptyText": "Transcription text is empty.",
       "postProcessNotConfigured": "Set up post-processing in settings first",

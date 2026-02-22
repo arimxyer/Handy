@@ -19,7 +19,10 @@ import { formatDateTime } from "@/utils/dateFormat";
 import { useOsType } from "@/hooks/useOsType";
 import { toast } from "sonner";
 import { useSettings } from "@/hooks/useSettings";
-import { usePostProcessDrawer } from "@/hooks/usePostProcessDrawer";
+import {
+  usePostProcessDrawer,
+  type CompareModel,
+} from "@/hooks/usePostProcessDrawer";
 import { VersionHistory } from "./VersionHistory";
 import { PostProcessDrawer } from "./PostProcessDrawer";
 
@@ -193,6 +196,8 @@ export const HistorySettings: React.FC = () => {
           showPostProcess={historyPostProcessEnabled}
           postProcessConfigured={postProcessConfigured}
           drawerOverrides={resolvedDrawerOverrides}
+          compareEnabled={drawer.compareEnabled}
+          compareModels={drawer.compareModels}
         />
       ))}
     </div>
@@ -252,6 +257,8 @@ interface HistoryEntryProps {
   showPostProcess: boolean;
   postProcessConfigured: boolean;
   drawerOverrides?: ResolvedDrawerOverrides;
+  compareEnabled: boolean;
+  compareModels: CompareModel[];
 }
 
 const HistoryEntryComponent: React.FC<HistoryEntryProps> = ({
@@ -262,6 +269,8 @@ const HistoryEntryComponent: React.FC<HistoryEntryProps> = ({
   showPostProcess,
   postProcessConfigured,
   drawerOverrides,
+  compareEnabled,
+  compareModels,
 }) => {
   const { t, i18n } = useTranslation();
   const [showCopied, setShowCopied] = useState(false);
@@ -299,6 +308,7 @@ const HistoryEntryComponent: React.FC<HistoryEntryProps> = ({
   const handlePostProcess = async () => {
     setIsProcessing(true);
     try {
+      // Run primary model
       const result = await commands.postProcessHistoryEntry(
         entry.id,
         drawerOverrides?.providerId ?? null,
@@ -317,6 +327,32 @@ const HistoryEntryComponent: React.FC<HistoryEntryProps> = ({
         const key =
           errorKey[result.error] ?? "settings.history.postProcessError";
         toast.error(t(key));
+      }
+
+      // Run comparison models (non-fatal — warn on failure, don't block primary)
+      if (compareEnabled) {
+        const enabledModels = compareModels.filter((cm) => cm.enabled);
+        for (const cm of enabledModels) {
+          try {
+            await commands.postProcessHistoryEntry(
+              entry.id,
+              cm.provider,
+              cm.apiKey || null,
+              cm.model,
+              drawerOverrides?.promptText ?? null,
+            );
+          } catch (error) {
+            console.error(
+              `Comparison model ${cm.provider}/${cm.model} failed:`,
+              error,
+            );
+            toast.warning(
+              t("settings.history.compareModelFailed", {
+                model: `${cm.provider}/${cm.model}`,
+              }),
+            );
+          }
+        }
       }
     } catch (error) {
       toast.error(t("settings.history.postProcessError"));
