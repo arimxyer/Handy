@@ -1,10 +1,6 @@
 # Project-specific mise configuration for Handy (insiders fork)
 
-[tools]
-bun = "latest"
-node = "20"
-
-# === Development Tasks ===
+# === Development ===
 
 [tasks.dev]
 description = "Start Tauri development server"
@@ -14,7 +10,7 @@ run = "bun run tauri dev"
 description = "Build for production"
 run = "bun run tauri build"
 
-# === Code Quality ===
+# === Code Quality (Frontend) ===
 
 [tasks.lint]
 description = "Lint frontend code"
@@ -32,6 +28,28 @@ run = "bun run format"
 description = "Check formatting without changes"
 run = "bun run format:check"
 
+# === Code Quality (Backend) ===
+
+[tasks.clippy]
+description = "Run cargo clippy on backend"
+run = "cd src-tauri && cargo clippy"
+
+[tasks."cargo:check"]
+description = "Fast compile check without building"
+run = "cd src-tauri && cargo check"
+
+[tasks."cargo:fmt"]
+description = "Format Rust code"
+run = "cd src-tauri && cargo fmt"
+
+[tasks."cargo:test"]
+description = "Run Rust unit tests"
+run = "cd src-tauri && cargo test"
+
+[tasks."cargo:fetch"]
+description = "Download Rust dependencies without compiling"
+run = "cd src-tauri && cargo fetch"
+
 # === Testing ===
 
 [tasks.test]
@@ -47,10 +65,6 @@ run = "bun run test:playwright:ui"
 [tasks."check:translations"]
 description = "Check translation file consistency"
 run = "bun run check:translations"
-
-[tasks.clippy]
-description = "Run cargo clippy on backend"
-run = "cd src-tauri && cargo clippy"
 
 # === Fork Workflow ===
 
