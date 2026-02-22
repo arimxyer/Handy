@@ -2,27 +2,41 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+> **Fork:** This is the [arimxyer/Handy](https://github.com/arimxyer/Handy) insiders fork of [cjpais/Handy](https://github.com/cjpais/Handy). `main` mirrors upstream; `insiders` carries our extensions.
+
 ## Development Commands
 
-**Prerequisites:** [Rust](https://rustup.rs/) (latest stable), [Bun](https://bun.sh/)
+**Prerequisites:** [Rust](https://rustup.rs/) (latest stable), [Bun](https://bun.sh/), [mise](https://mise.jdx.dev/)
 
 ```bash
 # Install dependencies
-bun install
+mise run bun install
 
-# Run in development mode
-bun run tauri dev
-# If cmake error on macOS:
-CMAKE_POLICY_VERSION_MINIMUM=3.5 bun run tauri dev
+# Development
+mise run dev                # Start Tauri dev server
+mise run build              # Build for production
 
-# Build for production
-bun run tauri build
+# Code quality
+mise run lint               # ESLint for frontend
+mise run lint:fix           # ESLint with auto-fix
+mise run format             # Prettier + cargo fmt
+mise run format:check       # Check formatting without changes
+mise run clippy             # Cargo clippy on backend
+mise run cargo:check        # Fast compile check (no build)
+mise run cargo:fmt          # Format Rust code
+mise run cargo:test         # Run Rust unit tests
 
-# Linting and formatting (run before committing)
-bun run lint              # ESLint for frontend
-bun run lint:fix          # ESLint with auto-fix
-bun run format            # Prettier + cargo fmt
-bun run format:check      # Check formatting without changes
+# Testing
+mise run test               # Playwright tests
+mise run test:ui            # Playwright tests with UI
+
+# Fork workflow
+mise run sync-upstream      # Sync main with upstream
+mise run export-patches     # Export insiders patches
+mise run apply-patches      # Apply patches to current branch
+
+# All available tasks
+mise tasks
 ```
 
 **Model Setup (Required for Development):**
@@ -38,28 +52,44 @@ Handy is a cross-platform desktop speech-to-text app built with Tauri 2.x (Rust 
 
 ### Backend Structure (src-tauri/src/)
 
-- `lib.rs` - Main entry point, Tauri setup, manager initialization
+- `lib.rs` - Main entry point, Tauri setup, plugin/manager initialization
+- `main.rs` - CLI argument parsing before Tauri launch
+- `settings.rs` - Application settings (AppSettings struct, persistence)
 - `managers/` - Core business logic:
   - `audio.rs` - Audio recording and device management
   - `model.rs` - Model downloading and management
   - `transcription.rs` - Speech-to-text processing pipeline
-  - `history.rs` - Transcription history storage
+  - `history.rs` - Transcription history storage (SQLite)
+- `commands/` - Tauri command handlers:
+  - `audio.rs`, `history.rs`, `models.rs`, `transcription.rs` - Core commands
+  - `insights.rs` - Speech pattern analysis commands (insiders)
 - `audio_toolkit/` - Low-level audio processing:
   - `audio/` - Device enumeration, recording, resampling
   - `vad/` - Voice Activity Detection (Silero VAD)
-- `commands/` - Tauri command handlers for frontend communication
-- `shortcut.rs` - Global keyboard shortcut handling
-- `settings.rs` - Application settings management
+- `actions.rs` - Post-transcription actions (clipboard, paste, post-process)
+- `clipboard.rs` - Clipboard operations
+- `cli.rs` - CLI argument definitions (clap derive)
+- `input.rs` - Text input/typing simulation
+- `llm_client.rs` - OpenAI-compatible LLM client for post-processing
+- `overlay.rs` - Recording overlay window management
+- `shortcut/` - Global keyboard shortcut handling
+- `signal_handle.rs` - Unix signal handlers for remote control
+- `transcription_coordinator.rs` - Orchestrates recording → transcription → output
+- `tray.rs` - System tray menu and icon management
 
 ### Frontend Structure (src/)
 
 - `App.tsx` - Main component with onboarding flow
+- `bindings.ts` - Auto-generated Tauri type bindings (via tauri-specta)
 - `components/settings/` - Settings UI (35+ files)
+  - `insights/` - Speech insights UI (insiders)
+  - `history/` - History settings, version viewer, post-process drawer (insiders)
 - `components/model-selector/` - Model management interface
 - `components/onboarding/` - First-run experience
-- `hooks/useSettings.ts`, `useModels.ts` - State management hooks
+- `hooks/useSettings.ts` - Settings state management hook
+- `hooks/useOsType.ts` - Platform detection hook
+- `hooks/usePostProcessDrawer.ts` - Post-process drawer state (insiders)
 - `stores/settingsStore.ts` - Zustand store for settings
-- `bindings.ts` - Auto-generated Tauri type bindings (via tauri-specta)
 - `overlay/` - Recording overlay window code
 
 ### Key Patterns
@@ -72,6 +102,17 @@ Handy is a cross-platform desktop speech-to-text app built with Tauri 2.x (Rust 
 
 **State Flow:** Zustand → Tauri Command → Rust State → Persistence (tauri-plugin-store)
 
+## Insiders Features
+
+These features exist on the `insiders` branch only:
+
+- **History post-processing** — Re-run LLM post-processing on past transcriptions with version tracking
+- **Version history viewer** — Browse and restore previous versions of any transcription
+- **Post-process config drawer** — Compare results across different models
+- **Speech pattern insights** — Analyze speech patterns with structured LLM output, history, and prompt enhancement
+
+Key insiders files: `commands/insights.rs`, `llm_client.rs`, `InsightsSettings.tsx`, `useInsightsProviderState.ts`, `VersionHistory.tsx`, `PostProcessDrawer.tsx`, `usePostProcessDrawer.ts`
+
 ## Internationalization (i18n)
 
 All user-facing strings must use i18next translations. ESLint enforces this (no hardcoded strings in JSX).
@@ -81,24 +122,13 @@ All user-facing strings must use i18next translations. ESLint enforces this (no 
 1. Add key to `src/i18n/locales/en/translation.json`
 2. Use in component: `const { t } = useTranslation(); t('key.path')`
 
-**File structure:**
-
-```
-src/i18n/
-├── index.ts           # i18n setup
-├── languages.ts       # Language metadata
-└── locales/
-    ├── en/translation.json  # English (source)
-    ├── es/translation.json  # Spanish
-    ├── fr/translation.json  # French
-    └── vi/translation.json  # Vietnamese
-```
+17 supported locales: ar, cs, de, en (source), es, fr, it, ja, ko, pl, pt, ru, tr, uk, vi, zh, zh-TW
 
 ## Code Style
 
 **Rust:**
 
-- Run `cargo fmt` and `cargo clippy` before committing
+- Run `mise run cargo:fmt` and `mise run clippy` before committing
 - Handle errors explicitly (avoid unwrap in production)
 - Use descriptive names, add doc comments for public APIs
 
@@ -119,34 +149,34 @@ Use conventional commits:
 - `refactor:` code refactoring
 - `chore:` maintenance
 
+## Fork Workflow
+
+```bash
+# Sync main with upstream, then rebase insiders
+mise run sync-upstream
+git checkout insiders && git rebase main
+```
+
+- `main` mirrors upstream exactly — never commit directly to main
+- `insiders` carries all experimental features rebased on main
+- Patches can be exported/applied via `mise run export-patches` / `mise run apply-patches`
+
 ## CLI Parameters
 
 Handy supports command-line parameters on all platforms for integration with scripts, window managers, and autostart configurations.
 
-**Implementation files:**
+**Implementation files:** `cli.rs` (clap definitions), `main.rs` (parsing), `lib.rs` (applying overrides), `signal_handle.rs` (shared toggle logic)
 
-- `src-tauri/src/cli.rs` - CLI argument definitions (clap derive)
-- `src-tauri/src/main.rs` - Argument parsing before Tauri launch
-- `src-tauri/src/lib.rs` - Applying CLI overrides (setup closure + single-instance callback)
-- `src-tauri/src/signal_handle.rs` - `send_transcription_input()` reusable function
+| Flag                     | Description                                                     |
+| ------------------------ | --------------------------------------------------------------- |
+| `--toggle-transcription` | Toggle recording on/off on a running instance                   |
+| `--toggle-post-process`  | Toggle recording with post-processing on/off                    |
+| `--cancel`               | Cancel the current operation on a running instance              |
+| `--start-hidden`         | Launch without showing the main window                          |
+| `--no-tray`              | Launch without the system tray icon                             |
+| `--debug`                | Enable debug mode with verbose (Trace) logging                  |
 
-**Available flags:**
-
-| Flag                     | Description                                                                        |
-| ------------------------ | ---------------------------------------------------------------------------------- |
-| `--toggle-transcription` | Toggle recording on/off on a running instance (via `tauri_plugin_single_instance`) |
-| `--toggle-post-process`  | Toggle recording with post-processing on/off on a running instance                 |
-| `--cancel`               | Cancel the current operation on a running instance                                 |
-| `--start-hidden`         | Launch without showing the main window (tray icon still visible)                   |
-| `--no-tray`              | Launch without the system tray icon (closing window quits the app)                 |
-| `--debug`                | Enable debug mode with verbose (Trace) logging                                     |
-
-**Key design decisions:**
-
-- CLI flags are runtime-only overrides — they do NOT modify persisted settings
-- Remote control flags (`--toggle-transcription`, `--toggle-post-process`, `--cancel`) work by launching a second instance that sends its args to the running instance via `tauri_plugin_single_instance`, then exits
-- `send_transcription_input()` in `signal_handle.rs` is shared between signal handlers and CLI to avoid code duplication
-- `CliArgs` is stored in Tauri managed state (`.manage()`) so it's accessible in `on_window_event` and other handlers
+CLI flags are runtime-only overrides — they do NOT modify persisted settings. Remote control flags work via `tauri_plugin_single_instance`.
 
 ## Debug Mode
 
@@ -156,4 +186,4 @@ Access debug features: `Cmd+Shift+D` (macOS) or `Ctrl+Shift+D` (Windows/Linux)
 
 - **macOS**: Metal acceleration, accessibility permissions required
 - **Windows**: Vulkan acceleration, code signing
-- **Linux**: OpenBLAS + Vulkan, limited Wayland support, overlay disabled by default
+- **Linux**: OpenBLAS + Vulkan, limited Wayland support, overlay disabled by default. Requires `libasound2-dev` for building.
