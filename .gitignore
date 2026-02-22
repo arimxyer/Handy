@@ -41,3 +41,6 @@ blob-report/
 # Fork workflow
 patches/
 .worktrees/
+
+# Mise local overrides
+mise.local.toml

@@ -1,3 +1,59 @@
+# Project-specific mise configuration for Handy (insiders fork)
+
+[tools]
+bun = "latest"
+node = "20"
+
+# === Development Tasks ===
+
+[tasks.dev]
+description = "Start Tauri development server"
+run = "bun run tauri dev"
+
+[tasks.build]
+description = "Build for production"
+run = "bun run tauri build"
+
+# === Code Quality ===
+
+[tasks.lint]
+description = "Lint frontend code"
+run = "bun run lint"
+
+[tasks."lint:fix"]
+description = "Lint frontend with auto-fix"
+run = "bun run lint:fix"
+
+[tasks.format]
+description = "Format all code (Prettier + cargo fmt)"
+run = "bun run format"
+
+[tasks."format:check"]
+description = "Check formatting without changes"
+run = "bun run format:check"
+
+# === Testing ===
+
+[tasks.test]
+description = "Run Playwright tests"
+run = "bun run test:playwright"
+
+[tasks."test:ui"]
+description = "Run Playwright tests with UI"
+run = "bun run test:playwright:ui"
+
+# === Utilities ===
+
+[tasks."check:translations"]
+description = "Check translation file consistency"
+run = "bun run check:translations"
+
+[tasks.clippy]
+description = "Run cargo clippy on backend"
+run = "cd src-tauri && cargo clippy"
+
+# === Fork Workflow ===
+
 [tasks.export-patches]
 description = "Export insiders patches relative to main"
 run = "git format-patch main --output-directory patches/"
@@ -5,3 +61,14 @@ run = "git format-patch main --output-directory patches/"
 [tasks.apply-patches]
 description = "Apply exported patches to current branch"
 run = "git am patches/*.patch"
+
+[tasks.sync-upstream]
+description = "Sync main with upstream and rebase insiders"
+run = """
+git fetch upstream
+git checkout main
+git merge upstream/main
+git push origin main
+git checkout insiders
+echo 'Main synced. Run: git rebase main'
+"""
