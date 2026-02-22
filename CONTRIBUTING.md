@@ -1,5 +1,7 @@
 # Contributing to Handy
 
+> **Fork notice:** This is the [arimxyer/Handy](https://github.com/arimxyer/Handy) insiders fork. For contributing to the upstream project, see [cjpais/Handy](https://github.com/cjpais/Handy). The guidelines below are from upstream and still apply to code style and patterns.
+
 Thank you for your interest in contributing to Handy! This guide will help you get started with contributing to this open source speech-to-text application.
 
 ## 📖 Philosophy

@@ -1,4 +1,6 @@
-# Handy
+# Handy (Insiders)
+
+> **Fork notice:** This is an experimental fork of [cjpais/Handy](https://github.com/cjpais/Handy) with additional features. The `main` branch mirrors upstream; the `insiders` branch contains our extensions. See [Insiders Features](#insiders-features) below.
 
 [![Discord](https://img.shields.io/badge/Discord-%235865F2.svg?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/invite/WVBeWsNXK4)
 
@@ -374,6 +376,27 @@ Handy can auto-discover custom Whisper GGML models placed in the `models` direct
 5. **Join the discussion** - reach out at [contact@handy.computer](mailto:contact@handy.computer)
 
 The goal is to create both a useful tool and a foundation for others to build upon—a well-patterned, simple codebase that serves the community.
+
+## Insiders Features
+
+The `insiders` branch adds the following experimental features on top of upstream Handy:
+
+- **History post-processing** — Re-run LLM post-processing on past transcriptions with version tracking
+- **Version history viewer** — Browse and restore previous versions of any transcription
+- **Post-process config drawer** — Compare results across different models side-by-side
+- **Speech pattern insights** — Analyze your speech patterns with structured LLM output, with history tracking and prompt enhancement
+
+### Fork Workflow
+
+```bash
+# Sync main with upstream
+mise run sync-upstream
+
+# Rebase insiders onto updated main
+git checkout insiders && git rebase main
+```
+
+See `mise tasks` for all available project tasks.
 
 ## Sponsors
 

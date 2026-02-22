@@ -1,5 +1,28 @@
 # Changelog
 
+## Insiders (unreleased)
+
+Based on upstream v0.7.7.
+
+### Added
+
+- History post-processing with version tracking for transcriptions
+- Version history viewer with restore capability
+- Post-process configuration drawer with model comparison scaffold
+- Speech pattern insights with structured LLM output and analysis history
+- Insights prompt enhancement (combine default prompt with analysis results)
+- Per-section prompt creation from insight analysis results
+- Project mise.toml with dev, build, lint, format, test, and fork workflow tasks
+
+### Changed
+
+- `insights_last_result` replaced with `insights_history` (Vec, max 10 entries)
+- Settings schema extended with insights provider, API keys, and model fields
+
+---
+
+> Upstream changelog below. See [cjpais/Handy releases](https://github.com/cjpais/Handy/releases) for the latest upstream changes.
+
 ## [0.3.0] - 2025-07-11
 
 ### Added
