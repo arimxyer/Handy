@@ -179,7 +179,7 @@ function App() {
         />
         {/* Scrollable content area + drawer portal */}
         <div className="flex-1 flex min-h-0 overflow-hidden">
-          <div className="flex-1 min-h-0 overflow-y-auto">
+          <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
             <div className="flex flex-col items-center p-4 gap-4">
               <AccessibilityPermissions />
               {renderSettingsContent(currentSection)}

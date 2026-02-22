@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { Info, Plus, RefreshCcw, Sparkles, X } from "lucide-react";
 import { useSettings } from "@/hooks/useSettings";
-import { Dropdown, Textarea } from "@/components/ui";
+import { Textarea } from "@/components/ui";
 import { Button } from "@/components/ui/Button";
 import { ResetButton } from "@/components/ui/ResetButton";
 import { Input } from "@/components/ui/Input";
@@ -333,12 +333,27 @@ export const PostProcessDrawer: React.FC<PostProcessDrawerProps> = ({
               {t("settings.history.drawer.newPrompt")}
             </Button>
           </div>
-          <Dropdown
-            options={promptOptions}
-            selectedValue={effectivePromptId || null}
-            onSelect={handlePromptSelect}
-            className="w-full"
-          />
+          <select
+            value={effectivePromptId || ""}
+            onChange={(e) => handlePromptSelect(e.target.value)}
+            className="w-full px-2 py-1.5 text-sm font-semibold text-text bg-mid-gray/10 border border-mid-gray/80 rounded-md hover:bg-logo-primary/10 hover:border-logo-primary transition-all duration-150 cursor-pointer appearance-none"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E")`,
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "right 0.5rem center",
+              backgroundSize: "1rem",
+              paddingRight: "2rem",
+            }}
+          >
+            <option value="" disabled>
+              {t("settings.history.drawer.selectPrompt")}
+            </option>
+            {promptOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Prompt text */}
