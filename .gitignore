@@ -37,3 +37,7 @@ blob-report/
 
 .direnv
 .envrc
+
+# Fork workflow
+patches/
+.worktrees/
