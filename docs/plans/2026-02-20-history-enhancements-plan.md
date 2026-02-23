@@ -15,6 +15,7 @@
 ## Task 1: Add model_name column to transcription_versions (Backend)
 
 **Files:**
+
 - Modify: `src-tauri/src/managers/history.rs` (migrations array ~line 21, TranscriptionVersion struct ~line 63, save_version_and_update ~line 532, get_versions ~line 603)
 
 **Step 1: Add Migration M6**
@@ -118,6 +119,7 @@ git commit -m "feat: store model_name in transcription versions (migration M6)"
 ## Task 2: Display model name in VersionCard (Frontend)
 
 **Files:**
+
 - Modify: `src/components/settings/history/VersionHistory.tsx` (~line 239, VersionCard component)
 - Modify: `src/i18n/locales/en/translation.json` (add new keys)
 
@@ -197,6 +199,7 @@ git commit -m "feat: display model name chip in version history cards"
 ## Task 3: Post-Process Drawer - usePostProcessDrawer hook
 
 **Files:**
+
 - Create: `src/hooks/usePostProcessDrawer.ts`
 
 **Step 1: Create the drawer state hook**
@@ -228,17 +231,24 @@ export function usePostProcessDrawer() {
   });
 
   // Effective values: override if set, else fall back to global setting
-  const effectiveProviderId = overrides.providerId
-    ?? getSetting("post_process_provider_id") ?? "";
-  const effectiveModelId = overrides.modelId
-    ?? (getSetting("post_process_models") as Record<string, string> | undefined)
-        ?.[effectiveProviderId] ?? "";
-  const effectivePromptId = overrides.selectedPromptId
-    ?? getSetting("post_process_selected_prompt_id") ?? "";
+  const effectiveProviderId =
+    overrides.providerId ?? getSetting("post_process_provider_id") ?? "";
+  const effectiveModelId =
+    overrides.modelId ??
+    (getSetting("post_process_models") as Record<string, string> | undefined)?.[
+      effectiveProviderId
+    ] ??
+    "";
+  const effectivePromptId =
+    overrides.selectedPromptId ??
+    getSetting("post_process_selected_prompt_id") ??
+    "";
 
-  const prompts = (getSetting("post_process_prompts") as LLMPrompt[] | undefined) ?? [];
+  const prompts =
+    (getSetting("post_process_prompts") as LLMPrompt[] | undefined) ?? [];
   const selectedPrompt = prompts.find((p) => p.id === effectivePromptId);
-  const effectivePromptText = overrides.promptText ?? selectedPrompt?.prompt ?? "";
+  const effectivePromptText =
+    overrides.promptText ?? selectedPrompt?.prompt ?? "";
 
   const setOverride = useCallback(
     <K extends keyof DrawerOverrides>(key: K, value: DrawerOverrides[K]) => {
@@ -297,6 +307,7 @@ git commit -m "feat: add usePostProcessDrawer hook for temporary overrides"
 ## Task 4: Post-Process Drawer - UI Component
 
 **Files:**
+
 - Create: `src/components/settings/history/PostProcessDrawer.tsx`
 - Modify: `src/components/settings/history/HistorySettings.tsx` (~line 45, add drawer toggle button and drawer render)
 - Modify: `src/i18n/locales/en/translation.json`
@@ -486,17 +497,19 @@ import { usePostProcessDrawer } from "@/hooks/usePostProcessDrawer";
 const drawer = usePostProcessDrawer();
 
 // In the header area, add button:
-{historyPostProcessEnabled && (
-  <Button
-    onClick={drawer.open}
-    variant="secondary"
-    size="sm"
-    className="flex items-center gap-2"
-  >
-    <Sparkles className="w-4 h-4" />
-    <span>{t("settings.history.drawer.title")}</span>
-  </Button>
-)}
+{
+  historyPostProcessEnabled && (
+    <Button
+      onClick={drawer.open}
+      variant="secondary"
+      size="sm"
+      className="flex items-center gap-2"
+    >
+      <Sparkles className="w-4 h-4" />
+      <span>{t("settings.history.drawer.title")}</span>
+    </Button>
+  );
+}
 
 // After the main content div, render the drawer:
 <PostProcessDrawer
@@ -508,8 +521,10 @@ const drawer = usePostProcessDrawer();
   effectivePromptText={drawer.effectivePromptText}
   prompts={drawer.prompts}
   onOverride={(key, value) => drawer.setOverride(key as any, value)}
-  onSaveAsDefault={() => {/* TODO: persist overrides to global settings */}}
-/>
+  onSaveAsDefault={() => {
+    /* TODO: persist overrides to global settings */
+  }}
+/>;
 ```
 
 **Step 4: Run lint and format**
@@ -530,6 +545,7 @@ git commit -m "feat: add post-process config drawer to history tab"
 ## Task 5: Wire drawer overrides into post_process_history_entry
 
 **Files:**
+
 - Modify: `src-tauri/src/commands/history.rs` (~line 118, post_process_history_entry)
 - Modify: `src/components/settings/history/HistorySettings.tsx` (pass drawer overrides when calling post-process)
 
@@ -598,6 +614,7 @@ git commit -m "feat: wire drawer overrides into post-process command"
 ## Task 6: Compare Models UI scaffolding in drawer
 
 **Files:**
+
 - Modify: `src/components/settings/history/PostProcessDrawer.tsx`
 - Modify: `src/i18n/locales/en/translation.json`
 
@@ -631,6 +648,7 @@ git commit -m "feat: add compare models UI scaffolding to drawer (design only)"
 ## Task 7: Insights Tab - Backend command
 
 **Files:**
+
 - Create: `src-tauri/src/commands/insights.rs`
 - Modify: `src-tauri/src/commands/mod.rs` (add module)
 - Modify: `src-tauri/src/lib.rs` (register command)
@@ -736,6 +754,7 @@ fn build_analysis_prompt(texts: &[&str]) -> String {
 **Step 3: Register command**
 
 Add to `src-tauri/src/commands/mod.rs`:
+
 ```rust
 pub mod insights;
 ```
@@ -776,6 +795,7 @@ git commit -m "feat: add insights backend command and settings"
 ## Task 8: Insights Tab - Frontend component
 
 **Files:**
+
 - Create: `src/components/settings/insights/InsightsSettings.tsx`
 - Modify: `src/components/Sidebar.tsx` (~line 34, add to SECTIONS_CONFIG)
 - Modify: `src/i18n/locales/en/translation.json`
@@ -824,6 +844,7 @@ Add to `src/i18n/locales/en/translation.json`:
 Create `src/components/settings/insights/InsightsSettings.tsx`:
 
 The component structure follows the existing settings patterns:
+
 - API config section (provider/key/model) reusing the same field patterns
 - Scope config section (slider for entry count, "use all" toggle)
 - "Analyze" button
@@ -866,6 +887,7 @@ git commit -m "feat: add Insights tab with speech pattern analysis"
 ## Task 9: Final integration and polish
 
 **Files:**
+
 - All modified files from previous tasks
 
 **Step 1: Run full lint and format**

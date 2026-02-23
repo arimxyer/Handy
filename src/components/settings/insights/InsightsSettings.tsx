@@ -211,7 +211,10 @@ export const InsightsSettings: React.FC = () => {
         ? `Insights - ${sectionTitle}`
         : t("settings.insights.actions.generatedPromptName");
       try {
-        const result = await commands.addPostProcessPrompt(name, `${suggestion}\n\n\${output}`);
+        const result = await commands.addPostProcessPrompt(
+          name,
+          `${suggestion}\n\n\${output}`,
+        );
         if (result.status === "ok") {
           await refreshSettings();
           toast.success(t("settings.insights.actions.promptCreated"));
