@@ -11,8 +11,12 @@ description = "Start Tauri development server"
 run = "bun run tauri dev"
 
 [tasks.build]
-description = "Build for production"
+description = "Build for production (all bundles)"
 run = "bun run tauri build"
+
+[tasks."build:local"]
+description = "Build binary + deb only (skip AppImage)"
+run = "bun run tauri build -- --bundles deb"
 
 # === Code Quality (Frontend) ===
 

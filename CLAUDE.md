@@ -22,7 +22,8 @@ mise run install
 
 # Development
 mise run dev                # Start Tauri dev server
-mise run build              # Build for production
+mise run build              # Build for production (all bundles)
+mise run build:local        # Build binary + deb only (skip AppImage)
 
 # Code quality
 mise run lint               # ESLint for frontend
@@ -137,7 +138,9 @@ sudo cp usr/share/applications/Handy.desktop /usr/share/applications/
 
 After rebuilding, only the binary needs re-copying: `sudo cp src-tauri/target/release/handy /usr/bin/`
 
-**AppImage bundling** may fail on rolling-release distros (Arch, CachyOS) because linuxdeploy's bundled `strip` is too old for newer system libraries. The deb/rpm bundles and the binary itself still build fine.
+**AppImage bundling** may fail on rolling-release distros (Arch, CachyOS) because linuxdeploy's bundled `strip` is too old for newer system libraries. The deb/rpm bundles and the binary itself still build fine. Use `mise run build:local` to skip the AppImage step.
+
+**Database migration mismatch:** If Handy panics at startup with `DatabaseTooFarAhead`, it means a newer build wrote migrations to `~/.local/share/com.pais.handy/history.db` that the current binary doesn't recognize. Fix by rebuilding from the branch with newer migrations, or delete the db file (loses transcription history).
 
 ### Wayland/KDE Clipboard Tools
 
