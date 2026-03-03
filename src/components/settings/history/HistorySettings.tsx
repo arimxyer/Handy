@@ -428,7 +428,7 @@ const HistoryEntryComponent: React.FC<HistoryEntryProps> = ({
               : t("settings.history.showOriginal")}
           </button>
         )}
-        <div className="flex items-center">
+        <div className="flex items-center gap-1">
           {showPostProcess && (
             <button
               onClick={handlePostProcess}
@@ -438,7 +438,7 @@ const HistoryEntryComponent: React.FC<HistoryEntryProps> = ({
                 !postProcessConfigured ||
                 entry.transcription_text.trim().length === 0
               }
-              className="p-2 rounded-md text-text/50 hover:text-logo-primary transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+              className="text-text/50 hover:text-logo-primary transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
               title={
                 postProcessConfigured
                   ? t("settings.history.postProcess")
@@ -455,7 +455,7 @@ const HistoryEntryComponent: React.FC<HistoryEntryProps> = ({
           <button
             onClick={handleStartEdit}
             disabled={isEditing}
-            className="p-2 rounded-md text-text/50 hover:text-logo-primary transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+            className="text-text/50 hover:text-logo-primary transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
             title={t("settings.history.editTranscription")}
           >
             <Pencil width={16} height={16} />
@@ -463,7 +463,7 @@ const HistoryEntryComponent: React.FC<HistoryEntryProps> = ({
           <button
             onClick={handleCopyText}
             disabled={isEditing}
-            className="p-2 rounded-md text-text/50 hover:text-logo-primary hover:border-logo-primary transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+            className="text-text/50 hover:text-logo-primary hover:border-logo-primary transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
             title={
               hasEnhancedText
                 ? showOriginal
@@ -481,7 +481,7 @@ const HistoryEntryComponent: React.FC<HistoryEntryProps> = ({
           <button
             onClick={onToggleSaved}
             disabled={isEditing}
-            className={`p-2 rounded-md transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed ${
+            className={`transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed ${
               entry.saved
                 ? "text-logo-primary hover:text-logo-primary/80"
                 : "text-text/50 hover:text-logo-primary"
@@ -501,7 +501,7 @@ const HistoryEntryComponent: React.FC<HistoryEntryProps> = ({
           <button
             onClick={handleDeleteEntry}
             disabled={isEditing}
-            className="p-2 rounded-md text-text/50 hover:text-logo-primary transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+            className="text-text/50 hover:text-logo-primary transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
             title={t("settings.history.delete")}
           >
             <Trash2 width={16} height={16} />
