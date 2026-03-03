@@ -428,7 +428,7 @@ const HistoryEntryComponent: React.FC<HistoryEntryProps> = ({
               : t("settings.history.showOriginal")}
           </button>
         )}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {showPostProcess && (
             <button
               onClick={handlePostProcess}
