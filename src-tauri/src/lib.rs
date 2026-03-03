@@ -479,8 +479,7 @@ pub fn run(cli_args: CliArgs) {
                 api.prevent_close();
                 let _res = window.hide();
 
-                let tray_visible =
-                    settings.show_tray_icon && !cli.no_tray;
+                let tray_visible = settings.show_tray_icon && !cli.no_tray;
 
                 #[cfg(target_os = "macos")]
                 {

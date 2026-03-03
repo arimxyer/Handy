@@ -324,9 +324,7 @@ const HistoryEntryComponent: React.FC<HistoryEntryProps> = ({
     }
   };
 
-  const handleEditKeyDown = (
-    e: React.KeyboardEvent<HTMLTextAreaElement>,
-  ) => {
+  const handleEditKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Escape") {
       handleCancelEdit();
     } else if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {

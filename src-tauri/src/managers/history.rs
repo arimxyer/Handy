@@ -1039,7 +1039,10 @@ mod tests {
         let entry = HistoryManager::get_latest_entry_with_conn(&conn)
             .expect("fetch entry")
             .expect("entry exists");
-        assert_eq!(entry.post_processed_text.as_deref(), Some("manually edited"));
+        assert_eq!(
+            entry.post_processed_text.as_deref(),
+            Some("manually edited")
+        );
         assert_eq!(entry.transcription_text, "raw text"); // unchanged
 
         let version_count: i64 = conn
