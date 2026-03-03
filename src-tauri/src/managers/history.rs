@@ -45,6 +45,7 @@ static MIGRATIONS: &[M] = &[
         "CREATE INDEX IF NOT EXISTS idx_transcription_versions_entry_id ON transcription_versions(history_entry_id);",
     ),
     M::up("ALTER TABLE transcription_versions ADD COLUMN model_name TEXT;"),
+    M::up("ALTER TABLE transcription_versions ADD COLUMN target TEXT NOT NULL DEFAULT 'post_processed';"),
 ];
 
 #[derive(Clone, Debug, Serialize, Deserialize, Type)]
@@ -67,6 +68,7 @@ pub struct TranscriptionVersion {
     pub text: String,
     pub prompt: Option<String>,
     pub model_name: Option<String>,
+    pub target: String,
     pub timestamp: i64,
 }
 
@@ -543,8 +545,8 @@ impl HistoryManager {
 
         let tx = conn.transaction()?;
         tx.execute(
-            "INSERT INTO transcription_versions (history_entry_id, text, prompt, model_name, timestamp) VALUES (?1, ?2, ?3, ?4, ?5)",
-            params![id, text, Some(prompt), model_name, timestamp],
+            "INSERT INTO transcription_versions (history_entry_id, text, prompt, model_name, target, timestamp) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+            params![id, text, Some(prompt), model_name, "post_processed", timestamp],
         )?;
         tx.execute(
             "UPDATE transcription_history SET post_processed_text = ?1, post_process_prompt = ?2 WHERE id = ?3",
@@ -582,18 +584,25 @@ impl HistoryManager {
             }
             Some(vid) => {
                 // Look up the version
-                let (text, prompt): (String, Option<String>) = conn
+                let (text, prompt, target): (String, Option<String>, String) = conn
                     .query_row(
-                        "SELECT text, prompt FROM transcription_versions WHERE id = ?1 AND history_entry_id = ?2",
+                        "SELECT text, prompt, target FROM transcription_versions WHERE id = ?1 AND history_entry_id = ?2",
                         params![vid, entry_id],
-                        |row| Ok((row.get("text")?, row.get("prompt")?)),
+                        |row| Ok((row.get("text")?, row.get("prompt")?, row.get("target")?)),
                     )
                     .map_err(|_| anyhow::anyhow!("VERSION_NOT_FOUND"))?;
 
-                conn.execute(
-                    "UPDATE transcription_history SET post_processed_text = ?1, post_process_prompt = ?2 WHERE id = ?3",
-                    params![text, prompt, entry_id],
-                )?;
+                if target == "transcription" {
+                    conn.execute(
+                        "UPDATE transcription_history SET transcription_text = ?1 WHERE id = ?2",
+                        params![text, entry_id],
+                    )?;
+                } else {
+                    conn.execute(
+                        "UPDATE transcription_history SET post_processed_text = ?1, post_process_prompt = ?2 WHERE id = ?3",
+                        params![text, prompt, entry_id],
+                    )?;
+                }
             }
         }
 
@@ -611,7 +620,7 @@ impl HistoryManager {
     pub fn get_versions(&self, history_entry_id: i64) -> Result<Vec<TranscriptionVersion>> {
         let conn = self.get_connection()?;
         let mut stmt = conn.prepare(
-            "SELECT id, history_entry_id, text, prompt, model_name, timestamp FROM transcription_versions WHERE history_entry_id = ?1 ORDER BY timestamp ASC",
+            "SELECT id, history_entry_id, text, prompt, model_name, target, timestamp FROM transcription_versions WHERE history_entry_id = ?1 ORDER BY timestamp ASC",
         )?;
 
         let rows = stmt.query_map(params![history_entry_id], |row| {
@@ -621,6 +630,7 @@ impl HistoryManager {
                 text: row.get("text")?,
                 prompt: row.get("prompt")?,
                 model_name: row.get("model_name")?,
+                target: row.get("target")?,
                 timestamp: row.get("timestamp")?,
             })
         })?;
