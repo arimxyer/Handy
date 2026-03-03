@@ -257,3 +257,22 @@ pub async fn get_transcription_versions(
         .get_versions(entry_id)
         .map_err(|e| e.to_string())
 }
+
+#[tauri::command]
+#[specta::specta]
+pub async fn update_history_entry_text(
+    _app: AppHandle,
+    history_manager: State<'_, Arc<HistoryManager>>,
+    id: i64,
+    field: String,
+    new_text: String,
+) -> Result<(), String> {
+    let target = match field.as_str() {
+        "transcription" | "post_processed" => field.as_str(),
+        _ => return Err(format!("Invalid field: {}", field)),
+    };
+
+    history_manager
+        .update_entry_text(id, target, &new_text)
+        .map_err(|e| e.to_string())
+}

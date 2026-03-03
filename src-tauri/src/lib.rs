@@ -350,6 +350,7 @@ pub fn run(cli_args: CliArgs) {
         commands::history::post_process_history_entry,
         commands::history::get_transcription_versions,
         commands::history::restore_version,
+        commands::history::update_history_entry_text,
         commands::insights::analyze_speech_patterns,
         commands::insights::estimate_insights_tokens,
         commands::insights::change_insights_provider_id,
