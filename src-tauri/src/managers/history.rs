@@ -567,6 +567,51 @@ impl HistoryManager {
         Ok(())
     }
 
+    /// Save a manual text edit with version tracking.
+    /// `target` must be `"transcription"` or `"post_processed"`.
+    pub fn update_entry_text(&self, id: i64, target: &str, new_text: &str) -> Result<()> {
+        let mut conn = self.get_connection()?;
+        let timestamp = Utc::now().timestamp();
+
+        let tx = conn.transaction()?;
+
+        // Insert version record for undo
+        tx.execute(
+            "INSERT INTO transcription_versions (history_entry_id, text, prompt, model_name, target, timestamp) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+            params![id, new_text, Option::<String>::None, Some("Manual edit"), target, timestamp],
+        )?;
+
+        // Update the appropriate column
+        match target {
+            "transcription" => {
+                tx.execute(
+                    "UPDATE transcription_history SET transcription_text = ?1 WHERE id = ?2",
+                    params![new_text, id],
+                )?;
+            }
+            "post_processed" => {
+                tx.execute(
+                    "UPDATE transcription_history SET post_processed_text = ?1 WHERE id = ?2",
+                    params![new_text, id],
+                )?;
+            }
+            _ => {
+                return Err(anyhow::anyhow!("Invalid target: {}", target));
+            }
+        }
+
+        tx.commit()?;
+
+        debug!("Saved manual edit for entry {} (target: {})", id, target);
+
+        // Emit history updated event
+        if let Err(e) = self.app_handle.emit("history-updated", ()) {
+            error!("Failed to emit history-updated event: {}", e);
+        }
+
+        Ok(())
+    }
+
     /// Restore a previous version or the original transcription.
     /// If `version_id` is Some, restores that version's text and prompt.
     /// If `version_id` is None, restores the original (sets post_processed_text to NULL).
@@ -796,7 +841,7 @@ mod tests {
         .expect("insert version 2");
 
         let mut stmt = conn
-            .prepare("SELECT id, history_entry_id, text, prompt, model_name, timestamp FROM transcription_versions WHERE history_entry_id = ?1 ORDER BY timestamp ASC")
+            .prepare("SELECT id, history_entry_id, text, prompt, model_name, target, timestamp FROM transcription_versions WHERE history_entry_id = ?1 ORDER BY timestamp ASC")
             .expect("prepare query");
 
         let versions: Vec<TranscriptionVersion> = stmt
@@ -807,6 +852,7 @@ mod tests {
                     text: row.get("text")?,
                     prompt: row.get("prompt")?,
                     model_name: row.get("model_name")?,
+                    target: row.get("target")?,
                     timestamp: row.get("timestamp")?,
                 })
             })
@@ -821,6 +867,7 @@ mod tests {
         assert_eq!(versions[1].prompt.as_deref(), Some("prompt 2"));
         assert_eq!(versions[0].model_name, None);
         assert_eq!(versions[1].model_name, None);
+        assert_eq!(versions[0].target, "post_processed");
     }
 
     #[test]
@@ -968,6 +1015,76 @@ mod tests {
         );
 
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn update_entry_text_post_processed() {
+        let mut conn = setup_migrated_conn();
+        insert_entry(&conn, 100, "raw text", Some("enhanced text"));
+
+        let timestamp = 200i64;
+        let tx = conn.transaction().expect("begin transaction");
+        tx.execute(
+            "INSERT INTO transcription_versions (history_entry_id, text, prompt, model_name, target, timestamp) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+            params![1, "manually edited", Option::<String>::None, Some("Manual edit"), "post_processed", timestamp],
+        )
+        .expect("insert version");
+        tx.execute(
+            "UPDATE transcription_history SET post_processed_text = ?1 WHERE id = ?2",
+            params!["manually edited", 1],
+        )
+        .expect("update entry");
+        tx.commit().expect("commit");
+
+        let entry = HistoryManager::get_latest_entry_with_conn(&conn)
+            .expect("fetch entry")
+            .expect("entry exists");
+        assert_eq!(entry.post_processed_text.as_deref(), Some("manually edited"));
+        assert_eq!(entry.transcription_text, "raw text"); // unchanged
+
+        let version_count: i64 = conn
+            .query_row(
+                "SELECT COUNT(*) FROM transcription_versions WHERE history_entry_id = 1",
+                [],
+                |row| row.get(0),
+            )
+            .expect("count versions");
+        assert_eq!(version_count, 1);
+
+        // Check target field
+        let target: String = conn
+            .query_row(
+                "SELECT target FROM transcription_versions WHERE id = 1",
+                [],
+                |row| row.get(0),
+            )
+            .expect("get target");
+        assert_eq!(target, "post_processed");
+    }
+
+    #[test]
+    fn update_entry_text_transcription() {
+        let mut conn = setup_migrated_conn();
+        insert_entry(&conn, 100, "raw text", None);
+
+        let timestamp = 200i64;
+        let tx = conn.transaction().expect("begin transaction");
+        tx.execute(
+            "INSERT INTO transcription_versions (history_entry_id, text, prompt, model_name, target, timestamp) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+            params![1, "corrected raw text", Option::<String>::None, Some("Manual edit"), "transcription", timestamp],
+        )
+        .expect("insert version");
+        tx.execute(
+            "UPDATE transcription_history SET transcription_text = ?1 WHERE id = ?2",
+            params!["corrected raw text", 1],
+        )
+        .expect("update entry");
+        tx.commit().expect("commit");
+
+        let entry = HistoryManager::get_latest_entry_with_conn(&conn)
+            .expect("fetch entry")
+            .expect("entry exists");
+        assert_eq!(entry.transcription_text, "corrected raw text");
     }
 
     #[test]
