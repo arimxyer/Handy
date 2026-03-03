@@ -2,6 +2,10 @@
 
 # === Development ===
 
+[tasks.install]
+description = "Install frontend dependencies"
+run = "bun install"
+
 [tasks.dev]
 description = "Start Tauri development server"
 run = "bun run tauri dev"

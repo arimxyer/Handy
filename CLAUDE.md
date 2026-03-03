@@ -8,9 +8,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Prerequisites:** [Rust](https://rustup.rs/) (latest stable), [Bun](https://bun.sh/), [mise](https://mise.jdx.dev/)
 
+**Linux System Dependencies (Arch/CachyOS):**
+
+```bash
+sudo pacman -S cmake vulkan-headers vulkan-icd-loader webkit2gtk-4.1 gtk-layer-shell libayatana-appindicator fuse2 ydotool
+```
+
+On Ubuntu/Debian, see [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/#linux).
+
 ```bash
 # Install dependencies
-mise run bun install
+mise run install
 
 # Development
 mise run dev                # Start Tauri dev server
@@ -110,3 +118,33 @@ git checkout insiders && git rebase main
 - `main` mirrors upstream exactly — never commit directly to main
 - `insiders` carries all experimental features rebased on main
 - Patches can be exported/applied via `mise run export-patches` / `mise run apply-patches`
+
+## Linux Install (from source)
+
+After `mise run build`, the raw binary (`src-tauri/target/release/handy`) cannot run standalone — it needs Tauri resource files (tray icons, sounds, VAD model) to be co-located at the expected path.
+
+**Install from the deb bundle** (works on any distro):
+
+```bash
+cd /tmp
+ar x /path/to/Handy_*_amd64.deb data.tar.gz
+tar xzf data.tar.gz
+sudo cp usr/bin/handy /usr/bin/
+sudo cp -r usr/lib/Handy /usr/lib/
+sudo cp -r usr/share/icons/hicolor/* /usr/share/icons/hicolor/
+sudo cp usr/share/applications/Handy.desktop /usr/share/applications/
+```
+
+After rebuilding, only the binary needs re-copying: `sudo cp src-tauri/target/release/handy /usr/bin/`
+
+**AppImage bundling** may fail on rolling-release distros (Arch, CachyOS) because linuxdeploy's bundled `strip` is too old for newer system libraries. The deb/rpm bundles and the binary itself still build fine.
+
+### Wayland/KDE Clipboard Tools
+
+The app uses platform-specific tools for text input and clipboard. On KDE Wayland, the preference order is:
+
+1. `kwtype` (KDE Fake Input protocol — best for special characters, not in pacman, build from [source](https://github.com/Sporif/KWtype))
+2. `ydotool` (uinput-based, works on both Wayland and X11 — `sudo pacman -S ydotool`)
+3. `wl-copy`/`wl-paste` (clipboard only — `sudo pacman -S wl-clipboard`)
+
+See `src-tauri/src/clipboard.rs` for the full fallback chain.
