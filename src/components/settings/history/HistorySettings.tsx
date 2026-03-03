@@ -317,6 +317,7 @@ const HistoryEntryComponent: React.FC<HistoryEntryProps> = ({
       }
     } catch (error) {
       console.error("Failed to save edit:", error);
+      toast.error(t("settings.history.postProcessError"));
     } finally {
       setIsEditing(false);
       setEditText("");
