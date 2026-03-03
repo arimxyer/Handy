@@ -10,6 +10,7 @@ import {
   FolderOpen,
   Sparkles,
   Loader2,
+  Pencil,
 } from "lucide-react";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
@@ -276,12 +277,62 @@ const HistoryEntryComponent: React.FC<HistoryEntryProps> = ({
   const [showCopied, setShowCopied] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [showOriginal, setShowOriginal] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editText, setEditText] = useState("");
 
   const hasEnhancedText = entry.post_processed_text != null;
   const displayText =
     hasEnhancedText && !showOriginal
       ? (entry.post_processed_text ?? entry.transcription_text)
       : entry.transcription_text;
+
+  const handleStartEdit = () => {
+    setEditText(displayText);
+    setIsEditing(true);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditText("");
+  };
+
+  const handleSaveEdit = async () => {
+    const trimmed = editText.trim();
+    if (trimmed === displayText) {
+      handleCancelEdit();
+      return;
+    }
+    const field =
+      hasEnhancedText && !showOriginal ? "post_processed" : "transcription";
+    try {
+      const result = await commands.updateHistoryEntryText(
+        entry.id,
+        field,
+        trimmed,
+      );
+      if (result.status === "error") {
+        toast.error(result.error);
+      } else {
+        toast.success(t("settings.history.editSaved"));
+      }
+    } catch (error) {
+      console.error("Failed to save edit:", error);
+    } finally {
+      setIsEditing(false);
+      setEditText("");
+    }
+  };
+
+  const handleEditKeyDown = (
+    e: React.KeyboardEvent<HTMLTextAreaElement>,
+  ) => {
+    if (e.key === "Escape") {
+      handleCancelEdit();
+    } else if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      handleSaveEdit();
+    }
+  };
 
   const handleLoadAudio = useCallback(
     () => getAudioUrl(entry.file_name),
@@ -383,6 +434,7 @@ const HistoryEntryComponent: React.FC<HistoryEntryProps> = ({
             <button
               onClick={handlePostProcess}
               disabled={
+                isEditing ||
                 isProcessing ||
                 !postProcessConfigured ||
                 entry.transcription_text.trim().length === 0
@@ -402,8 +454,17 @@ const HistoryEntryComponent: React.FC<HistoryEntryProps> = ({
             </button>
           )}
           <button
+            onClick={handleStartEdit}
+            disabled={isEditing}
+            className="text-text/50 hover:text-logo-primary transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+            title={t("settings.history.editTranscription")}
+          >
+            <Pencil width={16} height={16} />
+          </button>
+          <button
             onClick={handleCopyText}
-            className="text-text/50 hover:text-logo-primary hover:border-logo-primary transition-colors cursor-pointer"
+            disabled={isEditing}
+            className="text-text/50 hover:text-logo-primary hover:border-logo-primary transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
             title={
               hasEnhancedText
                 ? showOriginal
@@ -420,7 +481,8 @@ const HistoryEntryComponent: React.FC<HistoryEntryProps> = ({
           </button>
           <button
             onClick={onToggleSaved}
-            className={`p-2 rounded-md transition-colors cursor-pointer ${
+            disabled={isEditing}
+            className={`p-2 rounded-md transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed ${
               entry.saved
                 ? "text-logo-primary hover:text-logo-primary/80"
                 : "text-text/50 hover:text-logo-primary"
@@ -439,16 +501,37 @@ const HistoryEntryComponent: React.FC<HistoryEntryProps> = ({
           </button>
           <button
             onClick={handleDeleteEntry}
-            className="text-text/50 hover:text-logo-primary transition-colors cursor-pointer"
+            disabled={isEditing}
+            className="text-text/50 hover:text-logo-primary transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
             title={t("settings.history.delete")}
           >
             <Trash2 width={16} height={16} />
           </button>
         </div>
       </div>
-      <p className="italic text-text/90 text-sm pb-2 select-text cursor-text">
-        {displayText}
-      </p>
+      {isEditing ? (
+        <div className="flex flex-col gap-2">
+          <textarea
+            value={editText}
+            onChange={(e) => setEditText(e.target.value)}
+            onKeyDown={handleEditKeyDown}
+            className="w-full text-sm text-text/90 bg-background border border-mid-gray/20 rounded-md p-2 resize-y focus:outline-none focus:border-logo-primary min-h-[60px]"
+            autoFocus
+          />
+          <div className="flex justify-end gap-2">
+            <Button variant="secondary" size="sm" onClick={handleCancelEdit}>
+              {t("common.cancel")}
+            </Button>
+            <Button variant="primary" size="sm" onClick={handleSaveEdit}>
+              {t("common.save")}
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <p className="italic text-text/90 text-sm pb-2 select-text cursor-text">
+          {displayText}
+        </p>
+      )}
       {entry.version_count > 0 && <VersionHistory entry={entry} />}
       <AudioPlayer onLoadRequest={handleLoadAudio} className="w-full" />
     </div>
