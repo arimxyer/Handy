@@ -14,6 +14,7 @@ import {
   Mic,
   RotateCcw,
   Loader2,
+  Pencil,
 } from "lucide-react";
 import {
   commands,
@@ -270,11 +271,18 @@ const VersionCard: React.FC<VersionCardProps> = ({
           >
             {label}
           </span>
-          {version.model_name && (
+          {version.model_name === "Manual edit" ? (
+            <span className="flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded bg-mid-gray/10 text-text/40">
+              <Pencil width={10} height={10} />
+              {version.target === "transcription"
+                ? t("settings.history.transcriptionEdit")
+                : t("settings.history.manualEdit")}
+            </span>
+          ) : version.model_name ? (
             <span className="text-[11px] px-1.5 py-0.5 rounded bg-mid-gray/10 text-text/40">
               {version.model_name}
             </span>
-          )}
+          ) : null}
         </div>
         {isActive ? (
           <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-logo-primary text-white">
