@@ -455,7 +455,7 @@ const HistoryEntryComponent: React.FC<HistoryEntryProps> = ({
           <button
             onClick={handleStartEdit}
             disabled={isEditing}
-            className="text-text/50 hover:text-logo-primary transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+            className="p-2 rounded-md text-text/50 hover:text-logo-primary transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
             title={t("settings.history.editTranscription")}
           >
             <Pencil width={16} height={16} />
@@ -463,7 +463,7 @@ const HistoryEntryComponent: React.FC<HistoryEntryProps> = ({
           <button
             onClick={handleCopyText}
             disabled={isEditing}
-            className="text-text/50 hover:text-logo-primary hover:border-logo-primary transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+            className="p-2 rounded-md text-text/50 hover:text-logo-primary hover:border-logo-primary transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
             title={
               hasEnhancedText
                 ? showOriginal
@@ -501,7 +501,7 @@ const HistoryEntryComponent: React.FC<HistoryEntryProps> = ({
           <button
             onClick={handleDeleteEntry}
             disabled={isEditing}
-            className="text-text/50 hover:text-logo-primary transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+            className="p-2 rounded-md text-text/50 hover:text-logo-primary transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
             title={t("settings.history.delete")}
           >
             <Trash2 width={16} height={16} />
