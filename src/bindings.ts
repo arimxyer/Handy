@@ -744,6 +744,14 @@ async restoreVersion(entryId: number, versionId: number | null) : Promise<Result
     else return { status: "error", error: e  as any };
 }
 },
+async updateHistoryEntryText(id: number, field: string, newText: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("update_history_entry_text", { id, field, newText }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
 async analyzeSpeechPatterns() : Promise<Result<InsightsResult, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("analyze_speech_patterns") };
@@ -863,7 +871,7 @@ export type PostProcessProvider = { id: string; label: string; base_url: string;
 export type RecordingRetentionPeriod = "never" | "preserve_limit" | "days_3" | "weeks_2" | "months_3"
 export type ShortcutBinding = { id: string; name: string; description: string; default_binding: string; current_binding: string }
 export type SoundTheme = "marimba" | "pop" | "custom"
-export type TranscriptionVersion = { id: number; history_entry_id: number; text: string; prompt: string | null; model_name: string | null; timestamp: number }
+export type TranscriptionVersion = { id: number; history_entry_id: number; text: string; prompt: string | null; model_name: string | null; target: string; timestamp: number }
 export type TypingTool = "auto" | "wtype" | "kwtype" | "dotool" | "ydotool" | "xdotool"
 
 /** tauri-specta globals **/

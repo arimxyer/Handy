@@ -15,6 +15,7 @@
 ### Task 1: Database Migration — Add `target` Column
 
 **Files:**
+
 - Modify: `src-tauri/src/managers/history.rs:21-48` (MIGRATIONS array)
 
 **Step 1: Add migration M7**
@@ -125,6 +126,7 @@ git commit -m "feat: add target column to transcription_versions for edit tracki
 ### Task 2: Update Existing Tests for `target` Field
 
 **Files:**
+
 - Modify: `src-tauri/src/managers/history.rs:642-989` (tests module)
 
 **Step 1: Update test helpers that read versions**
@@ -170,6 +172,7 @@ git commit -m "test: update history tests for target field"
 ### Task 3: Add `update_entry_text` Method to HistoryManager
 
 **Files:**
+
 - Modify: `src-tauri/src/managers/history.rs` (add method after `save_version_and_update`)
 
 **Step 1: Write the test**
@@ -323,6 +326,7 @@ git commit -m "feat: add update_entry_text method with version tracking"
 ### Task 4: Add Tauri Command
 
 **Files:**
+
 - Modify: `src-tauri/src/commands/history.rs` (add command after `restore_version`)
 - Modify: `src-tauri/src/lib.rs:352` (register in `collect_commands!`)
 
@@ -377,6 +381,7 @@ git commit -m "feat: add update_history_entry_text Tauri command"
 ### Task 5: Add i18n Keys
 
 **Files:**
+
 - Modify: `src/i18n/locales/en/translation.json` (add keys under `settings.history`)
 
 **Step 1: Add the keys**
@@ -402,6 +407,7 @@ git commit -m "feat: add i18n keys for inline edit"
 ### Task 6: Frontend — Edit State in HistoryEntryComponent
 
 **Files:**
+
 - Modify: `src/components/settings/history/HistorySettings.tsx:264-456`
 
 **Step 1: Add imports**
@@ -445,9 +451,14 @@ const handleSaveEdit = async () => {
     handleCancelEdit();
     return;
   }
-  const field = hasEnhancedText && !showOriginal ? "post_processed" : "transcription";
+  const field =
+    hasEnhancedText && !showOriginal ? "post_processed" : "transcription";
   try {
-    const result = await commands.updateHistoryEntryText(entry.id, field, trimmed);
+    const result = await commands.updateHistoryEntryText(
+      entry.id,
+      field,
+      trimmed,
+    );
     if (result.status === "error") {
       toast.error(result.error);
     } else {
@@ -491,29 +502,31 @@ In the action bar `<div className="flex items-center gap-1">` (line 381), add th
 Replace the `<p>` tag at line 449:
 
 ```tsx
-{isEditing ? (
-  <div className="flex flex-col gap-2">
-    <textarea
-      value={editText}
-      onChange={(e) => setEditText(e.target.value)}
-      onKeyDown={handleEditKeyDown}
-      className="w-full text-sm text-text/90 bg-background border border-mid-gray/20 rounded-md p-2 resize-y focus:outline-none focus:border-logo-primary min-h-[60px]"
-      autoFocus
-    />
-    <div className="flex justify-end gap-2">
-      <Button variant="secondary" size="sm" onClick={handleCancelEdit}>
-        {t("common.cancel")}
-      </Button>
-      <Button variant="primary" size="sm" onClick={handleSaveEdit}>
-        {t("common.save")}
-      </Button>
+{
+  isEditing ? (
+    <div className="flex flex-col gap-2">
+      <textarea
+        value={editText}
+        onChange={(e) => setEditText(e.target.value)}
+        onKeyDown={handleEditKeyDown}
+        className="w-full text-sm text-text/90 bg-background border border-mid-gray/20 rounded-md p-2 resize-y focus:outline-none focus:border-logo-primary min-h-[60px]"
+        autoFocus
+      />
+      <div className="flex justify-end gap-2">
+        <Button variant="secondary" size="sm" onClick={handleCancelEdit}>
+          {t("common.cancel")}
+        </Button>
+        <Button variant="primary" size="sm" onClick={handleSaveEdit}>
+          {t("common.save")}
+        </Button>
+      </div>
     </div>
-  </div>
-) : (
-  <p className="italic text-text/90 text-sm pb-2 select-text cursor-text">
-    {displayText}
-  </p>
-)}
+  ) : (
+    <p className="italic text-text/90 text-sm pb-2 select-text cursor-text">
+      {displayText}
+    </p>
+  );
+}
 ```
 
 **Step 5: Disable other buttons while editing**
@@ -548,6 +561,7 @@ git commit -m "feat: add inline edit UI for history entries"
 ### Task 7: Frontend — Manual Edit Labels in VersionHistory
 
 **Files:**
+
 - Modify: `src/components/settings/history/VersionHistory.tsx:239-308` (VersionCard)
 
 **Step 1: Add Pencil import**
@@ -572,18 +586,20 @@ import {
 In the VersionCard component (around line 273-277), replace the `model_name` chip:
 
 ```tsx
-{version.model_name === "Manual edit" ? (
-  <span className="flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded bg-mid-gray/10 text-text/40">
-    <Pencil width={10} height={10} />
-    {version.target === "transcription"
-      ? t("settings.history.transcriptionEdit")
-      : t("settings.history.manualEdit")}
-  </span>
-) : version.model_name ? (
-  <span className="text-[11px] px-1.5 py-0.5 rounded bg-mid-gray/10 text-text/40">
-    {version.model_name}
-  </span>
-) : null}
+{
+  version.model_name === "Manual edit" ? (
+    <span className="flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded bg-mid-gray/10 text-text/40">
+      <Pencil width={10} height={10} />
+      {version.target === "transcription"
+        ? t("settings.history.transcriptionEdit")
+        : t("settings.history.manualEdit")}
+    </span>
+  ) : version.model_name ? (
+    <span className="text-[11px] px-1.5 py-0.5 rounded bg-mid-gray/10 text-text/40">
+      {version.model_name}
+    </span>
+  ) : null;
+}
 ```
 
 **Step 3: Test manually**
