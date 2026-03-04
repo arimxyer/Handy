@@ -26,6 +26,7 @@ import {
 import { useSettings } from "@/hooks/useSettings";
 import { Button } from "../../ui/Button";
 import { Input } from "../../ui/Input";
+import { Dropdown } from "../../ui/Dropdown";
 import { SettingContainer, SettingsGroup, ToggleSwitch } from "@/components/ui";
 import { ResetButton } from "../../ui/ResetButton";
 import { ProviderSelect } from "../PostProcessingSettingsApi/ProviderSelect";
@@ -478,21 +479,17 @@ export const InsightsSettings: React.FC = () => {
                 <label className="text-xs text-text/50 shrink-0">
                   {t("settings.insights.history.label")}
                 </label>
-                <select
-                  value={selectedHistoryIndex}
-                  onChange={(e) =>
-                    setSelectedHistoryIndex(Number(e.target.value))
+                <Dropdown
+                  options={insightsHistory.map((entry, idx) => ({
+                    value: String(idx),
+                    label: `${formatDateTime(String(entry.timestamp), i18n.language)} — ${entry.entries_analyzed} ${t("settings.insights.badges.entries").toLowerCase()}`,
+                  }))}
+                  selectedValue={String(selectedHistoryIndex)}
+                  onSelect={(value) =>
+                    setSelectedHistoryIndex(Number(value))
                   }
-                  className="flex-1 rounded-md border border-mid-gray/20 bg-background px-2 py-1 text-xs text-text/80"
-                >
-                  {insightsHistory.map((entry, idx) => (
-                    <option key={idx} value={idx}>
-                      {formatDateTime(String(entry.timestamp), i18n.language)} —{" "}
-                      {entry.entries_analyzed}{" "}
-                      {t("settings.insights.badges.entries").toLowerCase()}
-                    </option>
-                  ))}
-                </select>
+                  className="flex-1 min-w-0"
+                />
                 <button
                   onClick={handleClearHistory}
                   className="p-1.5 rounded text-text/40 hover:text-red-400 transition-colors cursor-pointer"
