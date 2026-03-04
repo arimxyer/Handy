@@ -78,6 +78,7 @@ export const PostProcessDrawer: React.FC<PostProcessDrawerProps> = ({
   const [newApiKey, setNewApiKey] = useState("");
   const [newModel, setNewModel] = useState("");
   const bodyScrollRef = useRef<HTMLDivElement>(null);
+  const drawerRef = useRef<HTMLDivElement>(null);
 
   const preserveBodyScroll = useCallback((update: () => void) => {
     const previousScrollTop = bodyScrollRef.current?.scrollTop ?? 0;
@@ -88,6 +89,28 @@ export const PostProcessDrawer: React.FC<PostProcessDrawerProps> = ({
       body.scrollTop = previousScrollTop;
     });
   }, []);
+
+  // WebKitGTK may scroll overflow:hidden containers when focus-scroll-into-view
+  // triggers on child elements (e.g. toggling Compare Models checkbox). This
+  // pushes the header off-screen. Prevent by resetting scrollTop on both the
+  // drawer container and the portal.
+  useEffect(() => {
+    if (!isOpen) return;
+    const drawer = drawerRef.current;
+    const portal = document.getElementById("drawer-portal");
+
+    const preventScroll = (e: Event) => {
+      (e.currentTarget as HTMLElement).scrollTop = 0;
+    };
+
+    drawer?.addEventListener("scroll", preventScroll);
+    portal?.addEventListener("scroll", preventScroll);
+
+    return () => {
+      drawer?.removeEventListener("scroll", preventScroll);
+      portal?.removeEventListener("scroll", preventScroll);
+    };
+  }, [isOpen]);
 
   // Pre-populate API key when newProvider changes
   useEffect(() => {
@@ -245,7 +268,7 @@ export const PostProcessDrawer: React.FC<PostProcessDrawerProps> = ({
   if (!isOpen || !portalContainer) return null;
 
   return createPortal(
-    <div className="absolute inset-0 min-h-0 border-l border-mid-gray/20 bg-background flex flex-col overflow-hidden">
+    <div ref={drawerRef} className="absolute inset-0 min-h-0 border-l border-mid-gray/20 bg-background flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-mid-gray/20">
         <div className="flex items-center gap-2">
