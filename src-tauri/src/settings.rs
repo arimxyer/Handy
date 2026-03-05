@@ -769,6 +769,11 @@ pub fn get_default_settings() -> AppSettings {
     #[cfg(not(any(target_os = "windows", target_os = "macos", target_os = "linux")))]
     let default_text_ops_shortcut = "ctrl+alt+space";
 
+    #[cfg(target_os = "macos")]
+    let default_text_ops_picker_shortcut = "alt+cmd+shift+space";
+    #[cfg(not(target_os = "macos"))]
+    let default_text_ops_picker_shortcut = "ctrl+alt+shift+space";
+
     bindings.insert(
         "text_ops".to_string(),
         ShortcutBinding {
@@ -777,6 +782,16 @@ pub fn get_default_settings() -> AppSettings {
             description: "Transforms clipboard text using the pinned prompt.".to_string(),
             default_binding: default_text_ops_shortcut.to_string(),
             current_binding: default_text_ops_shortcut.to_string(),
+        },
+    );
+    bindings.insert(
+        "text_ops_picker".to_string(),
+        ShortcutBinding {
+            id: "text_ops_picker".to_string(),
+            name: "Text Ops Prompt Picker".to_string(),
+            description: "Opens a prompt picker to choose which prompt to apply to selected text.".to_string(),
+            default_binding: default_text_ops_picker_shortcut.to_string(),
+            current_binding: default_text_ops_picker_shortcut.to_string(),
         },
     );
 

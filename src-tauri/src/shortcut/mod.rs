@@ -399,6 +399,9 @@ fn register_all_shortcuts_for_implementation(
         if id == "text_ops" && !current_settings.text_ops_enabled {
             continue;
         }
+        if id == "text_ops_picker" && !current_settings.text_ops_enabled {
+            continue;
+        }
 
         let mut binding = current_settings
             .bindings

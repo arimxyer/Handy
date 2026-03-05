@@ -83,6 +83,7 @@ export const TextSettingsPage: React.FC = () => {
                 className="flex-1"
               />
             </SettingContainer>
+            <ShortcutInput shortcutId="text_ops_picker" grouped={true} />
           </>
         )}
       </SettingsGroup>

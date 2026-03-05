@@ -897,6 +897,29 @@ async changeTextOpsOutputBehavior(behavior: string) : Promise<Result<null, strin
 }
 },
 /**
+ * Called by the picker frontend when user selects a prompt.
+ * Processes the pending text with the chosen prompt.
+ */
+async executePickerPrompt(promptId: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("execute_picker_prompt", { promptId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Called by the picker frontend to dismiss without selecting.
+ */
+async dismissPicker() : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("dismiss_picker") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Stub implementation for non-macOS platforms
  * Always returns false since laptop detection is macOS-specific
  */

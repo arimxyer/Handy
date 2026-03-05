@@ -168,8 +168,12 @@
             "description": "Optional: A dedicated hotkey that always applies AI post-processing to your transcription."
           },
           "text_ops": {
-            "name": "Text Operations Shortcut",
-            "description": "Transforms clipboard text using the pinned prompt and pastes the result."
+            "name": "Text Operations",
+            "description": "Transforms selected text using the pinned prompt."
+          },
+          "text_ops_picker": {
+            "name": "Text Ops Prompt Picker",
+            "description": "Opens a prompt picker to choose which prompt to apply to selected text."
           }
         },
         "errors": {
@@ -687,7 +691,8 @@
   },
   "overlay": {
     "transcribing": "Transcribing...",
-    "processing": "Processing..."
+    "processing": "Processing...",
+    "transforming": "Transforming..."
   },
   "textOps": {
     "title": "Text Operations",
@@ -716,7 +721,13 @@
       "outputBehavior": "Output Behavior",
       "outputBehaviorDescription": "What to do with the result when using the shortcut",
       "outputCopyToClipboard": "Copy to Clipboard",
-      "outputReplaceSelection": "Replace Selection"
+      "outputReplaceSelection": "Replace Selection",
+      "pickerShortcut": "Prompt Picker Shortcut",
+      "pickerShortcutDescription": "Opens a popup to choose which prompt to apply to selected text"
+    },
+    "picker": {
+      "title": "Choose Prompt",
+      "empty": "No prompts configured"
     },
     "presetNames": {
       "fixGrammar": "Fix Grammar",

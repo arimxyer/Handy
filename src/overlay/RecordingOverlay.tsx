@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import {
   MicrophoneIcon,
   TranscriptionIcon,
+  TextOpsIcon,
   CancelIcon,
 } from "../components/icons";
 import "./RecordingOverlay.css";
@@ -11,7 +12,7 @@ import { commands } from "@/bindings";
 import i18n, { syncLanguageFromSettings } from "@/i18n";
 import { getLanguageDirection } from "@/lib/utils/rtl";
 
-type OverlayState = "recording" | "transcribing" | "processing";
+type OverlayState = "recording" | "transcribing" | "processing" | "text_processing";
 
 const RecordingOverlay: React.FC = () => {
   const { t } = useTranslation();
@@ -65,6 +66,8 @@ const RecordingOverlay: React.FC = () => {
   const getIcon = () => {
     if (state === "recording") {
       return <MicrophoneIcon />;
+    } else if (state === "text_processing") {
+      return <TextOpsIcon />;
     } else {
       return <TranscriptionIcon />;
     }
@@ -98,6 +101,9 @@ const RecordingOverlay: React.FC = () => {
         )}
         {state === "processing" && (
           <div className="transcribing-text">{t("overlay.processing")}</div>
+        )}
+        {state === "text_processing" && (
+          <div className="transcribing-text">{t("overlay.transforming")}</div>
         )}
       </div>
 

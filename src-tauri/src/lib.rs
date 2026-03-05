@@ -11,6 +11,7 @@ mod input;
 mod llm_client;
 mod managers;
 mod overlay;
+mod picker;
 mod settings;
 mod shortcut;
 mod signal_handle;
@@ -236,6 +237,12 @@ fn initialize_core_logic(app_handle: &AppHandle) {
 
     // Create the recording overlay window (hidden by default)
     utils::create_recording_overlay(app_handle);
+
+    // Create the prompt picker window (hidden by default)
+    picker::create_prompt_picker(app_handle);
+
+    // Initialize pending text state for text ops picker
+    app_handle.manage(picker::TextOpsPendingText(std::sync::Mutex::new(None)));
 }
 
 #[tauri::command]
@@ -369,6 +376,8 @@ pub fn run(cli_args: CliArgs) {
         commands::text_ops::set_text_ops_pinned_prompt,
         commands::text_ops::change_text_ops_enabled_setting,
         commands::text_ops::change_text_ops_output_behavior,
+        commands::text_ops::execute_picker_prompt,
+        commands::text_ops::dismiss_picker,
         helpers::clamshell::is_laptop,
     ]);
 

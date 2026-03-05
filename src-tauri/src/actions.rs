@@ -8,7 +8,8 @@ use crate::settings::{get_settings, AppSettings, APPLE_INTELLIGENCE_PROVIDER_ID}
 use crate::shortcut;
 use crate::tray::{change_tray_icon, TrayIconState};
 use crate::utils::{
-    self, show_processing_overlay, show_recording_overlay, show_transcribing_overlay,
+    self, show_processing_overlay, show_recording_overlay, show_text_processing_overlay,
+    show_transcribing_overlay,
 };
 use crate::TranscriptionCoordinator;
 use ferrous_opencc::{config::BuiltinConfig, OpenCC};
@@ -829,7 +830,7 @@ impl ShortcutAction for TextOpsAction {
                 "Text ops: captured {} chars, sending to LLM",
                 clipboard_text.len()
             );
-            show_processing_overlay(&app_clone);
+            show_text_processing_overlay(&app_clone);
             change_tray_icon(&app_clone, TrayIconState::Transcribing);
 
             let app_for_task = app_clone.clone();
@@ -916,6 +917,47 @@ impl ShortcutAction for TextOpsAction {
     }
 }
 
+// Text Operations Picker Action
+struct TextOpsPickerAction;
+
+impl ShortcutAction for TextOpsPickerAction {
+    fn start(&self, app: &AppHandle, _binding_id: &str, _shortcut_str: &str) {
+        info!("TextOpsPickerAction::start triggered");
+        let settings = get_settings(app);
+
+        if !settings.text_ops_enabled {
+            info!("Text ops picker shortcut pressed but feature is disabled");
+            return;
+        }
+
+        let app_clone = app.clone();
+        std::thread::spawn(move || {
+            // Get selected text
+            let selected_text = get_selected_text(&app_clone);
+            if selected_text.trim().is_empty() {
+                info!("Text ops picker: no text selected, aborting");
+                return;
+            }
+
+            info!("Text ops picker: got {} chars, showing picker", selected_text.len());
+
+            // Store pending text
+            if let Some(state) = app_clone.try_state::<crate::picker::TextOpsPendingText>() {
+                if let Ok(mut pending) = state.0.lock() {
+                    *pending = Some(selected_text);
+                }
+            }
+
+            // Show picker window
+            crate::picker::show_prompt_picker(&app_clone);
+        });
+    }
+
+    fn stop(&self, _app: &AppHandle, _binding_id: &str, _shortcut_str: &str) {
+        // Nothing to do on stop
+    }
+}
+
 // Static Action Map
 pub static ACTION_MAP: Lazy<HashMap<String, Arc<dyn ShortcutAction>>> = Lazy::new(|| {
     let mut map = HashMap::new();
@@ -940,6 +982,10 @@ pub static ACTION_MAP: Lazy<HashMap<String, Arc<dyn ShortcutAction>>> = Lazy::ne
     map.insert(
         "text_ops".to_string(),
         Arc::new(TextOpsAction) as Arc<dyn ShortcutAction>,
+    );
+    map.insert(
+        "text_ops_picker".to_string(),
+        Arc::new(TextOpsPickerAction) as Arc<dyn ShortcutAction>,
     );
     map
 });
