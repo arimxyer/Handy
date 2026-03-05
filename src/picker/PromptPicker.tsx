@@ -1,4 +1,5 @@
 import { listen } from "@tauri-apps/api/event";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { commands } from "@/bindings";
@@ -12,12 +13,12 @@ interface Prompt {
 
 const PromptPicker: React.FC = () => {
   const { t } = useTranslation();
-  const [isVisible, setIsVisible] = useState(false);
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const listRef = useRef<HTMLDivElement>(null);
 
   const loadPrompts = useCallback(async () => {
+    await syncLanguageFromSettings();
     const result = await commands.getAppSettings();
     if (result.status === "ok" && result.data.text_ops_prompts) {
       setPrompts(
@@ -27,35 +28,45 @@ const PromptPicker: React.FC = () => {
   }, []);
 
   const handleSelect = useCallback(async (promptId: string) => {
-    setIsVisible(false);
     await commands.executePickerPrompt(promptId);
   }, []);
 
   const handleDismiss = useCallback(async () => {
-    setIsVisible(false);
     await commands.dismissPicker();
   }, []);
 
+  // Load prompts on mount and whenever the window gains focus
   useEffect(() => {
+    loadPrompts();
+
     const setup = async () => {
-      const unlistenShow = await listen("show-picker", async () => {
-        await syncLanguageFromSettings();
-        await loadPrompts();
+      const unlistenShow = await listen("show-picker", () => {
+        loadPrompts();
         setSelectedIndex(0);
-        setIsVisible(true);
       });
+
+      const unlistenFocus = await getCurrentWindow().onFocusChanged(
+        ({ payload: focused }) => {
+          if (focused) {
+            loadPrompts();
+            setSelectedIndex(0);
+          } else {
+            handleDismiss();
+          }
+        }
+      );
 
       return () => {
         unlistenShow();
+        unlistenFocus();
       };
     };
 
     setup();
-  }, [loadPrompts]);
+  }, [loadPrompts, handleDismiss]);
 
+  // Keyboard navigation
   useEffect(() => {
-    if (!isVisible) return;
-
     const handleKeyDown = (e: KeyboardEvent) => {
       switch (e.key) {
         case "ArrowDown":
@@ -81,7 +92,7 @@ const PromptPicker: React.FC = () => {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isVisible, prompts, selectedIndex, handleSelect, handleDismiss]);
+  }, [prompts, selectedIndex, handleSelect, handleDismiss]);
 
   // Scroll selected item into view
   useEffect(() => {
@@ -93,10 +104,8 @@ const PromptPicker: React.FC = () => {
     }
   }, [selectedIndex]);
 
-  if (!isVisible) return null;
-
   return (
-    <div className="picker-container" onBlur={handleDismiss}>
+    <div className="picker-container">
       <div className="picker-header">{t("textOps.picker.title")}</div>
       <div className="picker-list" ref={listRef}>
         {prompts.length === 0 ? (

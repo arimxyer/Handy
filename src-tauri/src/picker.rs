@@ -1,4 +1,3 @@
-use crate::input;
 use log::info;
 use std::sync::Mutex;
 use tauri::{AppHandle, Emitter, Manager};
@@ -81,28 +80,51 @@ pub fn create_prompt_picker(app_handle: &AppHandle) {
     }
 }
 
-/// Shows the prompt picker near the cursor position.
+/// Shows the prompt picker near the system tray area.
+///
+/// On macOS the tray lives in the top-right menu bar; on all other platforms
+/// (Linux, Windows) it sits in the bottom-right taskbar/panel.
 pub fn show_prompt_picker(app_handle: &AppHandle) {
     if let Some(picker_window) = app_handle.get_webview_window("prompt_picker") {
-        // Position near cursor
-        if let Some((mouse_x, mouse_y)) = input::get_cursor_position(app_handle) {
-            let x = mouse_x as f64 - PICKER_WIDTH / 2.0;
-            let y = mouse_y as f64 - PICKER_HEIGHT - 10.0; // Above cursor
-            // Ensure we don't go off-screen (negative coords)
-            let x = if x < 0.0 { 0.0 } else { x };
-            let y = if y < 0.0 {
-                mouse_y as f64 + 20.0 // Below cursor if no room above
-            } else {
-                y
-            };
+        // Position near the system tray corner of the current monitor.
+        if let Ok(Some(monitor)) = picker_window.current_monitor() {
+            let monitor_pos = monitor.position();
+            let monitor_size = monitor.size();
+            let scale = monitor.scale_factor();
+            let mon_w = monitor_size.width as f64 / scale;
+            let mon_h = monitor_size.height as f64 / scale;
+            let mon_x = monitor_pos.x as f64 / scale;
+            let mon_y = monitor_pos.y as f64 / scale;
+
+            const EDGE_PADDING: f64 = 16.0;
+
+            // On macOS the tray is top-right; everywhere else it is bottom-right.
+            #[cfg(target_os = "macos")]
+            let (x, y) = (
+                mon_x + mon_w - PICKER_WIDTH - EDGE_PADDING,
+                mon_y + EDGE_PADDING,
+            );
+
+            #[cfg(not(target_os = "macos"))]
+            let (x, y) = (
+                mon_x + mon_w - PICKER_WIDTH - EDGE_PADDING,
+                mon_y + mon_h - PICKER_HEIGHT - EDGE_PADDING,
+            );
+
             let _ = picker_window
                 .set_position(tauri::Position::Logical(tauri::LogicalPosition { x, y }));
         }
 
         let _ = picker_window.show();
         let _ = picker_window.set_focus();
-        let _ = picker_window.emit("show-picker", ());
-        info!("Prompt picker shown");
+
+        // Delay the event slightly so the webview has time to load on first show
+        let window_clone = picker_window.clone();
+        std::thread::spawn(move || {
+            std::thread::sleep(std::time::Duration::from_millis(150));
+            let _ = window_clone.emit("show-picker", ());
+            info!("Prompt picker shown (event emitted)");
+        });
     }
 }
 
