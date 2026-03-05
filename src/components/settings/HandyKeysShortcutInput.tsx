@@ -5,6 +5,7 @@ import { formatKeyCombination } from "../../lib/utils/keyboard";
 import { ResetButton } from "../ui/ResetButton";
 import { SettingContainer } from "../ui/SettingContainer";
 import { useSettings } from "../../hooks/useSettings";
+import { useSettingsStore } from "../../stores/settingsStore";
 import { useOsType } from "../../hooks/useOsType";
 import { commands } from "@/bindings";
 import { toast } from "sonner";
@@ -239,7 +240,9 @@ export const HandyKeysShortcutInput: React.FC<HandyKeysShortcutInputProps> = ({
     );
   }
 
-  const binding = bindings[shortcutId];
+  const defaultSettings = useSettingsStore((s) => s.defaultSettings);
+  const binding =
+    bindings[shortcutId] ?? defaultSettings?.bindings?.[shortcutId];
   if (!binding) {
     return (
       <SettingContainer

@@ -1,5 +1,5 @@
 use crate::managers::history::HistoryManager;
-use crate::settings::{get_settings, write_settings, LLMPrompt};
+use crate::settings::{get_settings, write_settings, LLMPrompt, TextOpsOutputBehavior};
 use std::sync::Arc;
 use tauri::{AppHandle, State};
 
@@ -187,6 +187,29 @@ pub fn set_text_ops_pinned_prompt(prompt_id: String, app: AppHandle) -> Result<(
 pub fn change_text_ops_enabled_setting(enabled: bool, app: AppHandle) -> Result<(), String> {
     let mut settings = get_settings(&app);
     settings.text_ops_enabled = enabled;
+    write_settings(&app, settings.clone());
+
+    // Register or unregister the text ops shortcut
+    if let Some(binding) = settings.bindings.get("text_ops").cloned() {
+        if enabled {
+            let _ = crate::shortcut::register_shortcut(&app, binding);
+        } else {
+            let _ = crate::shortcut::unregister_shortcut(&app, binding);
+        }
+    }
+
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn change_text_ops_output_behavior(behavior: String, app: AppHandle) -> Result<(), String> {
+    let mut settings = get_settings(&app);
+    settings.text_ops_output_behavior = match behavior.as_str() {
+        "copy_to_clipboard" => TextOpsOutputBehavior::CopyToClipboard,
+        "replace_selection" => TextOpsOutputBehavior::ReplaceSelection,
+        _ => return Err(format!("Unknown text ops output behavior: {}", behavior)),
+    };
     write_settings(&app, settings);
     Ok(())
 }

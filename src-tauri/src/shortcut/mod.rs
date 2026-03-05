@@ -395,6 +395,11 @@ fn register_all_shortcuts_for_implementation(
             continue;
         }
 
+        // Skip text ops shortcut when the feature is disabled
+        if id == "text_ops" && !current_settings.text_ops_enabled {
+            continue;
+        }
+
         let mut binding = current_settings
             .bindings
             .get(id)

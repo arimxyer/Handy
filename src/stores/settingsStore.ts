@@ -154,6 +154,8 @@ const settingUpdaters: {
     commands.setTextOpsSelectedPrompt(value as string),
   text_ops_pinned_prompt_id: (value) =>
     commands.setTextOpsPinnedPrompt(value as string),
+  text_ops_output_behavior: (value) =>
+    commands.changeTextOpsOutputBehavior(value as string),
 };
 
 export const useSettingsStore = create<SettingsStore>()(

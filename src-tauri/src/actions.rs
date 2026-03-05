@@ -12,7 +12,7 @@ use crate::utils::{
 };
 use crate::TranscriptionCoordinator;
 use ferrous_opencc::{config::BuiltinConfig, OpenCC};
-use log::{debug, error, warn};
+use log::{debug, error, info, warn};
 use once_cell::sync::Lazy;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -570,6 +570,352 @@ impl ShortcutAction for TestAction {
     }
 }
 
+// Text Operations Action
+struct TextOpsAction;
+
+/// Write text to clipboard using the best available method.
+fn write_text_to_clipboard(app: &AppHandle, text: &str) -> Result<(), String> {
+    #[cfg(target_os = "linux")]
+    {
+        if crate::utils::is_wayland() {
+            // Use wl-copy on Wayland for reliability
+            let status = std::process::Command::new("wl-copy")
+                .arg("--")
+                .arg(text)
+                .stdout(std::process::Stdio::null())
+                .stderr(std::process::Stdio::null())
+                .status()
+                .map_err(|e| format!("Failed to execute wl-copy: {}", e))?;
+            if status.success() {
+                return Ok(());
+            }
+            // Fall through to Tauri clipboard
+        }
+    }
+    use tauri_plugin_clipboard_manager::ClipboardExt;
+    app.clipboard()
+        .write_text(text)
+        .map_err(|e| format!("Failed to write clipboard: {}", e))
+}
+
+/// Get the currently selected text. On Wayland, reads the primary selection
+/// (which contains whatever is highlighted) without needing to simulate Ctrl+C.
+/// Falls back to Ctrl+C copy approach on other platforms.
+fn get_selected_text(app: &AppHandle) -> String {
+    #[cfg(target_os = "linux")]
+    {
+        if crate::utils::is_wayland() {
+            // Primary selection contains highlighted text without needing Ctrl+C
+            match std::process::Command::new("wl-paste")
+                .args(["--primary", "--no-newline"])
+                .output()
+            {
+                Ok(output) if output.status.success() => {
+                    let text = String::from_utf8_lossy(&output.stdout).to_string();
+                    if !text.trim().is_empty() {
+                        info!("Text ops: got {} chars from primary selection", text.len());
+                        return text;
+                    }
+                    info!("Text ops: primary selection is empty");
+                }
+                Ok(output) => {
+                    let stderr = String::from_utf8_lossy(&output.stderr);
+                    info!("Text ops: wl-paste --primary failed: {}", stderr.trim());
+                }
+                Err(e) => info!("Text ops: wl-paste not found: {}", e),
+            }
+        }
+    }
+
+    // Fallback: try Ctrl+C to copy selection into clipboard, then read it
+    let original_clipboard = read_clipboard_text(app);
+    if let Err(e) = send_copy_keystroke(app) {
+        error!("Text ops: failed to send Ctrl+C: {}", e);
+        return String::new();
+    }
+    std::thread::sleep(std::time::Duration::from_millis(150));
+    let clipboard_text = read_clipboard_text(app);
+    if clipboard_text == original_clipboard {
+        info!("Text ops: clipboard unchanged after Ctrl+C");
+        return String::new();
+    }
+    info!("Text ops: got {} chars via Ctrl+C copy", clipboard_text.len());
+    clipboard_text
+}
+
+/// Read clipboard text, preferring wl-paste on Wayland for reliability.
+fn read_clipboard_text(app: &AppHandle) -> String {
+    #[cfg(target_os = "linux")]
+    {
+        if crate::utils::is_wayland() {
+            if let Ok(output) = std::process::Command::new("wl-paste")
+                .arg("--no-newline")
+                .output()
+            {
+                if output.status.success() {
+                    return String::from_utf8_lossy(&output.stdout).to_string();
+                }
+            }
+        }
+    }
+    use tauri_plugin_clipboard_manager::ClipboardExt;
+    app.clipboard().read_text().unwrap_or_default()
+}
+
+/// Send Ctrl+C (or Cmd+C on macOS) using platform-appropriate tools.
+/// On Linux Wayland, uses ydotool or other native tools instead of Enigo.
+fn send_copy_keystroke(app: &AppHandle) -> Result<(), String> {
+    #[cfg(target_os = "linux")]
+    {
+        if crate::utils::is_wayland() {
+            // Try ydotool first (keycodes: ctrl=29, c=46)
+            match std::process::Command::new("ydotool")
+                .args(["key", "29:1", "46:1", "46:0", "29:0"])
+                .output()
+            {
+                Ok(output) if output.status.success() => {
+                    info!("Text ops: sent Ctrl+C via ydotool");
+                    return Ok(());
+                }
+                Ok(output) => {
+                    let stderr = String::from_utf8_lossy(&output.stderr);
+                    info!("Text ops: ydotool failed (exit {:?}): {}", output.status.code(), stderr.trim());
+                }
+                Err(e) => info!("Text ops: ydotool not found: {}", e),
+            }
+            // Try dotool
+            match std::process::Command::new("sh")
+                .arg("-c")
+                .arg("echo key ctrl+c | dotool")
+                .output()
+            {
+                Ok(output) if output.status.success() => {
+                    info!("Text ops: sent Ctrl+C via dotool");
+                    return Ok(());
+                }
+                Ok(output) => {
+                    let stderr = String::from_utf8_lossy(&output.stderr);
+                    info!("Text ops: dotool failed (exit {:?}): {}", output.status.code(), stderr.trim());
+                }
+                Err(e) => info!("Text ops: dotool not found: {}", e),
+            }
+            // Try wtype — may not work on KDE for text typing, but key combos might work
+            match std::process::Command::new("wtype")
+                .args(["-M", "ctrl", "-k", "c"])
+                .output()
+            {
+                Ok(output) if output.status.success() => {
+                    info!("Text ops: sent Ctrl+C via wtype");
+                    return Ok(());
+                }
+                Ok(output) => {
+                    let stderr = String::from_utf8_lossy(&output.stderr);
+                    info!("Text ops: wtype failed (exit {:?}): {}", output.status.code(), stderr.trim());
+                }
+                Err(e) => info!("Text ops: wtype not found: {}", e),
+            }
+            // Fall through to Enigo as last resort
+            info!("Text ops: no Wayland copy tool succeeded, trying Enigo");
+        }
+    }
+
+    // macOS / Windows / X11 Linux fallback: use Enigo
+    use crate::input::EnigoState;
+    let enigo_state = app
+        .try_state::<EnigoState>()
+        .ok_or("Enigo state not initialized")?;
+    let mut enigo = enigo_state
+        .0
+        .lock()
+        .map_err(|e| format!("Failed to lock Enigo: {}", e))?;
+
+    use enigo::Keyboard;
+    #[cfg(target_os = "macos")]
+    let (modifier, c_key) = (enigo::Key::Meta, enigo::Key::Other(8));
+    #[cfg(target_os = "windows")]
+    let (modifier, c_key) = (enigo::Key::Control, enigo::Key::Other(0x43));
+    #[cfg(target_os = "linux")]
+    let (modifier, c_key) = (enigo::Key::Control, enigo::Key::Unicode('c'));
+
+    enigo
+        .key(modifier, enigo::Direction::Press)
+        .map_err(|e| format!("Failed to press modifier: {}", e))?;
+    enigo
+        .key(c_key, enigo::Direction::Click)
+        .map_err(|e| format!("Failed to click C key: {}", e))?;
+    std::thread::sleep(std::time::Duration::from_millis(50));
+    enigo
+        .key(modifier, enigo::Direction::Release)
+        .map_err(|e| format!("Failed to release modifier: {}", e))?;
+
+    info!("Text ops: sent Ctrl+C via Enigo");
+    Ok(())
+}
+
+impl ShortcutAction for TextOpsAction {
+    fn start(&self, app: &AppHandle, _binding_id: &str, _shortcut_str: &str) {
+        info!("TextOpsAction::start triggered");
+        let settings = get_settings(app);
+
+        if !settings.text_ops_enabled {
+            info!("Text ops shortcut pressed but feature is disabled");
+            return;
+        }
+
+        // Get pinned prompt (fall back to selected, then first)
+        let prompt = settings
+            .text_ops_pinned_prompt_id
+            .as_ref()
+            .or(settings.text_ops_selected_prompt_id.as_ref())
+            .and_then(|id| settings.text_ops_prompts.iter().find(|p| &p.id == id))
+            .or_else(|| settings.text_ops_prompts.first());
+
+        let prompt = match prompt {
+            Some(p) => p.clone(),
+            None => {
+                info!("Text ops: no prompt available");
+                return;
+            }
+        };
+
+        let provider = match settings.active_text_ops_provider().cloned() {
+            Some(p) => p,
+            None => {
+                info!("Text ops: no provider configured");
+                return;
+            }
+        };
+
+        let model = settings
+            .text_ops_models
+            .get(&provider.id)
+            .cloned()
+            .unwrap_or_default();
+
+        if model.is_empty() {
+            info!("Text ops: no model selected for provider '{}'", provider.id);
+            return;
+        }
+
+        let api_key = settings
+            .post_process_api_keys
+            .get(&provider.id)
+            .cloned()
+            .unwrap_or_default();
+
+        info!(
+            "Text ops: using prompt '{}', provider '{}', model '{}'",
+            prompt.name, provider.id, model
+        );
+
+        let output_behavior = settings.text_ops_output_behavior;
+        let app_clone = app.clone();
+        let prompt_name = prompt.name.clone();
+        let system_prompt = prompt.prompt.replace("${output}", "").trim().to_string();
+
+        // Copy selected text first (Ctrl+C), then read clipboard and process
+        // This runs on a background thread so we can sleep without blocking
+        std::thread::spawn(move || {
+            // Try to get selected text — prefer primary selection (no Ctrl+C needed),
+            // fall back to copying via keystroke
+            let clipboard_text = get_selected_text(&app_clone);
+
+            if clipboard_text.trim().is_empty() {
+                info!("Text ops: no text selected, aborting");
+                return;
+            }
+
+            info!(
+                "Text ops: captured {} chars, sending to LLM",
+                clipboard_text.len()
+            );
+            show_processing_overlay(&app_clone);
+            change_tray_icon(&app_clone, TrayIconState::Transcribing);
+
+            let app_for_task = app_clone.clone();
+            tauri::async_runtime::spawn(async move {
+                let result = crate::llm_client::send_chat_completion_with_schema(
+                    &provider,
+                    api_key,
+                    &model,
+                    clipboard_text.clone(),
+                    Some(system_prompt),
+                    None,
+                )
+                .await;
+
+                match result {
+                    Ok(Some(result_text)) => {
+                        info!(
+                            "Text ops: LLM returned {} chars, output behavior: {:?}",
+                            result_text.len(),
+                            output_behavior
+                        );
+
+                        // Save to history
+                        if let Some(hm) = app_for_task.try_state::<Arc<HistoryManager>>() {
+                            if let Err(e) = hm.save_text_operation(
+                                clipboard_text,
+                                result_text.clone(),
+                                prompt_name,
+                            ) {
+                                error!("Failed to save text operation to history: {}", e);
+                            }
+                        }
+
+                        // Output result based on behavior setting
+                        use crate::settings::TextOpsOutputBehavior;
+                        match output_behavior {
+                            TextOpsOutputBehavior::CopyToClipboard => {
+                                // Write result to clipboard only
+                                if let Err(e) = write_text_to_clipboard(&app_for_task, &result_text) {
+                                    error!("Text ops: failed to copy to clipboard: {}", e);
+                                } else {
+                                    info!("Text ops: result copied to clipboard");
+                                }
+                                utils::hide_recording_overlay(&app_for_task);
+                                change_tray_icon(&app_for_task, TrayIconState::Idle);
+                            }
+                            TextOpsOutputBehavior::ReplaceSelection => {
+                                // Paste over the selected text
+                                let ah = app_for_task.clone();
+                                app_for_task
+                                    .run_on_main_thread(move || {
+                                        match utils::paste(result_text, ah.clone()) {
+                                            Ok(()) => info!("Text ops: result pasted (replaced selection)"),
+                                            Err(e) => error!("Failed to paste text ops result: {}", e),
+                                        }
+                                        utils::hide_recording_overlay(&ah);
+                                        change_tray_icon(&ah, TrayIconState::Idle);
+                                    })
+                                    .unwrap_or_else(|e| {
+                                        error!("Failed to run paste on main thread: {:?}", e);
+                                        utils::hide_recording_overlay(&app_for_task);
+                                        change_tray_icon(&app_for_task, TrayIconState::Idle);
+                                    });
+                            }
+                        }
+                    }
+                    Ok(None) => {
+                        error!("Text ops: no content returned from provider");
+                        utils::hide_recording_overlay(&app_for_task);
+                        change_tray_icon(&app_for_task, TrayIconState::Idle);
+                    }
+                    Err(e) => {
+                        error!("Text ops processing failed: {}", e);
+                        utils::hide_recording_overlay(&app_for_task);
+                        change_tray_icon(&app_for_task, TrayIconState::Idle);
+                    }
+                }
+            });
+        });
+    }
+
+    fn stop(&self, _app: &AppHandle, _binding_id: &str, _shortcut_str: &str) {
+        // Nothing to do on stop for text ops
+    }
+}
+
 // Static Action Map
 pub static ACTION_MAP: Lazy<HashMap<String, Arc<dyn ShortcutAction>>> = Lazy::new(|| {
     let mut map = HashMap::new();
@@ -590,6 +936,10 @@ pub static ACTION_MAP: Lazy<HashMap<String, Arc<dyn ShortcutAction>>> = Lazy::ne
     map.insert(
         "test".to_string(),
         Arc::new(TestAction) as Arc<dyn ShortcutAction>,
+    );
+    map.insert(
+        "text_ops".to_string(),
+        Arc::new(TextOpsAction) as Arc<dyn ShortcutAction>,
     );
     map
 });

@@ -368,6 +368,7 @@ pub fn run(cli_args: CliArgs) {
         commands::text_ops::set_text_ops_selected_prompt,
         commands::text_ops::set_text_ops_pinned_prompt,
         commands::text_ops::change_text_ops_enabled_setting,
+        commands::text_ops::change_text_ops_output_behavior,
         helpers::clamshell::is_laptop,
     ]);
 

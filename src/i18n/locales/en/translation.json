@@ -166,6 +166,10 @@
           "transcribe_with_post_process": {
             "name": "Post-Processing Hotkey",
             "description": "Optional: A dedicated hotkey that always applies AI post-processing to your transcription."
+          },
+          "text_ops": {
+            "name": "Text Operations Shortcut",
+            "description": "Transforms clipboard text using the pinned prompt and pastes the result."
           }
         },
         "errors": {
@@ -704,9 +708,15 @@
     "settings": {
       "title": "Text Settings",
       "provider": "Provider & Model",
-      "shortcut": "Text Operations Shortcut",
+      "shortcut": "Shortcut",
+      "enableShortcut": "Enable Text Ops Shortcut",
+      "enableShortcutDescription": "Register a global shortcut to transform selected text with the pinned prompt",
       "pinnedPrompt": "Default Prompt",
-      "pinnedPromptDescription": "The prompt used when pressing the shortcut without the picker"
+      "pinnedPromptDescription": "The prompt used when pressing the shortcut without the picker",
+      "outputBehavior": "Output Behavior",
+      "outputBehaviorDescription": "What to do with the result when using the shortcut",
+      "outputCopyToClipboard": "Copy to Clipboard",
+      "outputReplaceSelection": "Replace Selection"
     },
     "presetNames": {
       "fixGrammar": "Fix Grammar",

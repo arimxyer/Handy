@@ -146,6 +146,14 @@ pub enum ClipboardHandling {
     CopyToClipboard,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, Default, PartialEq, Eq, Type)]
+#[serde(rename_all = "snake_case")]
+pub enum TextOpsOutputBehavior {
+    #[default]
+    CopyToClipboard,
+    ReplaceSelection,
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Type, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum AutoSubmitKey {
@@ -373,6 +381,8 @@ pub struct AppSettings {
     pub text_ops_selected_prompt_id: Option<String>,
     #[serde(default)]
     pub text_ops_pinned_prompt_id: Option<String>,
+    #[serde(default)]
+    pub text_ops_output_behavior: TextOpsOutputBehavior,
 }
 
 fn default_model() -> String {
@@ -750,6 +760,26 @@ pub fn get_default_settings() -> AppSettings {
         },
     );
 
+    #[cfg(target_os = "windows")]
+    let default_text_ops_shortcut = "ctrl+alt+space";
+    #[cfg(target_os = "macos")]
+    let default_text_ops_shortcut = "option+cmd+space";
+    #[cfg(target_os = "linux")]
+    let default_text_ops_shortcut = "ctrl+alt+space";
+    #[cfg(not(any(target_os = "windows", target_os = "macos", target_os = "linux")))]
+    let default_text_ops_shortcut = "ctrl+alt+space";
+
+    bindings.insert(
+        "text_ops".to_string(),
+        ShortcutBinding {
+            id: "text_ops".to_string(),
+            name: "Text Operations".to_string(),
+            description: "Transforms clipboard text using the pinned prompt.".to_string(),
+            default_binding: default_text_ops_shortcut.to_string(),
+            current_binding: default_text_ops_shortcut.to_string(),
+        },
+    );
+
     AppSettings {
         bindings,
         push_to_talk: true,
@@ -807,6 +837,7 @@ pub fn get_default_settings() -> AppSettings {
         text_ops_prompts: default_text_ops_prompts(),
         text_ops_selected_prompt_id: None,
         text_ops_pinned_prompt_id: None,
+        text_ops_output_behavior: TextOpsOutputBehavior::default(),
     }
 }
 
@@ -843,6 +874,7 @@ impl AppSettings {
             .iter()
             .find(|provider| provider.id == provider_id)
     }
+
 }
 
 pub fn load_or_create_app_settings(app: &AppHandle) -> AppSettings {

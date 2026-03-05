@@ -4,25 +4,89 @@ import { RefreshCcw } from "lucide-react";
 
 import { Alert } from "../../ui/Alert";
 import { Dropdown, SettingContainer, SettingsGroup } from "@/components/ui";
+import { ToggleSwitch } from "../../ui/ToggleSwitch";
 import { ResetButton } from "../../ui/ResetButton";
 
 import { ProviderSelect } from "../PostProcessingSettingsApi/ProviderSelect";
 import { BaseUrlField } from "../PostProcessingSettingsApi/BaseUrlField";
 import { ApiKeyField } from "../PostProcessingSettingsApi/ApiKeyField";
 import { ModelSelect } from "../PostProcessingSettingsApi/ModelSelect";
+import { ShortcutInput } from "../ShortcutInput";
 import { useTextOpsProviderState } from "./useTextOpsProviderState";
 import { useSettings } from "../../../hooks/useSettings";
+import type { TextOpsOutputBehavior } from "@/bindings";
 
 export const TextSettingsPage: React.FC = () => {
   const { t } = useTranslation();
   const state = useTextOpsProviderState();
-  const { getSetting, updateSetting } = useSettings();
+  const { getSetting, updateSetting, isUpdating } = useSettings();
 
+  const textOpsEnabled = getSetting("text_ops_enabled") || false;
   const prompts = getSetting("text_ops_prompts") || [];
   const pinnedPromptId = getSetting("text_ops_pinned_prompt_id") ?? null;
+  const outputBehavior = (getSetting("text_ops_output_behavior") as string) || "copy_to_clipboard";
+
+  const outputBehaviorOptions = [
+    { value: "copy_to_clipboard", label: t("textOps.settings.outputCopyToClipboard") },
+    { value: "replace_selection", label: t("textOps.settings.outputReplaceSelection") },
+  ];
 
   return (
     <div className="max-w-3xl w-full mx-auto space-y-6">
+      <SettingsGroup title={t("textOps.settings.shortcut")}>
+        <ToggleSwitch
+          checked={textOpsEnabled}
+          onChange={(enabled) => updateSetting("text_ops_enabled", enabled)}
+          isUpdating={isUpdating("text_ops_enabled")}
+          label={t("textOps.settings.enableShortcut")}
+          description={t("textOps.settings.enableShortcutDescription")}
+          descriptionMode="tooltip"
+          grouped={true}
+        />
+        {textOpsEnabled && (
+          <>
+            <ShortcutInput shortcutId="text_ops" grouped={true} />
+            <SettingContainer
+              title={t("textOps.settings.pinnedPrompt")}
+              description={t("textOps.settings.pinnedPromptDescription")}
+              descriptionMode="tooltip"
+              layout="horizontal"
+              grouped={true}
+            >
+              <Dropdown
+                selectedValue={pinnedPromptId}
+                options={prompts.map((p) => ({ value: p.id, label: p.name }))}
+                onSelect={(value) => {
+                  if (value) {
+                    updateSetting("text_ops_pinned_prompt_id", value);
+                  }
+                }}
+                placeholder={t("textOps.prompts.selectPrompt")}
+                className="flex-1"
+              />
+            </SettingContainer>
+            <SettingContainer
+              title={t("textOps.settings.outputBehavior")}
+              description={t("textOps.settings.outputBehaviorDescription")}
+              descriptionMode="tooltip"
+              layout="horizontal"
+              grouped={true}
+            >
+              <Dropdown
+                selectedValue={outputBehavior}
+                options={outputBehaviorOptions}
+                onSelect={(value) => {
+                  if (value) {
+                    updateSetting("text_ops_output_behavior", value as TextOpsOutputBehavior);
+                  }
+                }}
+                className="flex-1"
+              />
+            </SettingContainer>
+          </>
+        )}
+      </SettingsGroup>
+
       <SettingsGroup title={t("textOps.settings.provider")}>
         <SettingContainer
           title={t("settings.postProcessing.api.provider.title")}
@@ -143,27 +207,6 @@ export const TextSettingsPage: React.FC = () => {
         )}
       </SettingsGroup>
 
-      <SettingsGroup title={t("textOps.settings.pinnedPrompt")}>
-        <SettingContainer
-          title={t("textOps.settings.pinnedPrompt")}
-          description={t("textOps.settings.pinnedPromptDescription")}
-          descriptionMode="tooltip"
-          layout="horizontal"
-          grouped={true}
-        >
-          <Dropdown
-            selectedValue={pinnedPromptId}
-            options={prompts.map((p) => ({ value: p.id, label: p.name }))}
-            onSelect={(value) => {
-              if (value) {
-                updateSetting("text_ops_pinned_prompt_id", value);
-              }
-            }}
-            placeholder={t("textOps.prompts.selectPrompt")}
-            className="flex-1"
-          />
-        </SettingContainer>
-      </SettingsGroup>
     </div>
   );
 };
