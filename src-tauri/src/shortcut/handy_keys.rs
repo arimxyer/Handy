@@ -437,6 +437,10 @@ pub fn init_shortcuts(app: &AppHandle) -> Result<(), String> {
         if id == "transcribe_with_post_process" && !user_settings.post_process_enabled {
             continue;
         }
+        // Skip text ops shortcuts when the feature is disabled
+        if (id == "text_ops" || id == "text_ops_picker") && !user_settings.text_ops_enabled {
+            continue;
+        }
 
         let binding = user_settings
             .bindings
