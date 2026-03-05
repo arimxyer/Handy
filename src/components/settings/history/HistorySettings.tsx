@@ -20,6 +20,7 @@ import { formatDateTime } from "@/utils/dateFormat";
 import { useOsType } from "@/hooks/useOsType";
 import { toast } from "sonner";
 import { useSettings } from "@/hooks/useSettings";
+import { useSettingsStore } from "@/stores/settingsStore";
 import {
   usePostProcessDrawer,
   type CompareModel,
@@ -51,10 +52,14 @@ const OpenRecordingsButton: React.FC<OpenRecordingsButtonProps> = ({
 export const HistorySettings: React.FC = () => {
   const { t } = useTranslation();
   const osType = useOsType();
+  const appMode = useSettingsStore((state) => state.appMode);
   const [historyEntries, setHistoryEntries] = useState<HistoryEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
   const { getSetting } = useSettings();
+
+  const isTextMode = appMode === "text";
+
   const historyPostProcessEnabled =
     (getSetting("experimental_enabled") || false) &&
     (getSetting("post_process_enabled") || false) &&
@@ -92,7 +97,8 @@ export const HistorySettings: React.FC = () => {
 
   const loadHistoryEntries = useCallback(async () => {
     try {
-      const result = await commands.getHistoryEntries();
+      const source = isTextMode ? "text" : "voice";
+      const result = await commands.getHistoryEntries(source);
       if (result.status === "ok") {
         setHistoryEntries(result.data);
       }
@@ -101,7 +107,7 @@ export const HistorySettings: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [isTextMode]);
 
   useEffect(() => {
     loadHistoryEntries();
@@ -183,24 +189,35 @@ export const HistorySettings: React.FC = () => {
     </div>
   ) : historyEntries.length === 0 ? (
     <div className="px-4 py-3 text-center text-text/60">
-      {t("settings.history.empty")}
+      {isTextMode
+        ? t("settings.history.textEmpty")
+        : t("settings.history.empty")}
     </div>
   ) : (
     <div className="divide-y divide-mid-gray/20">
-      {historyEntries.map((entry) => (
-        <HistoryEntryComponent
-          key={entry.id}
-          entry={entry}
-          onToggleSaved={() => toggleSaved(entry.id)}
-          getAudioUrl={getAudioUrl}
-          deleteAudio={deleteAudioEntry}
-          showPostProcess={historyPostProcessEnabled}
-          postProcessConfigured={postProcessConfigured}
-          drawerOverrides={resolvedDrawerOverrides}
-          compareEnabled={drawer.compareEnabled}
-          compareModels={drawer.compareModels}
-        />
-      ))}
+      {historyEntries.map((entry) =>
+        isTextMode ? (
+          <TextHistoryEntryComponent
+            key={entry.id}
+            entry={entry}
+            onToggleSaved={() => toggleSaved(entry.id)}
+            deleteEntry={deleteAudioEntry}
+          />
+        ) : (
+          <HistoryEntryComponent
+            key={entry.id}
+            entry={entry}
+            onToggleSaved={() => toggleSaved(entry.id)}
+            getAudioUrl={getAudioUrl}
+            deleteAudio={deleteAudioEntry}
+            showPostProcess={historyPostProcessEnabled}
+            postProcessConfigured={postProcessConfigured}
+            drawerOverrides={resolvedDrawerOverrides}
+            compareEnabled={drawer.compareEnabled}
+            compareModels={drawer.compareModels}
+          />
+        ),
+      )}
     </div>
   );
 
@@ -210,11 +227,13 @@ export const HistorySettings: React.FC = () => {
         <div className="px-4 flex items-center justify-between">
           <div>
             <h2 className="text-xs font-medium text-mid-gray uppercase tracking-wide">
-              {t("settings.history.title")}
+              {isTextMode
+                ? t("settings.history.textOpsTitle")
+                : t("settings.history.title")}
             </h2>
           </div>
           <div className="flex items-center gap-2">
-            {historyPostProcessEnabled && (
+            {!isTextMode && historyPostProcessEnabled && (
               <Button
                 onClick={drawer.isOpen ? drawer.close : drawer.open}
                 variant="secondary"
@@ -225,10 +244,12 @@ export const HistorySettings: React.FC = () => {
                 <span>{t("settings.history.drawer.title")}</span>
               </Button>
             )}
-            <OpenRecordingsButton
-              onClick={openRecordingsFolder}
-              label={t("settings.history.openFolder")}
-            />
+            {!isTextMode && (
+              <OpenRecordingsButton
+                onClick={openRecordingsFolder}
+                label={t("settings.history.openFolder")}
+              />
+            )}
           </div>
         </div>
         <div className="bg-background border border-mid-gray/20 rounded-lg overflow-hidden">
@@ -236,7 +257,7 @@ export const HistorySettings: React.FC = () => {
         </div>
       </div>
       {/* Drawer renders via portal to #drawer-portal in App.tsx */}
-      <PostProcessDrawer {...drawer} />
+      {!isTextMode && <PostProcessDrawer {...drawer} />}
     </div>
   );
 };
@@ -533,6 +554,132 @@ const HistoryEntryComponent: React.FC<HistoryEntryProps> = ({
       )}
       {entry.version_count > 0 && <VersionHistory entry={entry} />}
       <AudioPlayer onLoadRequest={handleLoadAudio} className="w-full" />
+    </div>
+  );
+};
+
+interface TextHistoryEntryProps {
+  entry: HistoryEntry;
+  onToggleSaved: () => void;
+  deleteEntry: (id: number) => Promise<void>;
+}
+
+const TextHistoryEntryComponent: React.FC<TextHistoryEntryProps> = ({
+  entry,
+  onToggleSaved,
+  deleteEntry,
+}) => {
+  const { t, i18n } = useTranslation();
+  const [showCopied, setShowCopied] = useState<"input" | "output" | null>(null);
+
+  const handleCopy = (text: string, which: "input" | "output") => {
+    navigator.clipboard.writeText(text).catch((error) => {
+      console.error("Failed to copy to clipboard:", error);
+    });
+    setShowCopied(which);
+    setTimeout(() => setShowCopied(null), 2000);
+  };
+
+  const handleDelete = async () => {
+    try {
+      await deleteEntry(entry.id);
+    } catch (error) {
+      console.error("Failed to delete entry:", error);
+    }
+  };
+
+  const formattedDate = formatDateTime(String(entry.timestamp), i18n.language);
+
+  return (
+    <div className="px-4 py-2 pb-5 flex flex-col gap-3">
+      <div className="flex justify-between items-center">
+        <p className="text-sm font-medium">{formattedDate}</p>
+        <div className="flex items-center gap-1 text-xs text-mid-gray">
+          {entry.post_process_prompt && (
+            <span className="px-2 py-0.5 bg-logo-primary/10 text-logo-primary rounded">
+              {entry.post_process_prompt}
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={onToggleSaved}
+            className={`transition-colors cursor-pointer ${
+              entry.saved
+                ? "text-logo-primary hover:text-logo-primary/80"
+                : "text-text/50 hover:text-logo-primary"
+            }`}
+            title={
+              entry.saved
+                ? t("settings.history.unsave")
+                : t("settings.history.save")
+            }
+          >
+            <Star
+              width={16}
+              height={16}
+              fill={entry.saved ? "currentColor" : "none"}
+            />
+          </button>
+          <button
+            onClick={handleDelete}
+            className="text-text/50 hover:text-logo-primary transition-colors cursor-pointer"
+            title={t("settings.history.delete")}
+          >
+            <Trash2 width={16} height={16} />
+          </button>
+        </div>
+      </div>
+
+      {/* Input text */}
+      <div className="space-y-1">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-medium text-mid-gray uppercase tracking-wide">
+            {t("settings.history.textInput")}
+          </span>
+          <button
+            onClick={() => handleCopy(entry.transcription_text, "input")}
+            className="text-text/50 hover:text-logo-primary transition-colors cursor-pointer"
+            title={t("settings.history.copyToClipboard")}
+          >
+            {showCopied === "input" ? (
+              <Check width={14} height={14} />
+            ) : (
+              <Copy width={14} height={14} />
+            )}
+          </button>
+        </div>
+        <p className="text-sm text-text/70 select-text cursor-text bg-mid-gray/5 rounded-md p-2 border border-mid-gray/10">
+          {entry.transcription_text}
+        </p>
+      </div>
+
+      {/* Output text */}
+      {entry.post_processed_text && (
+        <div className="space-y-1">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-mid-gray uppercase tracking-wide">
+              {t("settings.history.textOutput")}
+            </span>
+            <button
+              onClick={() =>
+                handleCopy(entry.post_processed_text!, "output")
+              }
+              className="text-text/50 hover:text-logo-primary transition-colors cursor-pointer"
+              title={t("settings.history.copyToClipboard")}
+            >
+              {showCopied === "output" ? (
+                <Check width={14} height={14} />
+              ) : (
+                <Copy width={14} height={14} />
+              )}
+            </button>
+          </div>
+          <p className="italic text-sm text-text/90 select-text cursor-text bg-mid-gray/5 rounded-md p-2 border border-mid-gray/10">
+            {entry.post_processed_text}
+          </p>
+        </div>
+      )}
     </div>
   );
 };

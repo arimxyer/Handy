@@ -8,6 +8,11 @@ export { PostProcessingSettings } from "./post-processing/PostProcessingSettings
 export { InsightsSettings } from "./insights/InsightsSettings";
 export { ModelsSettings } from "./models/ModelsSettings";
 
+// Text mode placeholder components (Phase 3 will replace these)
+export { TextSettingsPlaceholder } from "./TextPlaceholders";
+export { TextOperationsPage } from "./text-ops/TextOperationsPage";
+export { TextSettingsPage } from "./text-ops/TextSettingsPage";
+
 // Individual setting components
 export { MicrophoneSelector } from "./MicrophoneSelector";
 export { ClamshellMicrophoneSelector } from "./ClamshellMicrophoneSelector";

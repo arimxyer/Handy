@@ -359,6 +359,15 @@ pub fn run(cli_args: CliArgs) {
         commands::insights::change_insights_entry_count,
         commands::insights::change_insights_use_all_history,
         commands::insights::clear_insights_history,
+        commands::text_ops::process_text,
+        commands::text_ops::add_text_ops_prompt,
+        commands::text_ops::update_text_ops_prompt,
+        commands::text_ops::delete_text_ops_prompt,
+        commands::text_ops::change_text_ops_provider_setting,
+        commands::text_ops::change_text_ops_model_setting,
+        commands::text_ops::set_text_ops_selected_prompt,
+        commands::text_ops::set_text_ops_pinned_prompt,
+        commands::text_ops::change_text_ops_enabled_setting,
         helpers::clamshell::is_laptop,
     ]);
 

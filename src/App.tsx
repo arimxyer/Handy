@@ -10,7 +10,7 @@ import "./App.css";
 import AccessibilityPermissions from "./components/AccessibilityPermissions";
 import Footer from "./components/footer";
 import Onboarding, { AccessibilityOnboarding } from "./components/onboarding";
-import { Sidebar, SidebarSection, SECTIONS_CONFIG } from "./components/Sidebar";
+import { Sidebar, SidebarSection, AppMode, SECTIONS_CONFIG } from "./components/Sidebar";
 import { useSettings } from "./hooks/useSettings";
 import { useSettingsStore } from "./stores/settingsStore";
 import { commands } from "@/bindings";
@@ -34,6 +34,13 @@ function App() {
   const [isReturningUser, setIsReturningUser] = useState(false);
   const [currentSection, setCurrentSection] =
     useState<SidebarSection>("general");
+  const appMode = useSettingsStore((state) => state.appMode);
+  const setAppMode = useSettingsStore((state) => state.setAppMode);
+
+  const handleModeChange = (mode: AppMode) => {
+    setAppMode(mode);
+    setCurrentSection(mode === "text" ? "textOperations" : "general");
+  };
   const { settings, updateSetting } = useSettings();
   const direction = getLanguageDirection(i18n.language);
   const refreshAudioDevices = useSettingsStore(
@@ -176,6 +183,8 @@ function App() {
         <Sidebar
           activeSection={currentSection}
           onSectionChange={setCurrentSection}
+          appMode={appMode}
+          onModeChange={handleModeChange}
         />
         {/* Scrollable content area + drawer portal */}
         <div className="flex-1 flex min-h-0 overflow-hidden">

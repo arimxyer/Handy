@@ -360,6 +360,19 @@ pub struct AppSettings {
 
     #[serde(default)]
     pub insights_history: Vec<crate::commands::insights::InsightsResult>,
+
+    #[serde(default)]
+    pub text_ops_enabled: bool,
+    #[serde(default = "default_text_ops_provider_id")]
+    pub text_ops_provider_id: String,
+    #[serde(default = "default_text_ops_models")]
+    pub text_ops_models: HashMap<String, String>,
+    #[serde(default = "default_text_ops_prompts")]
+    pub text_ops_prompts: Vec<LLMPrompt>,
+    #[serde(default)]
+    pub text_ops_selected_prompt_id: Option<String>,
+    #[serde(default)]
+    pub text_ops_pinned_prompt_id: Option<String>,
 }
 
 fn default_model() -> String {
@@ -574,6 +587,59 @@ fn default_insights_entry_count() -> u32 {
     50
 }
 
+fn default_text_ops_provider_id() -> String {
+    "openai".to_string()
+}
+
+fn default_text_ops_models() -> HashMap<String, String> {
+    HashMap::new()
+}
+
+fn default_text_ops_prompts() -> Vec<LLMPrompt> {
+    vec![
+        LLMPrompt {
+            id: "text_ops_fix_grammar".to_string(),
+            name: "Fix Grammar".to_string(),
+            prompt: "Fix any grammar, spelling, and punctuation errors in the following text. Keep the original meaning and tone. Only return the corrected text, nothing else.".to_string(),
+        },
+        LLMPrompt {
+            id: "text_ops_rewrite_formally".to_string(),
+            name: "Rewrite Formally".to_string(),
+            prompt: "Rewrite the following text in a formal, professional tone. Keep the same meaning. Only return the rewritten text.".to_string(),
+        },
+        LLMPrompt {
+            id: "text_ops_simplify".to_string(),
+            name: "Simplify".to_string(),
+            prompt: "Simplify the following text to make it easier to understand. Use shorter sentences and simpler words. Only return the simplified text.".to_string(),
+        },
+        LLMPrompt {
+            id: "text_ops_summarize".to_string(),
+            name: "Summarize".to_string(),
+            prompt: "Summarize the following text concisely, capturing the key points. Only return the summary.".to_string(),
+        },
+        LLMPrompt {
+            id: "text_ops_expand".to_string(),
+            name: "Expand".to_string(),
+            prompt: "Expand the following text with more detail and explanation while maintaining the original meaning and tone. Only return the expanded text.".to_string(),
+        },
+        LLMPrompt {
+            id: "text_ops_translate_to_english".to_string(),
+            name: "Translate to English".to_string(),
+            prompt: "Translate the following text to English. Only return the translation.".to_string(),
+        },
+        LLMPrompt {
+            id: "text_ops_extract_action_items".to_string(),
+            name: "Extract Action Items".to_string(),
+            prompt: "Extract all action items and tasks from the following text as a bulleted list. Only return the list.".to_string(),
+        },
+        LLMPrompt {
+            id: "text_ops_explain_simply".to_string(),
+            name: "Explain Simply".to_string(),
+            prompt: "Explain the following text in simple terms, as if explaining to someone unfamiliar with the topic. Only return the explanation.".to_string(),
+        },
+    ]
+}
+
 fn ensure_post_process_defaults(settings: &mut AppSettings) -> bool {
     let mut changed = false;
     for provider in default_post_process_providers() {
@@ -735,6 +801,12 @@ pub fn get_default_settings() -> AppSettings {
         insights_entry_count: default_insights_entry_count(),
         insights_use_all_history: false,
         insights_history: Vec::new(),
+        text_ops_enabled: false,
+        text_ops_provider_id: default_text_ops_provider_id(),
+        text_ops_models: default_text_ops_models(),
+        text_ops_prompts: default_text_ops_prompts(),
+        text_ops_selected_prompt_id: None,
+        text_ops_pinned_prompt_id: None,
     }
 }
 
@@ -757,6 +829,18 @@ impl AppSettings {
     ) -> Option<&mut PostProcessProvider> {
         self.post_process_providers
             .iter_mut()
+            .find(|provider| provider.id == provider_id)
+    }
+
+    pub fn active_text_ops_provider(&self) -> Option<&PostProcessProvider> {
+        self.post_process_providers
+            .iter()
+            .find(|provider| provider.id == self.text_ops_provider_id)
+    }
+
+    pub fn text_ops_provider(&self, provider_id: &str) -> Option<&PostProcessProvider> {
+        self.post_process_providers
+            .iter()
             .find(|provider| provider.id == provider_id)
     }
 }

@@ -9,9 +9,10 @@ use tauri::{AppHandle, State};
 pub async fn get_history_entries(
     _app: AppHandle,
     history_manager: State<'_, Arc<HistoryManager>>,
+    source: Option<String>,
 ) -> Result<Vec<HistoryEntry>, String> {
     history_manager
-        .get_history_entries()
+        .get_history_entries(source.as_deref())
         .await
         .map_err(|e| e.to_string())
 }

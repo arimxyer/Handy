@@ -150,7 +150,7 @@ pub async fn analyze_speech_patterns(
 
     // Get history entries
     let entries = history_manager
-        .get_history_entries()
+        .get_history_entries(Some("voice"))
         .await
         .map_err(|e| e.to_string())?;
 
@@ -373,7 +373,7 @@ pub async fn estimate_insights_tokens(
     let settings = get_settings(&app);
 
     let entries = history_manager
-        .get_history_entries()
+        .get_history_entries(Some("voice"))
         .await
         .map_err(|e| e.to_string())?;
 

@@ -15,7 +15,11 @@
     "history": "History",
     "insights": "Insights",
     "debug": "Debug",
-    "about": "About"
+    "about": "About",
+    "textOperations": "Text",
+    "textSettings": "Text Settings",
+    "voice": "Voice",
+    "text": "Text"
   },
   "onboarding": {
     "subtitle": "To get started, choose a transcription model",
@@ -390,6 +394,11 @@
       "openFolder": "Open Recordings Folder",
       "loading": "Loading history...",
       "empty": "No transcriptions yet. Start recording to build your history!",
+    "textModeEmpty": "Text operation history will appear here",
+      "textOpsTitle": "Text Operations History",
+      "textInput": "Input",
+      "textOutput": "Output",
+      "textEmpty": "No text operations yet. Run a text operation to build your history!",
       "copyToClipboard": "Copy transcription to clipboard",
       "copyOriginal": "Copy original transcription",
       "copyEnhanced": "Copy enhanced transcription",
@@ -675,5 +684,59 @@
   "overlay": {
     "transcribing": "Transcribing...",
     "processing": "Processing..."
+  },
+  "textOps": {
+    "title": "Text Operations",
+    "inputPlaceholder": "Type or paste text here...",
+    "run": "Run",
+    "result": "Result",
+    "copyResult": "Copy",
+    "copied": "Copied!",
+    "presets": "Quick Actions",
+    "customPrompts": "My Prompts",
+    "createPrompt": "New Prompt",
+    "processing": "Processing...",
+    "noProvider": "Configure a provider in Text Settings first",
+    "noText": "Enter some text to process",
+    "noPrompt": "Select a prompt first",
+    "error": "Failed to process text",
+    "pinned": "Default",
+    "settings": {
+      "title": "Text Settings",
+      "provider": "Provider & Model",
+      "shortcut": "Text Operations Shortcut",
+      "pinnedPrompt": "Default Prompt",
+      "pinnedPromptDescription": "The prompt used when pressing the shortcut without the picker"
+    },
+    "presetNames": {
+      "fixGrammar": "Fix Grammar",
+      "rewriteFormally": "Rewrite Formally",
+      "simplify": "Simplify",
+      "summarize": "Summarize",
+      "expand": "Expand",
+      "translateEnglish": "Translate to English",
+      "actionItems": "Extract Action Items",
+      "eli5": "Explain Simply"
+    },
+    "prompts": {
+      "selectedPrompt": {
+        "title": "Prompt",
+        "description": "Select or create a prompt for text operations"
+      },
+      "noPrompts": "No prompts available",
+      "selectPrompt": "Select a prompt",
+      "createNew": "New",
+      "promptLabel": "Name",
+      "promptLabelPlaceholder": "Enter prompt name...",
+      "promptInstructions": "Instructions",
+      "promptInstructionsPlaceholder": "Enter the instructions for the LLM...",
+      "promptTip": "The text you enter in the input area will be sent as the user message to the LLM.",
+      "updatePrompt": "Update",
+      "deletePrompt": "Delete",
+      "createPrompt": "Create",
+      "cancel": "Cancel",
+      "selectToEdit": "Select a prompt to edit it",
+      "createFirst": "Create a prompt to get started"
+    }
   }
 }

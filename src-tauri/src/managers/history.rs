@@ -46,6 +46,7 @@ static MIGRATIONS: &[M] = &[
     ),
     M::up("ALTER TABLE transcription_versions ADD COLUMN model_name TEXT;"),
     M::up("ALTER TABLE transcription_versions ADD COLUMN target TEXT NOT NULL DEFAULT 'post_processed';"),
+    M::up("ALTER TABLE transcription_history ADD COLUMN source TEXT NOT NULL DEFAULT 'voice';"),
 ];
 
 #[derive(Clone, Debug, Serialize, Deserialize, Type)]
@@ -59,6 +60,7 @@ pub struct HistoryEntry {
     pub post_processed_text: Option<String>,
     pub post_process_prompt: Option<String>,
     pub version_count: i64,
+    pub source: String,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, Type)]
@@ -230,6 +232,7 @@ impl HistoryManager {
             transcription_text,
             post_processed_text,
             post_process_prompt,
+            "voice",
         )?;
 
         // Clean up old entries
@@ -251,14 +254,44 @@ impl HistoryManager {
         transcription_text: String,
         post_processed_text: Option<String>,
         post_process_prompt: Option<String>,
+        source: &str,
     ) -> Result<()> {
         let conn = self.get_connection()?;
         conn.execute(
-            "INSERT INTO transcription_history (file_name, timestamp, saved, title, transcription_text, post_processed_text, post_process_prompt) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
-            params![file_name, timestamp, false, title, transcription_text, post_processed_text, post_process_prompt],
+            "INSERT INTO transcription_history (file_name, timestamp, saved, title, transcription_text, post_processed_text, post_process_prompt, source) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+            params![file_name, timestamp, false, title, transcription_text, post_processed_text, post_process_prompt, source],
         )?;
 
-        debug!("Saved transcription to database");
+        debug!("Saved {} entry to database", source);
+        Ok(())
+    }
+
+    /// Save a text operation result to history (no audio file)
+    pub fn save_text_operation(
+        &self,
+        input_text: String,
+        result_text: String,
+        prompt_name: String,
+    ) -> Result<()> {
+        let timestamp = Utc::now().timestamp();
+        let title = self.format_timestamp_title(timestamp);
+        let file_name = format!("text-op-{}", timestamp);
+
+        self.save_to_database(
+            file_name,
+            timestamp,
+            title,
+            input_text,
+            Some(result_text),
+            Some(prompt_name),
+            "text",
+        )?;
+
+        // Emit history updated event
+        if let Err(e) = self.app_handle.emit("history-updated", ()) {
+            error!("Failed to emit history-updated event: {}", e);
+        }
+
         Ok(())
     }
 
@@ -382,13 +415,23 @@ impl HistoryManager {
         Ok(())
     }
 
-    pub async fn get_history_entries(&self) -> Result<Vec<HistoryEntry>> {
+    pub async fn get_history_entries(&self, source: Option<&str>) -> Result<Vec<HistoryEntry>> {
         let conn = self.get_connection()?;
-        let mut stmt = conn.prepare(
-            "SELECT id, file_name, timestamp, saved, title, transcription_text, post_processed_text, post_process_prompt, (SELECT COUNT(*) FROM transcription_versions WHERE history_entry_id = transcription_history.id) AS version_count FROM transcription_history ORDER BY timestamp DESC"
-        )?;
 
-        let rows = stmt.query_map([], |row| {
+        let (sql, params_vec): (String, Vec<Box<dyn rusqlite::types::ToSql>>) = match source {
+            Some(s) => (
+                "SELECT id, file_name, timestamp, saved, title, transcription_text, post_processed_text, post_process_prompt, source, (SELECT COUNT(*) FROM transcription_versions WHERE history_entry_id = transcription_history.id) AS version_count FROM transcription_history WHERE source = ?1 ORDER BY timestamp DESC".to_string(),
+                vec![Box::new(s.to_string()) as Box<dyn rusqlite::types::ToSql>],
+            ),
+            None => (
+                "SELECT id, file_name, timestamp, saved, title, transcription_text, post_processed_text, post_process_prompt, source, (SELECT COUNT(*) FROM transcription_versions WHERE history_entry_id = transcription_history.id) AS version_count FROM transcription_history ORDER BY timestamp DESC".to_string(),
+                vec![],
+            ),
+        };
+
+        let mut stmt = conn.prepare(&sql)?;
+        let params_refs: Vec<&dyn rusqlite::types::ToSql> = params_vec.iter().map(|p| p.as_ref()).collect();
+        let rows = stmt.query_map(params_refs.as_slice(), |row| {
             Ok(HistoryEntry {
                 id: row.get("id")?,
                 file_name: row.get("file_name")?,
@@ -399,6 +442,7 @@ impl HistoryManager {
                 post_processed_text: row.get("post_processed_text")?,
                 post_process_prompt: row.get("post_process_prompt")?,
                 version_count: row.get("version_count")?,
+                source: row.get("source")?,
             })
         })?;
 
@@ -417,7 +461,7 @@ impl HistoryManager {
 
     fn get_latest_entry_with_conn(conn: &Connection) -> Result<Option<HistoryEntry>> {
         let mut stmt = conn.prepare(
-            "SELECT id, file_name, timestamp, saved, title, transcription_text, post_processed_text, post_process_prompt,
+            "SELECT id, file_name, timestamp, saved, title, transcription_text, post_processed_text, post_process_prompt, source,
              (SELECT COUNT(*) FROM transcription_versions WHERE history_entry_id = transcription_history.id) AS version_count
              FROM transcription_history
              ORDER BY timestamp DESC
@@ -436,6 +480,7 @@ impl HistoryManager {
                     post_processed_text: row.get("post_processed_text")?,
                     post_process_prompt: row.get("post_process_prompt")?,
                     version_count: row.get("version_count")?,
+                    source: row.get("source")?,
                 })
             })
             .optional()?;
@@ -477,7 +522,7 @@ impl HistoryManager {
     pub async fn get_entry_by_id(&self, id: i64) -> Result<Option<HistoryEntry>> {
         let conn = self.get_connection()?;
         let mut stmt = conn.prepare(
-            "SELECT id, file_name, timestamp, saved, title, transcription_text, post_processed_text, post_process_prompt,
+            "SELECT id, file_name, timestamp, saved, title, transcription_text, post_processed_text, post_process_prompt, source,
              (SELECT COUNT(*) FROM transcription_versions WHERE history_entry_id = transcription_history.id) AS version_count
              FROM transcription_history WHERE id = ?1",
         )?;
@@ -494,6 +539,7 @@ impl HistoryManager {
                     post_processed_text: row.get("post_processed_text")?,
                     post_process_prompt: row.get("post_process_prompt")?,
                     version_count: row.get("version_count")?,
+                    source: row.get("source")?,
                 })
             })
             .optional()?;
