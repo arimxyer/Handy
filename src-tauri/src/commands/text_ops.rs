@@ -59,11 +59,7 @@ pub async fn process_text(
     let result_text = result.ok_or_else(|| "No content returned from provider".to_string())?;
 
     // Save to history
-    if let Err(e) = history_manager.save_text_operation(
-        text,
-        result_text.clone(),
-        prompt_name,
-    ) {
+    if let Err(e) = history_manager.save_text_operation(text, result_text.clone(), prompt_name) {
         log::error!("Failed to save text operation to history: {}", e);
     }
 
@@ -142,10 +138,7 @@ pub fn delete_text_ops_prompt(id: String, app: AppHandle) -> Result<(), String> 
 
 #[tauri::command]
 #[specta::specta]
-pub fn change_text_ops_provider_setting(
-    provider_id: String,
-    app: AppHandle,
-) -> Result<(), String> {
+pub fn change_text_ops_provider_setting(provider_id: String, app: AppHandle) -> Result<(), String> {
     let mut settings = get_settings(&app);
     settings.text_ops_provider_id = provider_id;
     write_settings(&app, settings);

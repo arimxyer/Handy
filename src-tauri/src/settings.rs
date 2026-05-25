@@ -789,7 +789,8 @@ pub fn get_default_settings() -> AppSettings {
         ShortcutBinding {
             id: "text_ops_picker".to_string(),
             name: "Text Ops Prompt Picker".to_string(),
-            description: "Opens a prompt picker to choose which prompt to apply to selected text.".to_string(),
+            description: "Opens a prompt picker to choose which prompt to apply to selected text."
+                .to_string(),
             default_binding: default_text_ops_picker_shortcut.to_string(),
             current_binding: default_text_ops_picker_shortcut.to_string(),
         },
@@ -889,7 +890,6 @@ impl AppSettings {
             .iter()
             .find(|provider| provider.id == provider_id)
     }
-
 }
 
 pub fn load_or_create_app_settings(app: &AppHandle) -> AppSettings {

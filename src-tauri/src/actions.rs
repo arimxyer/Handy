@@ -640,7 +640,10 @@ fn get_selected_text(app: &AppHandle) -> String {
         info!("Text ops: clipboard unchanged after Ctrl+C");
         return String::new();
     }
-    info!("Text ops: got {} chars via Ctrl+C copy", clipboard_text.len());
+    info!(
+        "Text ops: got {} chars via Ctrl+C copy",
+        clipboard_text.len()
+    );
     clipboard_text
 }
 
@@ -680,7 +683,11 @@ fn send_copy_keystroke(app: &AppHandle) -> Result<(), String> {
                 }
                 Ok(output) => {
                     let stderr = String::from_utf8_lossy(&output.stderr);
-                    info!("Text ops: ydotool failed (exit {:?}): {}", output.status.code(), stderr.trim());
+                    info!(
+                        "Text ops: ydotool failed (exit {:?}): {}",
+                        output.status.code(),
+                        stderr.trim()
+                    );
                 }
                 Err(e) => info!("Text ops: ydotool not found: {}", e),
             }
@@ -696,7 +703,11 @@ fn send_copy_keystroke(app: &AppHandle) -> Result<(), String> {
                 }
                 Ok(output) => {
                     let stderr = String::from_utf8_lossy(&output.stderr);
-                    info!("Text ops: dotool failed (exit {:?}): {}", output.status.code(), stderr.trim());
+                    info!(
+                        "Text ops: dotool failed (exit {:?}): {}",
+                        output.status.code(),
+                        stderr.trim()
+                    );
                 }
                 Err(e) => info!("Text ops: dotool not found: {}", e),
             }
@@ -711,7 +722,11 @@ fn send_copy_keystroke(app: &AppHandle) -> Result<(), String> {
                 }
                 Ok(output) => {
                     let stderr = String::from_utf8_lossy(&output.stderr);
-                    info!("Text ops: wtype failed (exit {:?}): {}", output.status.code(), stderr.trim());
+                    info!(
+                        "Text ops: wtype failed (exit {:?}): {}",
+                        output.status.code(),
+                        stderr.trim()
+                    );
                 }
                 Err(e) => info!("Text ops: wtype not found: {}", e),
             }
@@ -869,7 +884,8 @@ impl ShortcutAction for TextOpsAction {
                         match output_behavior {
                             TextOpsOutputBehavior::CopyToClipboard => {
                                 // Write result to clipboard only
-                                if let Err(e) = write_text_to_clipboard(&app_for_task, &result_text) {
+                                if let Err(e) = write_text_to_clipboard(&app_for_task, &result_text)
+                                {
                                     error!("Text ops: failed to copy to clipboard: {}", e);
                                 } else {
                                     info!("Text ops: result copied to clipboard");
@@ -878,21 +894,28 @@ impl ShortcutAction for TextOpsAction {
                                 change_tray_icon(&app_for_task, TrayIconState::Idle);
                             }
                             TextOpsOutputBehavior::ReplaceSelection => {
+                                // Hide overlay first so the original app regains focus
+                                utils::hide_recording_overlay(&app_for_task);
+                                change_tray_icon(&app_for_task, TrayIconState::Idle);
+
+                                // Small delay to let the original app regain focus
+                                std::thread::sleep(std::time::Duration::from_millis(100));
+
                                 // Paste over the selected text
                                 let ah = app_for_task.clone();
                                 app_for_task
                                     .run_on_main_thread(move || {
                                         match utils::paste(result_text, ah.clone()) {
-                                            Ok(()) => info!("Text ops: result pasted (replaced selection)"),
-                                            Err(e) => error!("Failed to paste text ops result: {}", e),
+                                            Ok(()) => info!(
+                                                "Text ops: result pasted (replaced selection)"
+                                            ),
+                                            Err(e) => {
+                                                error!("Failed to paste text ops result: {}", e)
+                                            }
                                         }
-                                        utils::hide_recording_overlay(&ah);
-                                        change_tray_icon(&ah, TrayIconState::Idle);
                                     })
                                     .unwrap_or_else(|e| {
                                         error!("Failed to run paste on main thread: {:?}", e);
-                                        utils::hide_recording_overlay(&app_for_task);
-                                        change_tray_icon(&app_for_task, TrayIconState::Idle);
                                     });
                             }
                         }
@@ -939,7 +962,10 @@ impl ShortcutAction for TextOpsPickerAction {
                 return;
             }
 
-            info!("Text ops picker: got {} chars, showing picker", selected_text.len());
+            info!(
+                "Text ops picker: got {} chars, showing picker",
+                selected_text.len()
+            );
 
             // Store pending text
             if let Some(state) = app_clone.try_state::<crate::picker::TextOpsPendingText>() {

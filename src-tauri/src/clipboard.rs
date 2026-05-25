@@ -244,8 +244,17 @@ fn is_dotool_available() -> bool {
 /// Check if ydotool is available (uinput-based, works on both Wayland and X11)
 #[cfg(target_os = "linux")]
 fn is_ydotool_available() -> bool {
-    Command::new("which")
+    let binary_exists = Command::new("which")
         .arg("ydotool")
+        .output()
+        .map(|output| output.status.success())
+        .unwrap_or(false);
+    if !binary_exists {
+        return false;
+    }
+    // ydotool requires the ydotoold daemon to be running
+    Command::new("pgrep")
+        .arg("ydotoold")
         .output()
         .map(|output| output.status.success())
         .unwrap_or(false)
