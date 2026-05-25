@@ -27,6 +27,10 @@ pub fn init_shortcuts(app: &AppHandle) {
         if id == "transcribe_with_post_process" && !user_settings.post_process_enabled {
             continue;
         }
+        // Skip text ops shortcuts when the feature is disabled
+        if (id == "text_ops" || id == "text_ops_picker") && !user_settings.text_ops_enabled {
+            continue;
+        }
         let binding = user_settings
             .bindings
             .get(&id)
@@ -160,14 +164,17 @@ pub fn register_cancel_shortcut(app: &AppHandle) {
     #[cfg(target_os = "linux")]
     {
         let _ = app;
-        return;
     }
 
     #[cfg(not(target_os = "linux"))]
     {
         let app_clone = app.clone();
         tauri::async_runtime::spawn(async move {
-            if let Some(cancel_binding) = get_settings(&app_clone).bindings.get("cancel").cloned() {
+            if let Some(cancel_binding) = settings::get_settings(&app_clone)
+                .bindings
+                .get("cancel")
+                .cloned()
+            {
                 if let Err(e) = register_shortcut(&app_clone, cancel_binding) {
                     error!("Failed to register cancel shortcut: {}", e);
                 }
@@ -182,7 +189,6 @@ pub fn unregister_cancel_shortcut(app: &AppHandle) {
     #[cfg(target_os = "linux")]
     {
         let _ = app;
-        return;
     }
 
     #[cfg(not(target_os = "linux"))]

@@ -12,7 +12,12 @@ import "./App.css";
 import AccessibilityPermissions from "./components/AccessibilityPermissions";
 import Footer from "./components/footer";
 import Onboarding, { AccessibilityOnboarding } from "./components/onboarding";
-import { Sidebar, SidebarSection, SECTIONS_CONFIG } from "./components/Sidebar";
+import {
+  Sidebar,
+  SidebarSection,
+  AppMode,
+  SECTIONS_CONFIG,
+} from "./components/Sidebar";
 import { useSettings } from "./hooks/useSettings";
 import { useSettingsStore } from "./stores/settingsStore";
 import { commands } from "@/bindings";
@@ -36,6 +41,13 @@ function App() {
   const [isReturningUser, setIsReturningUser] = useState(false);
   const [currentSection, setCurrentSection] =
     useState<SidebarSection>("general");
+  const appMode = useSettingsStore((state) => state.appMode);
+  const setAppMode = useSettingsStore((state) => state.setAppMode);
+
+  const handleModeChange = (mode: AppMode) => {
+    setAppMode(mode);
+    setCurrentSection(mode === "text" ? "textOperations" : "general");
+  };
   const { settings, updateSetting } = useSettings();
   const direction = getLanguageDirection(i18n.language);
   const refreshAudioDevices = useSettingsStore(
@@ -265,19 +277,25 @@ function App() {
         }}
       />
       {/* Main content area that takes remaining space */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex min-h-0 overflow-hidden">
         <Sidebar
           activeSection={currentSection}
           onSectionChange={setCurrentSection}
+          appMode={appMode}
+          onModeChange={handleModeChange}
         />
-        {/* Scrollable content area */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <div className="flex-1 overflow-y-auto">
+        {/* Scrollable content area + drawer portal */}
+        <div className="flex-1 flex min-h-0 overflow-hidden">
+          <div className="flex-1 min-w-0 min-h-0 overflow-y-auto overflow-x-hidden">
             <div className="flex flex-col items-center p-4 gap-4">
               <AccessibilityPermissions />
               {renderSettingsContent(currentSection)}
             </div>
           </div>
+          <div
+            id="drawer-portal"
+            className="relative self-stretch min-h-0 w-80 flex-shrink-0 overflow-hidden [&:empty]:w-0"
+          />
         </div>
       </div>
       {/* Fixed footer at bottom */}

@@ -1,0 +1,68 @@
+.picker-container {
+  width: 260px;
+  max-height: 320px;
+  background: #1a1a1acc;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.picker-header {
+  padding: 10px 14px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.picker-list {
+  overflow-y: auto;
+  padding: 4px 6px 6px;
+  flex: 1;
+}
+
+.picker-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.picker-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.picker-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+}
+
+.picker-item {
+  padding: 8px 10px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.85);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 100ms ease;
+}
+
+.picker-item:hover,
+.picker-item.selected {
+  background: rgba(250, 162, 202, 0.15);
+  color: white;
+}
+
+.picker-item.selected {
+  background: rgba(250, 162, 202, 0.25);
+}
+
+.picker-empty {
+  padding: 16px 10px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.4);
+  text-align: center;
+}

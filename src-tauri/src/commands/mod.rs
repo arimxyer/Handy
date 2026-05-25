@@ -1,6 +1,8 @@
 pub mod audio;
 pub mod history;
+pub mod insights;
 pub mod models;
+pub mod text_ops;
 pub mod transcription;
 
 use crate::settings::{get_settings, write_settings, AppSettings, LogLevel};

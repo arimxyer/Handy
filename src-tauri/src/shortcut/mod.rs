@@ -283,14 +283,12 @@ pub fn change_keyboard_implementation_setting(
     settings::write_settings(&app, settings);
 
     // Initialize new implementation if needed (HandyKeys needs state)
-    if new_impl == KeyboardImplementation::HandyKeys {
-        if initialize_handy_keys_with_rollback(&app)? {
-            // Shortcuts already registered during init
-            return Ok(ImplementationChangeResult {
-                success: true,
-                reset_bindings: vec![],
-            });
-        }
+    if new_impl == KeyboardImplementation::HandyKeys && initialize_handy_keys_with_rollback(&app)? {
+        // Shortcuts already registered during init
+        return Ok(ImplementationChangeResult {
+            success: true,
+            reset_bindings: vec![],
+        });
     }
 
     // Register all shortcuts with new implementation, resetting invalid ones
@@ -396,6 +394,14 @@ fn register_all_shortcuts_for_implementation(
 
         // Skip post-processing shortcut when the feature is disabled
         if id == "transcribe_with_post_process" && !current_settings.post_process_enabled {
+            continue;
+        }
+
+        // Skip text ops shortcut when the feature is disabled
+        if id == "text_ops" && !current_settings.text_ops_enabled {
+            continue;
+        }
+        if id == "text_ops_picker" && !current_settings.text_ops_enabled {
             continue;
         }
 
@@ -1000,7 +1006,9 @@ pub async fn fetch_post_process_models(
     if provider.id == APPLE_INTELLIGENCE_PROVIDER_ID {
         #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
         {
-            return Ok(vec![APPLE_INTELLIGENCE_DEFAULT_MODEL_ID.to_string()]);
+            return Ok(vec![
+                crate::settings::APPLE_INTELLIGENCE_DEFAULT_MODEL_ID.to_string()
+            ]);
         }
 
         #[cfg(not(all(target_os = "macos", target_arch = "aarch64")))]

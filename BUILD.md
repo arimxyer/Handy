@@ -52,7 +52,10 @@ This guide covers how to set up the development environment and build Handy from
 ### 1. Clone the Repository
 
 ```bash
+# Upstream
 git clone git@github.com:cjpais/Handy.git
+# Or this fork (insiders)
+git clone git@github.com:arimxyer/Handy.git
 cd Handy
 ```
 
@@ -65,7 +68,11 @@ bun install
 ### 3. Start Dev Server
 
 ```bash
-bun tauri dev
+# Using mise (recommended for this fork)
+mise run dev
+
+# Or directly
+bun run tauri dev
 ```
 
 ### 4. Build for Production

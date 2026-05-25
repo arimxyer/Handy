@@ -11,6 +11,7 @@ mod input;
 mod llm_client;
 mod managers;
 mod overlay;
+mod picker;
 pub mod portable;
 mod settings;
 mod shortcut;
@@ -171,7 +172,7 @@ fn initialize_core_logic(app_handle: &AppHandle) {
     // This matches the pattern used for Enigo initialization.
 
     #[cfg(unix)]
-    let signals = Signals::new(&[SIGUSR1, SIGUSR2]).unwrap();
+    let signals = Signals::new([SIGUSR1, SIGUSR2]).unwrap();
     // Set up signal handlers for toggling transcription
     #[cfg(unix)]
     signal_handle::setup_signal_handler(app_handle.clone(), signals);
@@ -280,7 +281,7 @@ fn initialize_core_logic(app_handle: &AppHandle) {
 
     // Get the autostart manager and configure based on user setting
     let autostart_manager = app_handle.autolaunch();
-    let settings = settings::get_settings(&app_handle);
+    let settings = settings::get_settings(app_handle);
 
     if settings.autostart_enabled {
         // Enable autostart if user has opted in
@@ -292,6 +293,12 @@ fn initialize_core_logic(app_handle: &AppHandle) {
 
     // Create the recording overlay window (hidden by default)
     utils::create_recording_overlay(app_handle);
+
+    // Create the prompt picker window (hidden by default)
+    picker::create_prompt_picker(app_handle);
+
+    // Initialize pending text state for text ops picker
+    app_handle.manage(picker::TextOpsPendingText(std::sync::Mutex::new(None)));
 }
 
 #[tauri::command]
@@ -425,6 +432,31 @@ pub fn run(cli_args: CliArgs) {
             commands::history::retry_history_entry_transcription,
             commands::history::update_history_limit,
             commands::history::update_recording_retention_period,
+            commands::history::change_history_post_process_enabled_setting,
+            commands::history::post_process_history_entry,
+            commands::history::get_transcription_versions,
+            commands::history::restore_version,
+            commands::history::update_history_entry_text,
+            commands::insights::analyze_speech_patterns,
+            commands::insights::estimate_insights_tokens,
+            commands::insights::change_insights_provider_id,
+            commands::insights::change_insights_model,
+            commands::insights::change_insights_api_key,
+            commands::insights::change_insights_entry_count,
+            commands::insights::change_insights_use_all_history,
+            commands::insights::clear_insights_history,
+            commands::text_ops::process_text,
+            commands::text_ops::add_text_ops_prompt,
+            commands::text_ops::update_text_ops_prompt,
+            commands::text_ops::delete_text_ops_prompt,
+            commands::text_ops::change_text_ops_provider_setting,
+            commands::text_ops::change_text_ops_model_setting,
+            commands::text_ops::set_text_ops_selected_prompt,
+            commands::text_ops::set_text_ops_pinned_prompt,
+            commands::text_ops::change_text_ops_enabled_setting,
+            commands::text_ops::change_text_ops_output_behavior,
+            commands::text_ops::execute_picker_prompt,
+            commands::text_ops::dismiss_picker,
             helpers::clamshell::is_laptop,
         ])
         .events(collect_events![managers::history::HistoryUpdatePayload,]);
@@ -575,6 +607,13 @@ pub fn run(cli_args: CliArgs) {
         })
         .on_window_event(|window, event| match event {
             tauri::WindowEvent::CloseRequested { api, .. } => {
+                let settings = get_settings(window.app_handle());
+                let cli = window.app_handle().state::<CliArgs>();
+                // If tray icon is hidden (via setting or --no-tray flag), quit the app
+                if !settings.show_tray_icon || cli.no_tray {
+                    window.app_handle().exit(0);
+                    return;
+                }
                 api.prevent_close();
                 let _res = window.hide();
 
@@ -598,7 +637,7 @@ pub fn run(cli_args: CliArgs) {
             tauri::WindowEvent::ThemeChanged(theme) => {
                 log::info!("Theme changed to: {:?}", theme);
                 // Update tray icon to match new theme, maintaining idle state
-                utils::change_tray_icon(&window.app_handle(), utils::TrayIconState::Idle);
+                utils::change_tray_icon(window.app_handle(), utils::TrayIconState::Idle);
             }
             _ => {}
         })

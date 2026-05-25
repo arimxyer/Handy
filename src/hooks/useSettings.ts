@@ -41,6 +41,10 @@ interface UseSettingsReturn {
   ) => Promise<void>;
   updatePostProcessModel: (providerId: string, model: string) => Promise<void>;
   fetchPostProcessModels: (providerId: string) => Promise<string[]>;
+
+  // Text ops helpers
+  setTextOpsProvider: (providerId: string) => Promise<void>;
+  updateTextOpsModel: (providerId: string, model: string) => Promise<void>;
 }
 
 export const useSettings = (): UseSettingsReturn => {
@@ -74,5 +78,7 @@ export const useSettings = (): UseSettingsReturn => {
     updatePostProcessApiKey: store.updatePostProcessApiKey,
     updatePostProcessModel: store.updatePostProcessModel,
     fetchPostProcessModels: store.fetchPostProcessModels,
+    setTextOpsProvider: store.setTextOpsProvider,
+    updateTextOpsModel: store.updateTextOpsModel,
   };
 };

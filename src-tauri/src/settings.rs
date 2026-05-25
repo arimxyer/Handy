@@ -114,9 +114,10 @@ pub enum OverlayPosition {
     Bottom,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Type)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, Default, PartialEq, Eq, Type)]
 #[serde(rename_all = "snake_case")]
 pub enum ModelUnloadTimeout {
+    #[default]
     Never,
     Immediately,
     Min2,
@@ -138,16 +139,26 @@ pub enum PasteMethod {
     ExternalScript,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Type)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, Default, PartialEq, Eq, Type)]
 #[serde(rename_all = "snake_case")]
 pub enum ClipboardHandling {
+    #[default]
     DontModify,
     CopyToClipboard,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Type)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, Default, PartialEq, Eq, Type)]
+#[serde(rename_all = "snake_case")]
+pub enum TextOpsOutputBehavior {
+    #[default]
+    CopyToClipboard,
+    ReplaceSelection,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Type, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum AutoSubmitKey {
+    #[default]
     Enter,
     CtrlEnter,
     CmdEnter,
@@ -179,12 +190,6 @@ impl Default for KeyboardImplementation {
     }
 }
 
-impl Default for ModelUnloadTimeout {
-    fn default() -> Self {
-        ModelUnloadTimeout::Min5
-    }
-}
-
 impl Default for PasteMethod {
     fn default() -> Self {
         // Default to CtrlV for macOS and Windows, Direct for Linux
@@ -192,18 +197,6 @@ impl Default for PasteMethod {
         return PasteMethod::Direct;
         #[cfg(not(target_os = "linux"))]
         return PasteMethod::CtrlV;
-    }
-}
-
-impl Default for ClipboardHandling {
-    fn default() -> Self {
-        ClipboardHandling::DontModify
-    }
-}
-
-impl Default for AutoSubmitKey {
-    fn default() -> Self {
-        AutoSubmitKey::Enter
     }
 }
 
@@ -248,30 +241,25 @@ impl SoundTheme {
         }
     }
 
-    pub fn to_start_path(&self) -> String {
+    pub fn to_start_path(self) -> String {
         format!("resources/{}_start.wav", self.as_str())
     }
 
-    pub fn to_stop_path(&self) -> String {
+    pub fn to_stop_path(self) -> String {
         format!("resources/{}_stop.wav", self.as_str())
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Type)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Type, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum TypingTool {
+    #[default]
     Auto,
     Wtype,
     Kwtype,
     Dotool,
     Ydotool,
     Xdotool,
-}
-
-impl Default for TypingTool {
-    fn default() -> Self {
-        TypingTool::Auto
-    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Type)]
@@ -411,6 +399,7 @@ pub struct AppSettings {
     pub experimental_enabled: bool,
     #[serde(default)]
     pub lazy_stream_close: bool,
+    pub history_post_process_enabled: bool,
     #[serde(default)]
     pub keyboard_implementation: KeyboardImplementation,
     #[serde(default = "default_show_tray_icon")]
@@ -430,6 +419,39 @@ pub struct AppSettings {
     pub whisper_gpu_device: i32,
     #[serde(default)]
     pub extra_recording_buffer_ms: u64,
+
+    #[serde(default)]
+    pub insights_provider_id: String,
+
+    #[serde(default)]
+    pub insights_api_keys: HashMap<String, String>,
+
+    #[serde(default)]
+    pub insights_models: HashMap<String, String>,
+
+    #[serde(default = "default_insights_entry_count")]
+    pub insights_entry_count: u32,
+
+    #[serde(default)]
+    pub insights_use_all_history: bool,
+
+    #[serde(default)]
+    pub insights_history: Vec<crate::commands::insights::InsightsResult>,
+
+    #[serde(default)]
+    pub text_ops_enabled: bool,
+    #[serde(default = "default_text_ops_provider_id")]
+    pub text_ops_provider_id: String,
+    #[serde(default = "default_text_ops_models")]
+    pub text_ops_models: HashMap<String, String>,
+    #[serde(default = "default_text_ops_prompts")]
+    pub text_ops_prompts: Vec<LLMPrompt>,
+    #[serde(default)]
+    pub text_ops_selected_prompt_id: Option<String>,
+    #[serde(default)]
+    pub text_ops_pinned_prompt_id: Option<String>,
+    #[serde(default)]
+    pub text_ops_output_behavior: TextOpsOutputBehavior,
 }
 
 fn default_model() -> String {
@@ -654,6 +676,63 @@ fn default_typing_tool() -> TypingTool {
     TypingTool::Auto
 }
 
+fn default_insights_entry_count() -> u32 {
+    50
+}
+
+fn default_text_ops_provider_id() -> String {
+    "openai".to_string()
+}
+
+fn default_text_ops_models() -> HashMap<String, String> {
+    HashMap::new()
+}
+
+fn default_text_ops_prompts() -> Vec<LLMPrompt> {
+    vec![
+        LLMPrompt {
+            id: "text_ops_fix_grammar".to_string(),
+            name: "Fix Grammar".to_string(),
+            prompt: "Fix any grammar, spelling, and punctuation errors in the following text. Keep the original meaning and tone. Only return the corrected text, nothing else.".to_string(),
+        },
+        LLMPrompt {
+            id: "text_ops_rewrite_formally".to_string(),
+            name: "Rewrite Formally".to_string(),
+            prompt: "Rewrite the following text in a formal, professional tone. Keep the same meaning. Only return the rewritten text.".to_string(),
+        },
+        LLMPrompt {
+            id: "text_ops_simplify".to_string(),
+            name: "Simplify".to_string(),
+            prompt: "Simplify the following text to make it easier to understand. Use shorter sentences and simpler words. Only return the simplified text.".to_string(),
+        },
+        LLMPrompt {
+            id: "text_ops_summarize".to_string(),
+            name: "Summarize".to_string(),
+            prompt: "Summarize the following text concisely, capturing the key points. Only return the summary.".to_string(),
+        },
+        LLMPrompt {
+            id: "text_ops_expand".to_string(),
+            name: "Expand".to_string(),
+            prompt: "Expand the following text with more detail and explanation while maintaining the original meaning and tone. Only return the expanded text.".to_string(),
+        },
+        LLMPrompt {
+            id: "text_ops_translate_to_english".to_string(),
+            name: "Translate to English".to_string(),
+            prompt: "Translate the following text to English. Only return the translation.".to_string(),
+        },
+        LLMPrompt {
+            id: "text_ops_extract_action_items".to_string(),
+            name: "Extract Action Items".to_string(),
+            prompt: "Extract all action items and tasks from the following text as a bulleted list. Only return the list.".to_string(),
+        },
+        LLMPrompt {
+            id: "text_ops_explain_simply".to_string(),
+            name: "Explain Simply".to_string(),
+            prompt: "Explain the following text in simple terms, as if explaining to someone unfamiliar with the topic. Only return the explanation.".to_string(),
+        },
+    ]
+}
+
 fn ensure_post_process_defaults(settings: &mut AppSettings) -> bool {
     let mut changed = false;
     for provider in default_post_process_providers() {
@@ -764,6 +843,42 @@ pub fn get_default_settings() -> AppSettings {
         },
     );
 
+    #[cfg(target_os = "windows")]
+    let default_text_ops_shortcut = "ctrl+alt+space";
+    #[cfg(target_os = "macos")]
+    let default_text_ops_shortcut = "option+cmd+space";
+    #[cfg(target_os = "linux")]
+    let default_text_ops_shortcut = "ctrl+alt+space";
+    #[cfg(not(any(target_os = "windows", target_os = "macos", target_os = "linux")))]
+    let default_text_ops_shortcut = "ctrl+alt+space";
+
+    #[cfg(target_os = "macos")]
+    let default_text_ops_picker_shortcut = "alt+cmd+shift+space";
+    #[cfg(not(target_os = "macos"))]
+    let default_text_ops_picker_shortcut = "ctrl+alt+shift+space";
+
+    bindings.insert(
+        "text_ops".to_string(),
+        ShortcutBinding {
+            id: "text_ops".to_string(),
+            name: "Text Operations".to_string(),
+            description: "Transforms clipboard text using the pinned prompt.".to_string(),
+            default_binding: default_text_ops_shortcut.to_string(),
+            current_binding: default_text_ops_shortcut.to_string(),
+        },
+    );
+    bindings.insert(
+        "text_ops_picker".to_string(),
+        ShortcutBinding {
+            id: "text_ops_picker".to_string(),
+            name: "Text Ops Prompt Picker".to_string(),
+            description: "Opens a prompt picker to choose which prompt to apply to selected text."
+                .to_string(),
+            default_binding: default_text_ops_picker_shortcut.to_string(),
+            current_binding: default_text_ops_picker_shortcut.to_string(),
+        },
+    );
+
     AppSettings {
         bindings,
         push_to_talk: true,
@@ -804,6 +919,7 @@ pub fn get_default_settings() -> AppSettings {
         app_language: default_app_language(),
         experimental_enabled: false,
         lazy_stream_close: false,
+        history_post_process_enabled: false,
         keyboard_implementation: KeyboardImplementation::default(),
         show_tray_icon: default_show_tray_icon(),
         paste_delay_ms: default_paste_delay_ms(),
@@ -814,6 +930,19 @@ pub fn get_default_settings() -> AppSettings {
         ort_accelerator: OrtAcceleratorSetting::default(),
         whisper_gpu_device: default_whisper_gpu_device(),
         extra_recording_buffer_ms: 0,
+        insights_provider_id: String::new(),
+        insights_api_keys: HashMap::new(),
+        insights_models: HashMap::new(),
+        insights_entry_count: default_insights_entry_count(),
+        insights_use_all_history: false,
+        insights_history: Vec::new(),
+        text_ops_enabled: false,
+        text_ops_provider_id: default_text_ops_provider_id(),
+        text_ops_models: default_text_ops_models(),
+        text_ops_prompts: default_text_ops_prompts(),
+        text_ops_selected_prompt_id: None,
+        text_ops_pinned_prompt_id: None,
+        text_ops_output_behavior: TextOpsOutputBehavior::default(),
     }
 }
 
@@ -838,6 +967,12 @@ impl AppSettings {
             .iter_mut()
             .find(|provider| provider.id == provider_id)
     }
+
+    pub fn active_text_ops_provider(&self) -> Option<&PostProcessProvider> {
+        self.post_process_providers
+            .iter()
+            .find(|provider| provider.id == self.text_ops_provider_id)
+    }
 }
 
 pub fn load_or_create_app_settings(app: &AppHandle) -> AppSettings {
@@ -856,9 +991,10 @@ pub fn load_or_create_app_settings(app: &AppHandle) -> AppSettings {
 
                 // Merge default bindings into existing settings
                 for (key, value) in default_settings.bindings {
-                    if !settings.bindings.contains_key(&key) {
-                        debug!("Adding missing binding: {}", key);
-                        settings.bindings.insert(key, value);
+                    use std::collections::hash_map::Entry;
+                    if let Entry::Vacant(entry) = settings.bindings.entry(key) {
+                        debug!("Adding missing binding: {}", entry.key());
+                        entry.insert(value);
                         updated = true;
                     }
                 }

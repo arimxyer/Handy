@@ -37,6 +37,8 @@ interface SettingsStore {
   playTestSound: (soundType: "start" | "stop") => Promise<void>;
   checkCustomSounds: () => Promise<void>;
   setPostProcessProvider: (providerId: string) => Promise<void>;
+  setTextOpsProvider: (providerId: string) => Promise<void>;
+  updateTextOpsModel: (providerId: string, model: string) => Promise<void>;
   updatePostProcessSetting: (
     settingType: "base_url" | "api_key" | "model",
     providerId: string,
@@ -53,6 +55,9 @@ interface SettingsStore {
   updatePostProcessModel: (providerId: string, model: string) => Promise<void>;
   fetchPostProcessModels: (providerId: string) => Promise<string[]>;
   setPostProcessModelOptions: (providerId: string, models: string[]) => void;
+
+  appMode: "voice" | "text";
+  setAppMode: (mode: "voice" | "text") => void;
 
   // Internal state setters
   setSettings: (settings: Settings | null) => void;
@@ -131,6 +136,8 @@ const settingUpdaters: {
   history_limit: (value) => commands.updateHistoryLimit(value as number),
   post_process_enabled: (value) =>
     commands.changePostProcessEnabledSetting(value as boolean),
+  history_post_process_enabled: (value) =>
+    commands.changeHistoryPostProcessEnabledSetting(value as boolean),
   post_process_selected_prompt_id: (value) =>
     commands.setPostProcessSelectedPrompt(value as string),
   mute_while_recording: (value) =>
@@ -155,6 +162,20 @@ const settingUpdaters: {
     commands.changeWhisperGpuDevice(value as number),
   extra_recording_buffer_ms: (value) =>
     commands.changeExtraRecordingBufferSetting(value as number),
+  insights_provider_id: (value) =>
+    commands.changeInsightsProviderId(value as string),
+  insights_entry_count: (value) =>
+    commands.changeInsightsEntryCount(value as number),
+  insights_use_all_history: (value) =>
+    commands.changeInsightsUseAllHistory(value as boolean),
+  text_ops_enabled: (value) =>
+    commands.changeTextOpsEnabledSetting(value as boolean),
+  text_ops_selected_prompt_id: (value) =>
+    commands.setTextOpsSelectedPrompt(value as string),
+  text_ops_pinned_prompt_id: (value) =>
+    commands.setTextOpsPinnedPrompt(value as string),
+  text_ops_output_behavior: (value) =>
+    commands.changeTextOpsOutputBehavior(value as string),
 };
 
 export const useSettingsStore = create<SettingsStore>()(
@@ -167,6 +188,8 @@ export const useSettingsStore = create<SettingsStore>()(
     outputDevices: [],
     customSounds: { start: false, stop: false },
     postProcessModelOptions: {},
+    appMode: "voice",
+    setAppMode: (appMode) => set({ appMode }),
 
     // Internal setters
     setSettings: (settings) => set({ settings }),
@@ -429,6 +452,54 @@ export const useSettingsStore = create<SettingsStore>()(
               : null,
           }));
         }
+      } finally {
+        setUpdating(updateKey, false);
+      }
+    },
+
+    setTextOpsProvider: async (providerId) => {
+      const { settings, setUpdating, refreshSettings } = get();
+      const updateKey = "text_ops_provider_id";
+      const previousId = settings?.text_ops_provider_id ?? null;
+
+      setUpdating(updateKey, true);
+
+      if (settings) {
+        set((state) => ({
+          settings: state.settings
+            ? { ...state.settings, text_ops_provider_id: providerId }
+            : null,
+        }));
+      }
+
+      try {
+        await commands.changeTextOpsProviderSetting(providerId);
+        await refreshSettings();
+      } catch (error) {
+        console.error("Failed to set text ops provider:", error);
+        if (previousId !== null) {
+          set((state) => ({
+            settings: state.settings
+              ? { ...state.settings, text_ops_provider_id: previousId }
+              : null,
+          }));
+        }
+      } finally {
+        setUpdating(updateKey, false);
+      }
+    },
+
+    updateTextOpsModel: async (providerId, model) => {
+      const { setUpdating, refreshSettings } = get();
+      const updateKey = `text_ops_model:${providerId}`;
+
+      setUpdating(updateKey, true);
+
+      try {
+        await commands.changeTextOpsModelSetting(providerId, model);
+        await refreshSettings();
+      } catch (error) {
+        console.error("Failed to update text ops model:", error);
       } finally {
         setUpdating(updateKey, false);
       }

@@ -42,3 +42,11 @@ blob-report/
 
 # Nix build output
 result
+.omc/
+
+# Fork workflow
+patches/
+.worktrees/
+
+# Mise local overrides
+mise.local.toml

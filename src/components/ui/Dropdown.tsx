@@ -62,17 +62,20 @@ export const Dropdown: React.FC<DropdownProps> = ({
     <div className={`relative ${className}`} ref={dropdownRef}>
       <button
         type="button"
-        className={`px-2 py-1 text-sm font-semibold bg-mid-gray/10 border border-mid-gray/80 rounded-md min-w-[200px] text-start flex items-center justify-between transition-all duration-150 ${
+        className={`w-full min-w-0 px-2 py-1 text-sm font-semibold bg-mid-gray/10 border border-mid-gray/80 rounded-md min-w-[200px] text-start flex items-center justify-between transition-all duration-150 ${
           disabled
             ? "opacity-50 cursor-not-allowed"
             : "hover:bg-logo-primary/10 cursor-pointer hover:border-logo-primary"
         }`}
         onClick={handleToggle}
         disabled={disabled}
+        title={selectedOption?.label || placeholder}
       >
-        <span className="truncate">{selectedOption?.label || placeholder}</span>
+        <span className="min-w-0 flex-1 truncate">
+          {selectedOption?.label || placeholder}
+        </span>
         <svg
-          className={`w-4 h-4 ms-2 transition-transform duration-200 ${isOpen ? "transform rotate-180" : ""}`}
+          className={`w-4 h-4 ms-2 shrink-0 transition-transform duration-200 ${isOpen ? "transform rotate-180" : ""}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -103,8 +106,9 @@ export const Dropdown: React.FC<DropdownProps> = ({
                 } ${option.disabled ? "opacity-50 cursor-not-allowed" : ""}`}
                 onClick={() => handleSelect(option.value)}
                 disabled={option.disabled}
+                title={option.label}
               >
-                <span className="truncate">{option.label}</span>
+                <span className="block truncate">{option.label}</span>
               </button>
             ))
           )}

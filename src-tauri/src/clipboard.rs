@@ -244,8 +244,17 @@ fn is_dotool_available() -> bool {
 /// Check if ydotool is available (uinput-based, works on both Wayland and X11)
 #[cfg(target_os = "linux")]
 fn is_ydotool_available() -> bool {
-    Command::new("which")
+    let binary_exists = Command::new("which")
         .arg("ydotool")
+        .output()
+        .map(|output| output.status.success())
+        .unwrap_or(false);
+    if !binary_exists {
+        return false;
+    }
+    // ydotool requires the ydotoold daemon to be running
+    Command::new("pgrep")
+        .arg("ydotoold")
         .output()
         .map(|output| output.status.success())
         .unwrap_or(false)
@@ -427,13 +436,12 @@ fn send_key_combo_via_wtype(paste_method: &PasteMethod) -> Result<(), String> {
 /// Send a key combination (e.g., Ctrl+V) via dotool.
 #[cfg(target_os = "linux")]
 fn send_key_combo_via_dotool(paste_method: &PasteMethod) -> Result<(), String> {
-    let command;
-    match paste_method {
-        PasteMethod::CtrlV => command = "echo key ctrl+v | dotool",
-        PasteMethod::ShiftInsert => command = "echo key shift+insert | dotool",
-        PasteMethod::CtrlShiftV => command = "echo key ctrl+shift+v | dotool",
+    let command = match paste_method {
+        PasteMethod::CtrlV => "echo key ctrl+v | dotool",
+        PasteMethod::ShiftInsert => "echo key shift+insert | dotool",
+        PasteMethod::CtrlShiftV => "echo key ctrl+shift+v | dotool",
         _ => return Err("Unsupported paste method".into()),
-    }
+    };
     use std::process::Stdio;
     let status = Command::new("sh")
         .arg("-c")

@@ -15,7 +15,12 @@
     "postProcessing": "後処理",
     "history": "履歴",
     "debug": "デバッグ",
-    "about": "概要"
+    "about": "概要",
+    "insights": "Insights",
+    "textOperations": "Text",
+    "textSettings": "Text Settings",
+    "voice": "Voice",
+    "text": "Text"
   },
   "onboarding": {
     "subtitle": "開始するには、文字起こしモデルを選択してください",
@@ -194,6 +199,14 @@
           "transcribe_with_post_process": {
             "name": "後処理ホットキー",
             "description": "オプション：文字起こしに常にAI後処理を適用する専用ホットキー。"
+          },
+          "text_ops": {
+            "name": "Text Operations",
+            "description": "Transforms selected text using the pinned prompt."
+          },
+          "text_ops_picker": {
+            "name": "Text Ops Prompt Picker",
+            "description": "Opens a prompt picker to choose which prompt to apply to selected text."
           }
         },
         "errors": {
@@ -346,7 +359,8 @@
           "min10": "10分後",
           "min15": "15分後",
           "hour1": "1時間後",
-          "sec15": "15秒後（デバッグ）"
+          "sec15": "15秒後（デバッグ）",
+          "sec5": "5秒後（デバッグ）"
         }
       },
       "customWords": {
@@ -431,7 +445,64 @@
       "retranscribe": "再文字起こし",
       "retranscribeError": "再文字起こしに失敗しました。もう一度お試しください。",
       "transcribing": "文字起こし中...",
-      "transcriptionFailed": "文字起こしに失敗しました。リトライアイコンを使用して再文字起こしできます。"
+      "transcriptionFailed": "文字起こしに失敗しました。リトライアイコンを使用して再文字起こしできます。",
+      "copyOriginal": "Copy original transcription",
+      "copyEnhanced": "Copy enhanced transcription",
+      "postProcess": "Enhance transcription",
+      "postProcessError": "Post-processing failed. Check your provider settings.",
+      "postProcessDisabled": "History post-processing is not enabled.",
+      "postProcessEmptyText": "Transcription text is empty.",
+      "postProcessNotConfigured": "Set up post-processing in settings first",
+      "showOriginal": "Show original",
+      "showEnhanced": "Show enhanced",
+      "versionHistory": "Version History",
+      "versionCount": "({{count}} versions)",
+      "activeVersion": "Active",
+      "originalVersion": "Original transcription",
+      "restore": "Restore",
+      "confirmRestore": "Confirm restore?",
+      "restoreError": "Failed to restore version",
+      "versionNotFound": "Version not found",
+      "showMore": "Show more",
+      "showLess": "Show less",
+      "promptLabel": "Prompt",
+      "textModeEmpty": "Text operation history will appear here",
+      "textOpsTitle": "Text Operations History",
+      "textInput": "Input",
+      "textOutput": "Output",
+      "textEmpty": "No text operations yet. Run a text operation to build your history!",
+      "compareModelFailed": "Comparison model {{model}} failed.",
+      "editTranscription": "Edit transcription",
+      "editSaved": "Edit saved",
+      "manualEdit": "Manual edit",
+      "transcriptionEdit": "Transcription edit",
+      "drawer": {
+        "title": "Post-Process Config",
+        "description": "Override model and prompt for history post-processing. Changes are temporary unless saved.",
+        "provider": "Provider",
+        "apiKey": "API Key",
+        "apiKeyPlaceholder": "Enter API key",
+        "model": "Model",
+        "modelPlaceholder": "Enter model name",
+        "prompt": "Prompt",
+        "promptText": "Prompt Text",
+        "promptTextPlaceholder": "Edit the prompt instructions...",
+        "newPrompt": "+ New",
+        "saveAsDefault": "Save as Default",
+        "saveAsDefaultDescription": "Persist to global settings",
+        "compareModels": "Compare Models",
+        "compareModelsDescription": "Run multiple models in parallel",
+        "compareNote": "Each model runs independently. Pick your favorite from the results.",
+        "addModel": "+ Add Model",
+        "addModelProvider": "Provider",
+        "addModelBaseUrl": "Base URL",
+        "addModelApiKey": "API Key",
+        "addModelModel": "Model",
+        "addModelCancel": "Cancel",
+        "addModelAdd": "Add",
+        "primary": "Primary",
+        "selectPrompt": "Select a prompt..."
+      }
     },
     "debug": {
       "title": "デバッグ",
@@ -507,6 +578,10 @@
       "recordingBuffer": {
         "title": "追加録音バッファ",
         "description": "キーを離した後に録音を続ける追加時間（ミリ秒）。末尾の音声を捕捉するため。0 = 追加バッファなし。"
+      },
+      "historyPostProcessToggle": {
+        "label": "Post-process History",
+        "description": "Add a button to enhance past transcriptions from the History tab"
       }
     },
     "about": {
@@ -536,6 +611,75 @@
           "description": "OpenAIのWhisper自動音声認識モデルの高性能推論",
           "details": "Handyは高速でローカルな音声からテキストへの変換にWhisper.cppを使用しています。Georgi Gerganov氏と貢献者の皆様の素晴らしい仕事に感謝します。"
         }
+      }
+    },
+    "insights": {
+      "title": "Speech Insights",
+      "description": "Analyze your transcription history for speech patterns and get prompt improvement suggestions.",
+      "api": {
+        "title": "API Configuration",
+        "description": "Configure a separate model for analysis. Uses post-process model if left empty.",
+        "provider": "Provider",
+        "apiKey": "API Key",
+        "apiKeyPlaceholder": "Enter API key",
+        "model": "Model",
+        "modelPlaceholder": "Enter model name"
+      },
+      "scope": {
+        "title": "Analysis Scope",
+        "entryCount": "Number of entries",
+        "useAllHistory": "Analyze all history",
+        "tokenEstimate": "~{{count}} tokens will be sent for analysis"
+      },
+      "analyze": "Analyze Speech Patterns",
+      "analyzing": "Analyzing...",
+      "processingMessage": "Analyzing your speech patterns across transcriptions...",
+      "noResults": "Run an analysis to see speech pattern insights.",
+      "results": {
+        "title": "Analysis Results",
+        "model": "Model",
+        "entriesAnalyzed": "{{count}} entries analyzed",
+        "ranAt": "Ran"
+      },
+      "badges": {
+        "model": "Model",
+        "entries": "Entries",
+        "range": "Range",
+        "analyzed": "Analyzed"
+      },
+      "severity": {
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low"
+      },
+      "frequency": {
+        "very common": "Very Common",
+        "common": "Common",
+        "occasional": "Occasional"
+      },
+      "sections": {
+        "promptSuggestion": "Prompt Suggestion",
+        "patterns": "Patterns",
+        "examples": "Examples",
+        "useAsPrompt": "Use as Prompt",
+        "copied": "Copied!"
+      },
+      "history": {
+        "label": "Past analyses",
+        "clear": "Clear history"
+      },
+      "actions": {
+        "createPrompt": "Create Prompt from Insights",
+        "enhancePrompt": "Enhance Default Prompt",
+        "enhancePreviewTitle": "Preview enhanced prompt",
+        "saveEnhancedPrompt": "Save as New Prompt",
+        "generatedPromptName": "Insights-Generated Prompt",
+        "promptCreated": "Prompt created! Find it in the Post Process settings."
+      },
+      "errors": {
+        "disabled": "Insights requires experimental and post-process features enabled.",
+        "failed": "Analysis failed. Please check your API configuration.",
+        "empty": "No transcription history to analyze."
       }
     }
   },
@@ -607,6 +751,73 @@
   },
   "overlay": {
     "transcribing": "文字起こし中...",
-    "processing": "処理中..."
+    "processing": "処理中...",
+    "transforming": "Transforming..."
+  },
+  "textOps": {
+    "title": "Text Operations",
+    "inputPlaceholder": "Type or paste text here...",
+    "run": "Run",
+    "result": "Result",
+    "copyResult": "Copy",
+    "copied": "Copied!",
+    "presets": "Quick Actions",
+    "customPrompts": "My Prompts",
+    "createPrompt": "New Prompt",
+    "processing": "Processing...",
+    "noProvider": "Configure a provider in Text Settings first",
+    "noText": "Enter some text to process",
+    "noPrompt": "Select a prompt first",
+    "error": "Failed to process text",
+    "pinned": "Default",
+    "settings": {
+      "title": "Text Settings",
+      "provider": "Provider & Model",
+      "shortcut": "Shortcut",
+      "enableShortcut": "Enable Text Ops Shortcut",
+      "enableShortcutDescription": "Register a global shortcut to transform selected text with the pinned prompt",
+      "pinnedPrompt": "Default Prompt",
+      "pinnedPromptDescription": "The prompt used when pressing the shortcut without the picker",
+      "outputBehavior": "Output Behavior",
+      "outputBehaviorDescription": "What to do with the result when using the shortcut",
+      "outputCopyToClipboard": "Copy to Clipboard",
+      "outputReplaceSelection": "Replace Selection",
+      "pickerShortcut": "Prompt Picker Shortcut",
+      "pickerShortcutDescription": "Opens a popup to choose which prompt to apply to selected text"
+    },
+    "picker": {
+      "title": "Choose Prompt",
+      "empty": "No prompts configured"
+    },
+    "presetNames": {
+      "fixGrammar": "Fix Grammar",
+      "rewriteFormally": "Rewrite Formally",
+      "simplify": "Simplify",
+      "summarize": "Summarize",
+      "expand": "Expand",
+      "translateEnglish": "Translate to English",
+      "actionItems": "Extract Action Items",
+      "eli5": "Explain Simply"
+    },
+    "prompts": {
+      "selectedPrompt": {
+        "title": "Prompt",
+        "description": "Select or create a prompt for text operations"
+      },
+      "noPrompts": "No prompts available",
+      "selectPrompt": "Select a prompt",
+      "createNew": "New",
+      "promptLabel": "Name",
+      "promptLabelPlaceholder": "Enter prompt name...",
+      "promptInstructions": "Instructions",
+      "promptInstructionsPlaceholder": "Enter the instructions for the LLM...",
+      "promptTip": "The text you enter in the input area will be sent as the user message to the LLM.",
+      "updatePrompt": "Update",
+      "deletePrompt": "Delete",
+      "createPrompt": "Create",
+      "cancel": "Cancel",
+      "selectToEdit": "Select a prompt to edit it",
+      "createFirst": "Create a prompt to get started"
+    }
   }
 }
