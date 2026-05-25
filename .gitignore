@@ -37,6 +37,7 @@ blob-report/
 
 .direnv
 .envrc
+.omc/
 
 # Fork workflow
 patches/
