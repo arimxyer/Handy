@@ -4,6 +4,7 @@ use crate::managers::transcription::TranscriptionManager;
 use crate::settings;
 use crate::tray_i18n::get_tray_translations;
 use log::{error, info, warn};
+use serde::Deserialize;
 use std::sync::Arc;
 use tauri::image::Image;
 use tauri::menu::{CheckMenuItem, Menu, MenuItem, PredefinedMenuItem, Submenu};
@@ -85,11 +86,44 @@ pub fn tray_tooltip() -> String {
     version_label()
 }
 
+#[derive(Debug, Deserialize)]
+struct ForkVersion {
+    channel: String,
+    fork_version: String,
+}
+
+fn fork_version() -> Option<ForkVersion> {
+    serde_json::from_str(include_str!("../../insiders-version.json")).ok()
+}
+
+fn channel_label(channel: &str) -> String {
+    let mut chars = channel.chars();
+    match chars.next() {
+        Some(first) => first.to_uppercase().chain(chars).collect(),
+        None => channel.to_string(),
+    }
+}
+
 fn version_label() -> String {
+    let upstream = env!("CARGO_PKG_VERSION");
+    let fork_label = fork_version().map(|version| {
+        format!(
+            "{} v{}",
+            channel_label(&version.channel),
+            version.fork_version
+        )
+    });
+
     if cfg!(debug_assertions) {
-        format!("Handy v{} (Dev)", env!("CARGO_PKG_VERSION"))
+        match fork_label {
+            Some(fork_label) => format!("Handy v{} / {} (Dev)", upstream, fork_label),
+            None => format!("Handy v{} (Dev)", upstream),
+        }
     } else {
-        format!("Handy v{}", env!("CARGO_PKG_VERSION"))
+        match fork_label {
+            Some(fork_label) => format!("Handy v{} / {}", upstream, fork_label),
+            None => format!("Handy v{}", upstream),
+        }
     }
 }
 

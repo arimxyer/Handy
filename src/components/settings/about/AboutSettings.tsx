@@ -8,10 +8,12 @@ import { Button } from "../../ui/Button";
 import { AppDataDirectory } from "../AppDataDirectory";
 import { AppLanguageSelector } from "../AppLanguageSelector";
 import { LogDirectory } from "../debug";
+import { getForkVersionLabel } from "@/forkVersion";
 
 export const AboutSettings: React.FC = () => {
   const { t } = useTranslation();
   const [version, setVersion] = useState("");
+  const upstreamVersionLabel = `Handy v${version}`;
 
   useEffect(() => {
     const fetchVersion = async () => {
@@ -44,8 +46,10 @@ export const AboutSettings: React.FC = () => {
           description={t("settings.about.version.description")}
           grouped={true}
         >
-          {/* eslint-disable-next-line i18next/no-literal-string */}
-          <span className="text-sm font-mono">v{version}</span>
+          <div className="flex flex-col items-end gap-1 text-sm font-mono">
+            <span>{upstreamVersionLabel}</span>
+            <span>{getForkVersionLabel()}</span>
+          </div>
         </SettingContainer>
 
         <SettingContainer
