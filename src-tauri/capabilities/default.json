@@ -5,6 +5,7 @@
   "windows": ["main", "recording_overlay"],
   "permissions": [
     "core:default",
+    "notification:default",
     "opener:default",
     "store:default",
     "updater:default",

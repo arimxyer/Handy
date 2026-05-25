@@ -138,6 +138,10 @@ const settingUpdaters: {
     commands.changePostProcessEnabledSetting(value as boolean),
   history_post_process_enabled: (value) =>
     commands.changeHistoryPostProcessEnabledSetting(value as boolean),
+  history_post_process_auto_copy: (value) =>
+    commands.changeHistoryPostProcessAutoCopySetting(value as boolean),
+  completion_notifications_enabled: (value) =>
+    commands.changeCompletionNotificationsEnabledSetting(value as boolean),
   post_process_selected_prompt_id: (value) =>
     commands.setPostProcessSelectedPrompt(value as string),
   mute_while_recording: (value) =>

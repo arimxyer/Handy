@@ -20,8 +20,9 @@ import {
 } from "./components/Sidebar";
 import { useSettings } from "./hooks/useSettings";
 import { useSettingsStore } from "./stores/settingsStore";
-import { commands } from "@/bindings";
+import { commands, events, type HistoryUpdatePayload } from "@/bindings";
 import { getLanguageDirection, initializeRTL } from "@/lib/utils/rtl";
+import { sendCompletionNotification } from "@/lib/notifications";
 
 type OnboardingStep = "accessibility" | "model" | "done";
 
@@ -168,6 +169,28 @@ function App() {
       unlisten.then((fn) => fn());
     };
   }, [t]);
+
+  useEffect(() => {
+    if (!settings?.completion_notifications_enabled) {
+      return;
+    }
+
+    const unlisten = events.historyUpdatePayload.listen((event) => {
+      const payload = event.payload as HistoryUpdatePayload;
+      if (payload.action !== "added" || payload.entry.source !== "voice") {
+        return;
+      }
+
+      sendCompletionNotification(
+        t("notifications.transcriptionComplete.title"),
+        t("notifications.transcriptionComplete.body"),
+      );
+    });
+
+    return () => {
+      unlisten.then((fn) => fn());
+    };
+  }, [settings?.completion_notifications_enabled, t]);
 
   const revealMainWindowForPermissions = async () => {
     try {

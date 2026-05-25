@@ -16,6 +16,8 @@ import { HistoryPostProcessToggle } from "../HistoryPostProcessToggle";
 import { AppendTrailingSpace } from "../AppendTrailingSpace";
 import { HistoryLimit } from "../HistoryLimit";
 import { RecordingRetentionPeriodSelector } from "../RecordingRetentionPeriod";
+import { HistoryPostProcessAutoCopy } from "../HistoryPostProcessAutoCopy";
+import { CompletionNotifications } from "../CompletionNotifications";
 import { ExperimentalToggle } from "../ExperimentalToggle";
 import { useSettings } from "../../../hooks/useSettings";
 import { KeyboardImplementationSelector } from "../debug/KeyboardImplementationSelector";
@@ -57,6 +59,8 @@ export const AdvancedSettings: React.FC = () => {
           descriptionMode="tooltip"
           grouped={true}
         />
+        <HistoryPostProcessAutoCopy descriptionMode="tooltip" grouped={true} />
+        <CompletionNotifications descriptionMode="tooltip" grouped={true} />
       </SettingsGroup>
 
       {experimentalEnabled && (

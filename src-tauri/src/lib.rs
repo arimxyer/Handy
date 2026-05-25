@@ -112,6 +112,27 @@ fn show_main_window(app: &AppHandle) {
     );
 }
 
+#[cfg(target_os = "linux")]
+fn enable_linux_titlebar_buttons(window: &tauri::WebviewWindow) {
+    use gtk::prelude::*;
+
+    let Ok(gtk_window) = window.gtk_window() else {
+        return;
+    };
+
+    let Some(titlebar) = gtk_window.titlebar() else {
+        return;
+    };
+
+    if let Ok(event_box) = titlebar.downcast::<gtk::EventBox>() {
+        event_box.set_above_child(false);
+        log::info!("Adjusted Linux GTK titlebar event box so window buttons receive clicks");
+    }
+}
+
+#[cfg(not(target_os = "linux"))]
+fn enable_linux_titlebar_buttons(_window: &tauri::WebviewWindow) {}
+
 #[allow(unused_variables)]
 fn should_force_show_permissions_window(app: &AppHandle) -> bool {
     #[cfg(target_os = "windows")]
@@ -433,6 +454,8 @@ pub fn run(cli_args: CliArgs) {
             commands::history::update_history_limit,
             commands::history::update_recording_retention_period,
             commands::history::change_history_post_process_enabled_setting,
+            commands::history::change_history_post_process_auto_copy_setting,
+            commands::history::change_completion_notifications_enabled_setting,
             commands::history::post_process_history_entry,
             commands::history::get_transcription_versions,
             commands::history::restore_version,
@@ -528,6 +551,7 @@ pub fn run(cli_args: CliArgs) {
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_clipboard_manager::init())
+        .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_macos_permissions::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_store::Builder::default().build())
@@ -548,14 +572,16 @@ pub fn run(cli_args: CliArgs) {
                     .inner_size(680.0, 570.0)
                     .min_inner_size(680.0, 570.0)
                     .resizable(true)
-                    .maximizable(false)
+                    .minimizable(true)
+                    .maximizable(true)
                     .visible(false);
 
             if let Some(data_dir) = portable::data_dir() {
                 win_builder = win_builder.data_directory(data_dir.join("webview"));
             }
 
-            win_builder.build()?;
+            let main_window = win_builder.build()?;
+            enable_linux_titlebar_buttons(&main_window);
 
             let mut settings = get_settings(&app.handle());
 

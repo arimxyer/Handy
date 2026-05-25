@@ -168,6 +168,30 @@ pub async fn change_history_post_process_enabled_setting(
 
 #[tauri::command]
 #[specta::specta]
+pub async fn change_history_post_process_auto_copy_setting(
+    app: AppHandle,
+    enabled: bool,
+) -> Result<(), String> {
+    let mut settings = crate::settings::get_settings(&app);
+    settings.history_post_process_auto_copy = enabled;
+    crate::settings::write_settings(&app, settings);
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub async fn change_completion_notifications_enabled_setting(
+    app: AppHandle,
+    enabled: bool,
+) -> Result<(), String> {
+    let mut settings = crate::settings::get_settings(&app);
+    settings.completion_notifications_enabled = enabled;
+    crate::settings::write_settings(&app, settings);
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
 pub async fn post_process_history_entry(
     app: AppHandle,
     history_manager: State<'_, Arc<HistoryManager>>,

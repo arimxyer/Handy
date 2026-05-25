@@ -370,6 +370,14 @@
         "add": "追加",
         "remove": "{{word}}を削除",
         "duplicate": "「{{word}}」は既に存在します"
+      },
+      "historyPostProcessAutoCopy": {
+        "label": "Copy Enhanced History Output",
+        "description": "Automatically copy the enhanced text to your clipboard after a History transcription is enhanced."
+      },
+      "completionNotifications": {
+        "label": "Completion Notifications",
+        "description": "Show a system notification after recording transcription or History enhancement completes."
       }
     },
     "postProcessing": {
@@ -818,6 +826,16 @@
       "cancel": "Cancel",
       "selectToEdit": "Select a prompt to edit it",
       "createFirst": "Create a prompt to get started"
+    }
+  },
+  "notifications": {
+    "transcriptionComplete": {
+      "title": "Transcription Complete",
+      "body": "Your text is ready."
+    },
+    "enhancementComplete": {
+      "title": "Enhancement Complete",
+      "body": "Your enhanced text is ready."
     }
   }
 }

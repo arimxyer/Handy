@@ -33,6 +33,7 @@ import {
 } from "@/hooks/usePostProcessDrawer";
 import { useSettings } from "@/hooks/useSettings";
 import { useSettingsStore } from "@/stores/settingsStore";
+import { sendCompletionNotification } from "@/lib/notifications";
 import { formatDateTime } from "@/utils/dateFormat";
 import { Button } from "../../ui/Button";
 import { AudioPlayer } from "../../ui/AudioPlayer";
@@ -138,6 +139,10 @@ export const HistorySettings: React.FC = () => {
     (getSetting("experimental_enabled") || false) &&
     (getSetting("post_process_enabled") || false) &&
     (getSetting("history_post_process_enabled") || false);
+  const historyPostProcessAutoCopy =
+    getSetting("history_post_process_auto_copy") ?? false;
+  const completionNotificationsEnabled =
+    getSetting("completion_notifications_enabled") ?? false;
 
   const providerId = getSetting("post_process_provider_id");
   const selectedPromptId = getSetting("post_process_selected_prompt_id");
@@ -290,33 +295,36 @@ export const HistorySettings: React.FC = () => {
     );
   }, []);
 
-  const toggleSaved = useCallback(async (id: number) => {
-    setEntries((previous) =>
-      previous.map((entry) =>
-        entry.id === id ? { ...entry, saved: !entry.saved } : entry,
-      ),
-    );
-
-    try {
-      const result = await commands.toggleHistoryEntrySaved(id);
-      if (result.status !== "ok") {
-        setEntries((previous) =>
-          previous.map((entry) =>
-            entry.id === id ? { ...entry, saved: !entry.saved } : entry,
-          ),
-        );
-      } else {
-        replaceEntry(result.data);
-      }
-    } catch (error) {
-      console.error("Failed to toggle saved status:", error);
+  const toggleSaved = useCallback(
+    async (id: number) => {
       setEntries((previous) =>
         previous.map((entry) =>
           entry.id === id ? { ...entry, saved: !entry.saved } : entry,
         ),
       );
-    }
-  }, [replaceEntry]);
+
+      try {
+        const result = await commands.toggleHistoryEntrySaved(id);
+        if (result.status !== "ok") {
+          setEntries((previous) =>
+            previous.map((entry) =>
+              entry.id === id ? { ...entry, saved: !entry.saved } : entry,
+            ),
+          );
+        } else {
+          replaceEntry(result.data);
+        }
+      } catch (error) {
+        console.error("Failed to toggle saved status:", error);
+        setEntries((previous) =>
+          previous.map((entry) =>
+            entry.id === id ? { ...entry, saved: !entry.saved } : entry,
+          ),
+        );
+      }
+    },
+    [replaceEntry],
+  );
 
   const getAudioUrl = useCallback(
     async (fileName: string) => {
@@ -355,13 +363,16 @@ export const HistorySettings: React.FC = () => {
     [reloadFirstPage],
   );
 
-  const retryHistoryEntry = useCallback(async (id: number) => {
-    const result = await commands.retryHistoryEntryTranscription(id);
-    if (result.status !== "ok") {
-      throw new Error(String(result.error));
-    }
-    replaceEntry(result.data);
-  }, [replaceEntry]);
+  const retryHistoryEntry = useCallback(
+    async (id: number) => {
+      const result = await commands.retryHistoryEntryTranscription(id);
+      if (result.status !== "ok") {
+        throw new Error(String(result.error));
+      }
+      replaceEntry(result.data);
+    },
+    [replaceEntry],
+  );
 
   const openRecordingsFolder = useCallback(async () => {
     try {
@@ -409,6 +420,8 @@ export const HistorySettings: React.FC = () => {
               drawerOverrides={resolvedDrawerOverrides}
               compareEnabled={drawer.compareEnabled}
               compareModels={drawer.compareModels}
+              autoCopyEnhanced={historyPostProcessAutoCopy}
+              completionNotificationsEnabled={completionNotificationsEnabled}
             />
           ),
         )}
@@ -469,6 +482,8 @@ interface VoiceHistoryEntryProps {
   drawerOverrides: ResolvedDrawerOverrides;
   compareEnabled: boolean;
   compareModels: CompareModel[];
+  autoCopyEnhanced: boolean;
+  completionNotificationsEnabled: boolean;
 }
 
 const VoiceHistoryEntryComponent: React.FC<VoiceHistoryEntryProps> = ({
@@ -483,6 +498,8 @@ const VoiceHistoryEntryComponent: React.FC<VoiceHistoryEntryProps> = ({
   drawerOverrides,
   compareEnabled,
   compareModels,
+  autoCopyEnhanced,
+  completionNotificationsEnabled,
 }) => {
   const { t, i18n } = useTranslation();
   const [showCopied, setShowCopied] = useState(false);
@@ -504,15 +521,19 @@ const VoiceHistoryEntryComponent: React.FC<VoiceHistoryEntryProps> = ({
     [entry.file_name, getAudioUrl],
   );
 
-  const handleCopyText = () => {
-    if (!displayText.trim()) {
+  const copyTextToClipboard = (text: string) => {
+    if (!text.trim()) {
       return;
     }
-    navigator.clipboard.writeText(displayText).catch((error) => {
+    navigator.clipboard.writeText(text).catch((error) => {
       console.error("Failed to copy to clipboard:", error);
     });
     setShowCopied(true);
     setTimeout(() => setShowCopied(false), 2000);
+  };
+
+  const handleCopyText = () => {
+    copyTextToClipboard(displayText);
   };
 
   const handleDeleteEntry = async () => {
@@ -552,6 +573,15 @@ const VoiceHistoryEntryComponent: React.FC<VoiceHistoryEntryProps> = ({
       if (result.status === "ok") {
         replaceEntry(result.data);
         setShowOriginal(false);
+        if (autoCopyEnhanced && result.data.post_processed_text) {
+          copyTextToClipboard(result.data.post_processed_text);
+        }
+        if (completionNotificationsEnabled) {
+          sendCompletionNotification(
+            t("notifications.enhancementComplete.title"),
+            t("notifications.enhancementComplete.body"),
+          );
+        }
         if (compareEnabled) {
           for (const model of compareModels.filter(
             (candidate) => candidate.enabled,
@@ -657,9 +687,7 @@ const VoiceHistoryEntryComponent: React.FC<VoiceHistoryEntryProps> = ({
   return (
     <div className="px-4 py-2 pb-5 flex flex-col gap-3">
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
-        <p className="min-w-0 truncate text-sm font-medium">
-          {formattedDate}
-        </p>
+        <p className="min-w-0 truncate text-sm font-medium">{formattedDate}</p>
         <div className="justify-self-center">
           {hasEnhancedText && (
             <button

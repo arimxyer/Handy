@@ -332,6 +332,14 @@
           "copyToClipboard": "Copy to Clipboard"
         }
       },
+      "historyPostProcessAutoCopy": {
+        "label": "Copy Enhanced History Output",
+        "description": "Automatically copy the enhanced text to your clipboard after a History transcription is enhanced."
+      },
+      "completionNotifications": {
+        "label": "Completion Notifications",
+        "description": "Show a system notification after recording transcription or History enhancement completes."
+      },
       "autoSubmit": {
         "title": "Auto Submit",
         "description": "Automatically send the selected key combination after text insertion. Cmd+Enter applies on macOS, while Windows/Linux use Super+Enter.",
@@ -744,6 +752,16 @@
     "modelLoadFailedUnknown": "unknown model",
     "pasteFailedTitle": "Failed to Paste Text",
     "pasteFailed": "Text could not be pasted into the active application."
+  },
+  "notifications": {
+    "transcriptionComplete": {
+      "title": "Transcription Complete",
+      "body": "Your text is ready."
+    },
+    "enhancementComplete": {
+      "title": "Enhancement Complete",
+      "body": "Your enhanced text is ready."
+    }
   },
   "appLanguage": {
     "title": "Application Language",
