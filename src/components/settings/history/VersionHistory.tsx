@@ -23,7 +23,6 @@ import {
 } from "@/bindings";
 import { formatDateTime } from "@/utils/dateFormat";
 import { toast } from "sonner";
-import { listen } from "@tauri-apps/api/event";
 
 interface VersionHistoryProps {
   entry: HistoryEntry;
@@ -35,6 +34,7 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({ entry }) => {
   const [versions, setVersions] = useState<TranscriptionVersion[] | null>(null);
   const [loadingVersions, setLoadingVersions] = useState(false);
   const hasFetched = useRef(false);
+  const previousVersionCount = useRef(entry.version_count);
 
   const fetchVersions = useCallback(async () => {
     setLoadingVersions(true);
@@ -60,30 +60,20 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({ entry }) => {
     }
   }, [isExpanded, fetchVersions]);
 
-  // Refresh versions when history updates
-  // If expanded, re-fetch immediately. If collapsed but previously fetched, mark stale.
   useEffect(() => {
-    const setupListener = async () => {
-      const unlisten = await listen("history-updated", () => {
-        if (isExpanded) {
-          fetchVersions();
-        } else {
-          // Mark as stale so next expand triggers a re-fetch
-          hasFetched.current = false;
-        }
-      });
-      return unlisten;
-    };
+    if (previousVersionCount.current === entry.version_count) {
+      return;
+    }
 
-    const unlistenPromise = setupListener();
-    return () => {
-      unlistenPromise.then((unlisten) => {
-        if (unlisten) unlisten();
-      });
-    };
-  }, [isExpanded, fetchVersions]);
+    previousVersionCount.current = entry.version_count;
+    if (isExpanded && hasFetched.current) {
+      fetchVersions();
+    } else {
+      hasFetched.current = false;
+    }
+  }, [entry.version_count, fetchVersions, isExpanded]);
 
-  const versionCount = versions ? versions.length + 1 : null; // +1 for original
+  const versionCount = Math.max(versions?.length ?? 0, entry.version_count) + 1; // +1 for original
   const isOriginalActive = entry.post_processed_text == null;
 
   // Determine the single active version ID by matching text + prompt.
@@ -96,9 +86,9 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({ entry }) => {
         (v.prompt ?? "") === (entry.post_process_prompt ?? ""),
     );
     if (matches.length > 0) {
-      // Return the one with the highest timestamp (most recent)
+      // Return the one with the highest ID (most recent)
       return matches.reduce((latest, v) =>
-        v.timestamp > latest.timestamp ? v : latest,
+        v.id > latest.id ? v : latest,
       ).id;
     }
     // Fallback: if no exact text+prompt match, try text-only match (latest)
@@ -107,7 +97,7 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({ entry }) => {
     );
     if (textMatches.length > 0) {
       return textMatches.reduce((latest, v) =>
-        v.timestamp > latest.timestamp ? v : latest,
+        v.id > latest.id ? v : latest,
       ).id;
     }
     return null;
@@ -129,11 +119,9 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({ entry }) => {
         <span className="text-xs font-medium">
           {t("settings.history.versionHistory")}
         </span>
-        {versionCount != null && (
-          <span className="text-xs text-text/50">
-            {t("settings.history.versionCount", { count: versionCount })}
-          </span>
-        )}
+        <span className="text-xs text-text/50">
+          {t("settings.history.versionCount", { count: versionCount })}
+        </span>
         <span className="ml-auto">
           {isExpanded ? (
             <ChevronUp width={14} height={14} />

@@ -13,6 +13,7 @@ export interface CompareModel {
 
 export interface DrawerOverrides {
   providerId: string | null;
+  baseUrl: string | null;
   apiKey: string | null;
   modelId: string | null;
   selectedPromptId: string | null;
@@ -21,6 +22,7 @@ export interface DrawerOverrides {
 
 const EMPTY_OVERRIDES: DrawerOverrides = {
   providerId: null,
+  baseUrl: null,
   apiKey: null,
   modelId: null,
   selectedPromptId: null,

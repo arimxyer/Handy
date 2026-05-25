@@ -225,6 +225,16 @@ export const PostProcessDrawer: React.FC<PostProcessDrawerProps> = ({
     [setOverride, saveAsDefault, providerState],
   );
 
+  const handleBaseUrlBlur = useCallback(
+    (value: string) => {
+      setOverride("baseUrl", value);
+      if (saveAsDefault) {
+        providerState.handleBaseUrlChange(value);
+      }
+    },
+    [setOverride, saveAsDefault, providerState],
+  );
+
   const handleModelSelect = useCallback(
     (value: string) => {
       setOverride("modelId", value);
@@ -319,9 +329,9 @@ export const PostProcessDrawer: React.FC<PostProcessDrawerProps> = ({
               {t("settings.postProcessing.api.baseUrl.title")}
             </label>
             <BaseUrlField
-              value={drawerProvider?.base_url ?? ""}
-              onBlur={providerState.handleBaseUrlChange}
-              disabled={providerState.isBaseUrlUpdating}
+              value={overrides.baseUrl ?? drawerProvider?.base_url ?? ""}
+              onBlur={handleBaseUrlBlur}
+              disabled={saveAsDefault && providerState.isBaseUrlUpdating}
               placeholder={t("settings.postProcessing.api.baseUrl.placeholder")}
               className="!min-w-0 w-full"
             />

@@ -1,6 +1,6 @@
 use crate::actions::{post_process_transcription, process_transcription_output};
 use crate::managers::{
-    history::{HistoryManager, PaginatedHistory, TranscriptionVersion},
+    history::{HistoryEntry, HistoryManager, PaginatedHistory, TranscriptionVersion},
     transcription::TranscriptionManager,
 };
 use crate::settings::LLMPrompt;
@@ -28,7 +28,7 @@ pub async fn toggle_history_entry_saved(
     _app: AppHandle,
     history_manager: State<'_, Arc<HistoryManager>>,
     id: i64,
-) -> Result<(), String> {
+) -> Result<HistoryEntry, String> {
     history_manager
         .toggle_saved_status(id)
         .await
@@ -68,7 +68,7 @@ pub async fn retry_history_entry_transcription(
     history_manager: State<'_, Arc<HistoryManager>>,
     transcription_manager: State<'_, Arc<TranscriptionManager>>,
     id: i64,
-) -> Result<(), String> {
+) -> Result<HistoryEntry, String> {
     let entry = history_manager
         .get_entry_by_id(id)
         .await
@@ -104,7 +104,6 @@ pub async fn retry_history_entry_transcription(
             processed.post_processed_text,
             processed.post_process_prompt,
         )
-        .map(|_| ())
         .map_err(|e| e.to_string())
 }
 
@@ -174,10 +173,12 @@ pub async fn post_process_history_entry(
     history_manager: State<'_, Arc<HistoryManager>>,
     id: i64,
     override_provider_id: Option<String>,
+    override_base_url: Option<String>,
     override_api_key: Option<String>,
     override_model_id: Option<String>,
     override_prompt_text: Option<String>,
-) -> Result<String, String> {
+    update_entry: Option<bool>,
+) -> Result<HistoryEntry, String> {
     // Enforce three-level feature gate on the backend
     let settings = crate::settings::get_settings(&app);
     if !settings.experimental_enabled
@@ -206,6 +207,13 @@ pub async fn post_process_history_entry(
     }
 
     let effective_provider_id = effective_settings.post_process_provider_id.clone();
+
+    if let Some(ref base_url) = override_base_url {
+        if let Some(provider) = effective_settings.post_process_provider_mut(&effective_provider_id)
+        {
+            provider.base_url = base_url.clone();
+        }
+    }
 
     if let Some(ref api_key) = override_api_key {
         effective_settings
@@ -258,35 +266,35 @@ pub async fn post_process_history_entry(
         .post_process_models
         .get(&effective_provider_id)
         .map(|s| s.as_str());
-    history_manager
-        .save_version_and_update(
-            id,
-            &processed_text,
-            &effective_prompt_text,
-            effective_model_id,
-        )
-        .map_err(|e| e.to_string())?;
-
-    Ok(processed_text)
+    if update_entry.unwrap_or(true) {
+        history_manager
+            .save_version_and_update(
+                id,
+                &processed_text,
+                &effective_prompt_text,
+                effective_model_id,
+            )
+            .map_err(|e| e.to_string())
+    } else {
+        history_manager
+            .save_version(
+                id,
+                &processed_text,
+                &effective_prompt_text,
+                effective_model_id,
+            )
+            .map_err(|e| e.to_string())
+    }
 }
 
 #[tauri::command]
 #[specta::specta]
 pub async fn restore_version(
-    app: AppHandle,
+    _app: AppHandle,
     history_manager: State<'_, Arc<HistoryManager>>,
     entry_id: i64,
     version_id: Option<i64>,
-) -> Result<(), String> {
-    // Enforce three-level feature gate on the backend
-    let settings = crate::settings::get_settings(&app);
-    if !settings.experimental_enabled
-        || !settings.post_process_enabled
-        || !settings.history_post_process_enabled
-    {
-        return Err("HISTORY_POST_PROCESS_DISABLED".to_string());
-    }
-
+) -> Result<HistoryEntry, String> {
     history_manager
         .restore_version(entry_id, version_id)
         .map_err(|e| {
@@ -319,7 +327,7 @@ pub async fn update_history_entry_text(
     id: i64,
     field: String,
     new_text: String,
-) -> Result<(), String> {
+) -> Result<HistoryEntry, String> {
     let target = match field.as_str() {
         "transcription" | "post_processed" => field.as_str(),
         _ => return Err(format!("Invalid field: {}", field)),

@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use specta::Type;
 use std::fs;
 use std::path::PathBuf;
-use tauri::{AppHandle, Emitter};
+use tauri::AppHandle;
 use tauri_specta::Event;
 
 /// Database migrations for transcription history.
@@ -64,8 +64,6 @@ pub enum HistoryUpdatePayload {
     Updated { entry: HistoryEntry },
     #[serde(rename = "deleted")]
     Deleted { id: i64 },
-    #[serde(rename = "toggled")]
-    Toggled { id: i64 },
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, Type)]
@@ -306,7 +304,7 @@ impl HistoryManager {
         let timestamp = Utc::now().timestamp();
         let title = self.format_timestamp_title(timestamp);
 
-        let entry = self.save_to_database(
+        let saved_entry = self.save_to_database(
             file_name,
             timestamp,
             title,
@@ -319,15 +317,19 @@ impl HistoryManager {
 
         self.cleanup_old_entries()?;
 
-        if let Err(e) = (HistoryUpdatePayload::Added {
-            entry: entry.clone(),
-        })
-        .emit(&self.app_handle)
-        {
-            error!("Failed to emit history-updated event: {}", e);
+        let conn = self.get_connection()?;
+        if let Some(entry) = Self::get_entry_by_id_with_conn(&conn, saved_entry.id)? {
+            if let Err(e) = (HistoryUpdatePayload::Added {
+                entry: entry.clone(),
+            })
+            .emit(&self.app_handle)
+            {
+                error!("Failed to emit history update event: {}", e);
+            }
+            Ok(entry)
+        } else {
+            Ok(saved_entry)
         }
-
-        Ok(entry)
     }
 
     fn save_to_database(
@@ -425,7 +427,7 @@ impl HistoryManager {
         })
         .emit(&self.app_handle)
         {
-            error!("Failed to emit history-updated event: {}", e);
+            error!("Failed to emit history update event: {}", e);
         }
 
         Ok(entry)
@@ -437,12 +439,12 @@ impl HistoryManager {
         input_text: String,
         result_text: String,
         prompt_name: String,
-    ) -> Result<()> {
+    ) -> Result<HistoryEntry> {
         let timestamp = Utc::now().timestamp();
         let title = self.format_timestamp_title(timestamp);
         let file_name = format!("text-op-{}", timestamp);
 
-        self.save_to_database(
+        let entry = self.save_to_database(
             file_name,
             timestamp,
             title,
@@ -453,15 +455,15 @@ impl HistoryManager {
             "text",
         )?;
 
-        if let Some(entry) = self.get_latest_entry()? {
-            if let Err(e) = (HistoryUpdatePayload::Added { entry }).emit(&self.app_handle) {
-                error!("Failed to emit history-updated event: {}", e);
-            }
-        } else if let Err(e) = self.app_handle.emit("history-updated", ()) {
-            error!("Failed to emit history-updated event: {}", e);
+        if let Err(e) = (HistoryUpdatePayload::Added {
+            entry: entry.clone(),
+        })
+        .emit(&self.app_handle)
+        {
+            error!("Failed to emit history update event: {}", e);
         }
 
-        Ok(())
+        Ok(entry)
     }
 
     pub fn cleanup_old_entries(&self) -> Result<()> {
@@ -494,10 +496,14 @@ impl HistoryManager {
 
         for (id, file_name) in entries {
             // Delete database entry
-            conn.execute(
+            let affected = conn.execute(
                 "DELETE FROM transcription_history WHERE id = ?1",
                 params![id],
             )?;
+            if affected == 0 {
+                continue;
+            }
+            deleted_count += affected;
 
             // Delete WAV file
             let file_path = self.recordings_dir.join(file_name);
@@ -506,8 +512,11 @@ impl HistoryManager {
                     error!("Failed to delete WAV file {}: {}", file_name, e);
                 } else {
                     debug!("Deleted old WAV file: {}", file_name);
-                    deleted_count += 1;
                 }
+            }
+
+            if let Err(e) = (HistoryUpdatePayload::Deleted { id: *id }).emit(&self.app_handle) {
+                error!("Failed to emit history update event: {}", e);
             }
         }
 
@@ -517,9 +526,9 @@ impl HistoryManager {
     fn cleanup_by_count(&self, limit: usize) -> Result<()> {
         let conn = self.get_connection()?;
 
-        // Get all entries that are not saved, ordered by timestamp desc
+        // Retention settings apply to recordings, not text-operation history.
         let mut stmt = conn.prepare(
-            "SELECT id, file_name FROM transcription_history WHERE saved = 0 ORDER BY timestamp DESC"
+            "SELECT id, file_name FROM transcription_history WHERE saved = 0 AND source = 'voice' ORDER BY timestamp DESC"
         )?;
 
         let rows = stmt.query_map([], |row| {
@@ -558,9 +567,9 @@ impl HistoryManager {
             _ => unreachable!("Should not reach here"),
         };
 
-        // Get all unsaved entries older than the cutoff timestamp
+        // Retention settings apply to recordings, not text-operation history.
         let mut stmt = conn.prepare(
-            "SELECT id, file_name FROM transcription_history WHERE saved = 0 AND timestamp < ?1",
+            "SELECT id, file_name FROM transcription_history WHERE saved = 0 AND source = 'voice' AND timestamp < ?1",
         )?;
 
         let rows = stmt.query_map(params![cutoff_timestamp], |row| {
@@ -635,11 +644,7 @@ impl HistoryManager {
         Ok(PaginatedHistory { entries, has_more })
     }
 
-    pub fn get_latest_entry(&self) -> Result<Option<HistoryEntry>> {
-        let conn = self.get_connection()?;
-        Self::get_latest_entry_with_conn(&conn)
-    }
-
+    #[cfg(test)]
     fn get_latest_entry_with_conn(conn: &Connection) -> Result<Option<HistoryEntry>> {
         let mut stmt = conn.prepare(
             "SELECT id, file_name, timestamp, saved, title, transcription_text, post_processed_text, post_process_prompt, source,
@@ -675,7 +680,7 @@ impl HistoryManager {
         Ok(entry)
     }
 
-    pub async fn toggle_saved_status(&self, id: i64) -> Result<()> {
+    pub async fn toggle_saved_status(&self, id: i64) -> Result<HistoryEntry> {
         let conn = self.get_connection()?;
 
         // Get current saved status
@@ -694,11 +699,18 @@ impl HistoryManager {
 
         debug!("Toggled saved status for entry {}: {}", id, new_saved);
 
-        if let Err(e) = (HistoryUpdatePayload::Toggled { id }).emit(&self.app_handle) {
-            error!("Failed to emit history-updated event: {}", e);
+        let entry = Self::get_entry_by_id_with_conn(&conn, id)?
+            .ok_or_else(|| anyhow::anyhow!("History entry {} not found after toggle", id))?;
+
+        if let Err(e) = (HistoryUpdatePayload::Updated {
+            entry: entry.clone(),
+        })
+        .emit(&self.app_handle)
+        {
+            error!("Failed to emit history update event: {}", e);
         }
 
-        Ok(())
+        Ok(entry)
     }
 
     pub fn get_audio_file_path(&self, file_name: &str) -> PathBuf {
@@ -707,6 +719,10 @@ impl HistoryManager {
 
     pub async fn get_entry_by_id(&self, id: i64) -> Result<Option<HistoryEntry>> {
         let conn = self.get_connection()?;
+        Self::get_entry_by_id_with_conn(&conn, id)
+    }
+
+    fn get_entry_by_id_with_conn(conn: &Connection, id: i64) -> Result<Option<HistoryEntry>> {
         let mut stmt = conn.prepare(
             "SELECT id, file_name, timestamp, saved, title, transcription_text, post_processed_text, post_process_prompt, post_process_requested, source,
              (SELECT COUNT(*) FROM transcription_versions WHERE history_entry_id = transcription_history.id) AS version_count
@@ -734,15 +750,18 @@ impl HistoryManager {
         }
 
         // Delete from database
-        conn.execute(
+        let affected = conn.execute(
             "DELETE FROM transcription_history WHERE id = ?1",
             params![id],
         )?;
+        if affected == 0 {
+            return Err(anyhow::anyhow!("History entry {} not found", id));
+        }
 
         debug!("Deleted history entry with id: {}", id);
 
         if let Err(e) = (HistoryUpdatePayload::Deleted { id }).emit(&self.app_handle) {
-            error!("Failed to emit history-updated event: {}", e);
+            error!("Failed to emit history update event: {}", e);
         }
 
         Ok(())
@@ -755,7 +774,7 @@ impl HistoryManager {
         text: &str,
         prompt: &str,
         model_name: Option<&str>,
-    ) -> Result<()> {
+    ) -> Result<HistoryEntry> {
         let mut conn = self.get_connection()?;
         let timestamp = Utc::now().timestamp();
 
@@ -775,20 +794,59 @@ impl HistoryManager {
             id
         );
 
-        if let Some(entry) = tauri::async_runtime::block_on(self.get_entry_by_id(id))? {
-            if let Err(e) = (HistoryUpdatePayload::Updated { entry }).emit(&self.app_handle) {
-                error!("Failed to emit history-updated event: {}", e);
-            }
-        } else if let Err(e) = self.app_handle.emit("history-updated", ()) {
-            error!("Failed to emit history-updated event: {}", e);
+        let entry = Self::get_entry_by_id_with_conn(&conn, id)?
+            .ok_or_else(|| anyhow::anyhow!("History entry {} not found after update", id))?;
+
+        if let Err(e) = (HistoryUpdatePayload::Updated {
+            entry: entry.clone(),
+        })
+        .emit(&self.app_handle)
+        {
+            error!("Failed to emit history update event: {}", e);
         }
 
-        Ok(())
+        Ok(entry)
+    }
+
+    /// Save an alternate post-processed version without changing the active transcript.
+    pub fn save_version(
+        &self,
+        id: i64,
+        text: &str,
+        prompt: &str,
+        model_name: Option<&str>,
+    ) -> Result<HistoryEntry> {
+        let conn = self.get_connection()?;
+        let timestamp = Utc::now().timestamp();
+
+        let affected = conn.execute(
+            "INSERT INTO transcription_versions (history_entry_id, text, prompt, model_name, target, timestamp) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+            params![id, text, Some(prompt), model_name, "post_processed", timestamp],
+        )?;
+        if affected == 0 {
+            return Err(anyhow::anyhow!(
+                "Failed to save version for history entry {}",
+                id
+            ));
+        }
+
+        let entry = Self::get_entry_by_id_with_conn(&conn, id)?
+            .ok_or_else(|| anyhow::anyhow!("History entry {} not found after version save", id))?;
+
+        if let Err(e) = (HistoryUpdatePayload::Updated {
+            entry: entry.clone(),
+        })
+        .emit(&self.app_handle)
+        {
+            error!("Failed to emit history update event: {}", e);
+        }
+
+        Ok(entry)
     }
 
     /// Save a manual text edit with version tracking.
     /// `target` must be `"transcription"` or `"post_processed"`.
-    pub fn update_entry_text(&self, id: i64, target: &str, new_text: &str) -> Result<()> {
+    pub fn update_entry_text(&self, id: i64, target: &str, new_text: &str) -> Result<HistoryEntry> {
         let mut conn = self.get_connection()?;
         let timestamp = Utc::now().timestamp();
 
@@ -803,16 +861,22 @@ impl HistoryManager {
         // Update the appropriate column
         match target {
             "transcription" => {
-                tx.execute(
+                let affected = tx.execute(
                     "UPDATE transcription_history SET transcription_text = ?1 WHERE id = ?2",
                     params![new_text, id],
                 )?;
+                if affected == 0 {
+                    return Err(anyhow::anyhow!("History entry {} not found", id));
+                }
             }
             "post_processed" => {
-                tx.execute(
+                let affected = tx.execute(
                     "UPDATE transcription_history SET post_processed_text = ?1 WHERE id = ?2",
                     params![new_text, id],
                 )?;
+                if affected == 0 {
+                    return Err(anyhow::anyhow!("History entry {} not found", id));
+                }
             }
             _ => {
                 return Err(anyhow::anyhow!("Invalid target: {}", target));
@@ -823,31 +887,37 @@ impl HistoryManager {
 
         debug!("Saved manual edit for entry {} (target: {})", id, target);
 
-        if let Some(entry) = tauri::async_runtime::block_on(self.get_entry_by_id(id))? {
-            if let Err(e) = (HistoryUpdatePayload::Updated { entry }).emit(&self.app_handle) {
-                error!("Failed to emit history-updated event: {}", e);
-            }
-        } else if let Err(e) = self.app_handle.emit("history-updated", ()) {
-            error!("Failed to emit history-updated event: {}", e);
+        let entry = Self::get_entry_by_id_with_conn(&conn, id)?
+            .ok_or_else(|| anyhow::anyhow!("History entry {} not found after edit", id))?;
+
+        if let Err(e) = (HistoryUpdatePayload::Updated {
+            entry: entry.clone(),
+        })
+        .emit(&self.app_handle)
+        {
+            error!("Failed to emit history update event: {}", e);
         }
 
-        Ok(())
+        Ok(entry)
     }
 
     /// Restore a previous version or the original transcription.
     /// If `version_id` is Some, restores that version's text and prompt.
     /// If `version_id` is None, restores the original (sets post_processed_text to NULL).
     /// The transcription_versions table is never modified — it's append-only history.
-    pub fn restore_version(&self, entry_id: i64, version_id: Option<i64>) -> Result<()> {
+    pub fn restore_version(&self, entry_id: i64, version_id: Option<i64>) -> Result<HistoryEntry> {
         let conn = self.get_connection()?;
 
         match version_id {
             None => {
                 // Restore to original: clear post-processed text
-                conn.execute(
+                let affected = conn.execute(
                     "UPDATE transcription_history SET post_processed_text = NULL, post_process_prompt = NULL WHERE id = ?1",
                     params![entry_id],
                 )?;
+                if affected == 0 {
+                    return Err(anyhow::anyhow!("History entry {} not found", entry_id));
+                }
             }
             Some(vid) => {
                 // Look up the version
@@ -860,30 +930,39 @@ impl HistoryManager {
                     .map_err(|_| anyhow::anyhow!("VERSION_NOT_FOUND"))?;
 
                 if target == "transcription" {
-                    conn.execute(
+                    let affected = conn.execute(
                         "UPDATE transcription_history SET transcription_text = ?1 WHERE id = ?2",
                         params![text, entry_id],
                     )?;
+                    if affected == 0 {
+                        return Err(anyhow::anyhow!("History entry {} not found", entry_id));
+                    }
                 } else {
-                    conn.execute(
+                    let affected = conn.execute(
                         "UPDATE transcription_history SET post_processed_text = ?1, post_process_prompt = ?2 WHERE id = ?3",
                         params![text, prompt, entry_id],
                     )?;
+                    if affected == 0 {
+                        return Err(anyhow::anyhow!("History entry {} not found", entry_id));
+                    }
                 }
             }
         }
 
         debug!("Restored version {:?} for entry {}", version_id, entry_id);
 
-        if let Some(entry) = tauri::async_runtime::block_on(self.get_entry_by_id(entry_id))? {
-            if let Err(e) = (HistoryUpdatePayload::Updated { entry }).emit(&self.app_handle) {
-                error!("Failed to emit history-updated event: {}", e);
-            }
-        } else if let Err(e) = self.app_handle.emit("history-updated", ()) {
-            error!("Failed to emit history-updated event: {}", e);
+        let entry = Self::get_entry_by_id_with_conn(&conn, entry_id)?
+            .ok_or_else(|| anyhow::anyhow!("History entry {} not found after restore", entry_id))?;
+
+        if let Err(e) = (HistoryUpdatePayload::Updated {
+            entry: entry.clone(),
+        })
+        .emit(&self.app_handle)
+        {
+            error!("Failed to emit history update event: {}", e);
         }
 
-        Ok(())
+        Ok(entry)
     }
 
     /// Get all post-processing versions for a history entry

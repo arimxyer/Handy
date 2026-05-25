@@ -753,7 +753,7 @@ async getHistoryEntries(source: string | null, cursor: number | null, limit: num
     else return { status: "error", error: e  as any };
 }
 },
-async toggleHistoryEntrySaved(id: number) : Promise<Result<null, string>> {
+async toggleHistoryEntrySaved(id: number) : Promise<Result<HistoryEntry, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("toggle_history_entry_saved", { id }) };
 } catch (e) {
@@ -777,7 +777,7 @@ async deleteHistoryEntry(id: number) : Promise<Result<null, string>> {
     else return { status: "error", error: e  as any };
 }
 },
-async retryHistoryEntryTranscription(id: number) : Promise<Result<null, string>> {
+async retryHistoryEntryTranscription(id: number) : Promise<Result<HistoryEntry, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("retry_history_entry_transcription", { id }) };
 } catch (e) {
@@ -809,9 +809,9 @@ async changeHistoryPostProcessEnabledSetting(enabled: boolean) : Promise<Result<
     else return { status: "error", error: e  as any };
 }
 },
-async postProcessHistoryEntry(id: number, overrideProviderId: string | null, overrideApiKey: string | null, overrideModelId: string | null, overridePromptText: string | null) : Promise<Result<string, string>> {
+async postProcessHistoryEntry(id: number, overrideProviderId: string | null, overrideBaseUrl: string | null, overrideApiKey: string | null, overrideModelId: string | null, overridePromptText: string | null, updateEntry: boolean | null) : Promise<Result<HistoryEntry, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("post_process_history_entry", { id, overrideProviderId, overrideApiKey, overrideModelId, overridePromptText }) };
+    return { status: "ok", data: await TAURI_INVOKE("post_process_history_entry", { id, overrideProviderId, overrideBaseUrl, overrideApiKey, overrideModelId, overridePromptText, updateEntry }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -825,7 +825,7 @@ async getTranscriptionVersions(entryId: number) : Promise<Result<TranscriptionVe
     else return { status: "error", error: e  as any };
 }
 },
-async restoreVersion(entryId: number, versionId: number | null) : Promise<Result<null, string>> {
+async restoreVersion(entryId: number, versionId: number | null) : Promise<Result<HistoryEntry, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("restore_version", { entryId, versionId }) };
 } catch (e) {
@@ -833,7 +833,7 @@ async restoreVersion(entryId: number, versionId: number | null) : Promise<Result
     else return { status: "error", error: e  as any };
 }
 },
-async updateHistoryEntryText(id: number, field: string, newText: string) : Promise<Result<null, string>> {
+async updateHistoryEntryText(id: number, field: string, newText: string) : Promise<Result<HistoryEntry, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("update_history_entry_text", { id, field, newText }) };
 } catch (e) {
@@ -1037,7 +1037,7 @@ historyUpdatePayload: "history-update-payload"
 
 /** user-defined types **/
 
-export type AppSettings = { bindings: Partial<{ [key in string]: ShortcutBinding }>; push_to_talk: boolean; audio_feedback: boolean; audio_feedback_volume?: number; sound_theme?: SoundTheme; start_hidden?: boolean; autostart_enabled?: boolean; update_checks_enabled?: boolean; selected_model?: string; always_on_microphone?: boolean; selected_microphone?: string | null; clamshell_microphone?: string | null; selected_output_device?: string | null; translate_to_english?: boolean; selected_language?: string; overlay_position?: OverlayPosition; debug_mode?: boolean; log_level?: LogLevel; custom_words?: string[]; model_unload_timeout?: ModelUnloadTimeout; word_correction_threshold?: number; history_limit?: number; recording_retention_period?: RecordingRetentionPeriod; paste_method?: PasteMethod; clipboard_handling?: ClipboardHandling; auto_submit?: boolean; auto_submit_key?: AutoSubmitKey; post_process_enabled?: boolean; post_process_provider_id?: string; post_process_providers?: PostProcessProvider[]; post_process_api_keys?: SecretMap; post_process_models?: Partial<{ [key in string]: string }>; post_process_prompts?: LLMPrompt[]; post_process_selected_prompt_id?: string | null; mute_while_recording?: boolean; append_trailing_space?: boolean; app_language?: string; experimental_enabled?: boolean; lazy_stream_close?: boolean; history_post_process_enabled: boolean; keyboard_implementation?: KeyboardImplementation; show_tray_icon?: boolean; paste_delay_ms?: number; typing_tool?: TypingTool; external_script_path: string | null; custom_filler_words?: string[] | null; whisper_accelerator?: WhisperAcceleratorSetting; ort_accelerator?: OrtAcceleratorSetting; whisper_gpu_device?: number; extra_recording_buffer_ms?: number; insights_provider_id?: string; insights_api_keys?: Partial<{ [key in string]: string }>; insights_models?: Partial<{ [key in string]: string }>; insights_entry_count?: number; insights_use_all_history?: boolean; insights_history?: InsightsResult[]; text_ops_enabled?: boolean; text_ops_provider_id?: string; text_ops_models?: Partial<{ [key in string]: string }>; text_ops_prompts?: LLMPrompt[]; text_ops_selected_prompt_id?: string | null; text_ops_pinned_prompt_id?: string | null; text_ops_output_behavior?: TextOpsOutputBehavior }
+export type AppSettings = { bindings: Partial<{ [key in string]: ShortcutBinding }>; push_to_talk: boolean; audio_feedback: boolean; audio_feedback_volume?: number; sound_theme?: SoundTheme; start_hidden?: boolean; autostart_enabled?: boolean; update_checks_enabled?: boolean; selected_model?: string; always_on_microphone?: boolean; selected_microphone?: string | null; clamshell_microphone?: string | null; selected_output_device?: string | null; translate_to_english?: boolean; selected_language?: string; overlay_position?: OverlayPosition; debug_mode?: boolean; log_level?: LogLevel; custom_words?: string[]; model_unload_timeout?: ModelUnloadTimeout; word_correction_threshold?: number; history_limit?: number; recording_retention_period?: RecordingRetentionPeriod; paste_method?: PasteMethod; clipboard_handling?: ClipboardHandling; auto_submit?: boolean; auto_submit_key?: AutoSubmitKey; post_process_enabled?: boolean; post_process_provider_id?: string; post_process_providers?: PostProcessProvider[]; post_process_api_keys?: SecretMap; post_process_models?: Partial<{ [key in string]: string }>; post_process_prompts?: LLMPrompt[]; post_process_selected_prompt_id?: string | null; mute_while_recording?: boolean; append_trailing_space?: boolean; app_language?: string; experimental_enabled?: boolean; lazy_stream_close?: boolean; history_post_process_enabled?: boolean; keyboard_implementation?: KeyboardImplementation; show_tray_icon?: boolean; paste_delay_ms?: number; typing_tool?: TypingTool; external_script_path?: string | null; custom_filler_words?: string[] | null; whisper_accelerator?: WhisperAcceleratorSetting; ort_accelerator?: OrtAcceleratorSetting; whisper_gpu_device?: number; extra_recording_buffer_ms?: number; insights_provider_id?: string; insights_api_keys?: Partial<{ [key in string]: string }>; insights_models?: Partial<{ [key in string]: string }>; insights_entry_count?: number; insights_use_all_history?: boolean; insights_history?: InsightsResult[]; text_ops_enabled?: boolean; text_ops_provider_id?: string; text_ops_models?: Partial<{ [key in string]: string }>; text_ops_prompts?: LLMPrompt[]; text_ops_selected_prompt_id?: string | null; text_ops_pinned_prompt_id?: string | null; text_ops_output_behavior?: TextOpsOutputBehavior }
 export type AudioDevice = { index: string; name: string; is_default: boolean }
 export type AutoSubmitKey = "enter" | "ctrl_enter" | "cmd_enter"
 export type AvailableAccelerators = { whisper: string[]; ort: string[]; gpu_devices: GpuDeviceOption[] }
@@ -1047,7 +1047,7 @@ export type CustomSounds = { start: boolean; stop: boolean }
 export type EngineType = "Whisper" | "Parakeet" | "Moonshine" | "MoonshineStreaming" | "SenseVoice" | "GigaAM" | "Canary" | "Cohere"
 export type GpuDeviceOption = { id: number; name: string; total_vram_mb: number }
 export type HistoryEntry = { id: number; file_name: string; timestamp: number; saved: boolean; title: string; transcription_text: string; post_processed_text: string | null; post_process_prompt: string | null; post_process_requested: boolean; version_count: number; source: string }
-export type HistoryUpdatePayload = { action: "added"; entry: HistoryEntry } | { action: "updated"; entry: HistoryEntry } | { action: "deleted"; id: number } | { action: "toggled"; id: number }
+export type HistoryUpdatePayload = { action: "added"; entry: HistoryEntry } | { action: "updated"; entry: HistoryEntry } | { action: "deleted"; id: number }
 /**
  * Result of changing keyboard implementation
  */

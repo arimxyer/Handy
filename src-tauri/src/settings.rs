@@ -399,6 +399,7 @@ pub struct AppSettings {
     pub experimental_enabled: bool,
     #[serde(default)]
     pub lazy_stream_close: bool,
+    #[serde(default)]
     pub history_post_process_enabled: bool,
     #[serde(default)]
     pub keyboard_implementation: KeyboardImplementation,
@@ -408,6 +409,7 @@ pub struct AppSettings {
     pub paste_delay_ms: u64,
     #[serde(default = "default_typing_tool")]
     pub typing_tool: TypingTool,
+    #[serde(default)]
     pub external_script_path: Option<String>,
     #[serde(default)]
     pub custom_filler_words: Option<Vec<String>>,
@@ -1008,10 +1010,9 @@ pub fn load_or_create_app_settings(app: &AppHandle) -> AppSettings {
             }
             Err(e) => {
                 warn!("Failed to parse settings: {}", e);
-                // Fall back to default settings if parsing fails
-                let default_settings = get_default_settings();
-                store.set("settings", serde_json::to_value(&default_settings).unwrap());
-                default_settings
+                // Do not overwrite the stored settings on parse failure; preserving
+                // user settings and secrets is safer than replacing them with defaults.
+                get_default_settings()
             }
         }
     } else {
@@ -1033,11 +1034,8 @@ pub fn get_settings(app: &AppHandle) -> AppSettings {
         .expect("Failed to initialize store");
 
     let mut settings = if let Some(settings_value) = store.get("settings") {
-        serde_json::from_value::<AppSettings>(settings_value).unwrap_or_else(|_| {
-            let default_settings = get_default_settings();
-            store.set("settings", serde_json::to_value(&default_settings).unwrap());
-            default_settings
-        })
+        serde_json::from_value::<AppSettings>(settings_value)
+            .unwrap_or_else(|_| get_default_settings())
     } else {
         let default_settings = get_default_settings();
         store.set("settings", serde_json::to_value(&default_settings).unwrap());

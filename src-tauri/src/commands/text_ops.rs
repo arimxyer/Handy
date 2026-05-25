@@ -67,9 +67,18 @@ pub async fn process_text(
         reasoning_effort,
         reasoning,
     )
-    .await?;
+    .await
+    .map_err(|e| {
+        crate::overlay::hide_recording_overlay(&app);
+        crate::tray::change_tray_icon(&app, crate::tray::TrayIconState::Idle);
+        e
+    })?;
 
-    let result_text = result.ok_or_else(|| "No content returned from provider".to_string())?;
+    let result_text = result.ok_or_else(|| {
+        crate::overlay::hide_recording_overlay(&app);
+        crate::tray::change_tray_icon(&app, crate::tray::TrayIconState::Idle);
+        "No content returned from provider".to_string()
+    })?;
 
     // Save to history
     if let Err(e) = history_manager.save_text_operation(text, result_text.clone(), prompt_name) {
@@ -352,7 +361,11 @@ pub async fn execute_picker_prompt(
                 crate::overlay::hide_recording_overlay(&ah);
                 crate::tray::change_tray_icon(&ah, crate::tray::TrayIconState::Idle);
             })
-            .map_err(|e| format!("Failed to run paste on main thread: {:?}", e))?;
+            .map_err(|e| {
+                crate::overlay::hide_recording_overlay(&app);
+                crate::tray::change_tray_icon(&app, crate::tray::TrayIconState::Idle);
+                format!("Failed to run paste on main thread: {:?}", e)
+            })?;
         }
     }
 

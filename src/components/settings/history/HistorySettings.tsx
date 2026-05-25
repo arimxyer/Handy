@@ -60,6 +60,7 @@ type GetHistoryEntriesCommand = (
 
 interface ResolvedDrawerOverrides {
   providerId: string | null;
+  baseUrl: string | null;
   apiKey: string | null;
   modelId: string | null;
   promptText: string | null;
@@ -158,6 +159,7 @@ export const HistorySettings: React.FC = () => {
     }
     return {
       providerId: overrides.providerId,
+      baseUrl: overrides.baseUrl,
       apiKey: overrides.apiKey,
       modelId: overrides.modelId,
       promptText,
@@ -251,14 +253,6 @@ export const HistorySettings: React.FC = () => {
         );
         return;
       }
-      if (payload.action === "toggled") {
-        setEntries((previous) =>
-          previous.map((entry) =>
-            entry.id === payload.id ? { ...entry, saved: !entry.saved } : entry,
-          ),
-        );
-        return;
-      }
 
       const incomingEntry = payload.entry as HistoryEntryWithExtras;
       if (incomingEntry.source != null && incomingEntry.source !== source) {
@@ -288,6 +282,14 @@ export const HistorySettings: React.FC = () => {
     await loadPage();
   }, [loadPage]);
 
+  const replaceEntry = useCallback((updatedEntry: HistoryEntryWithExtras) => {
+    setEntries((previous) =>
+      previous.map((entry) =>
+        entry.id === updatedEntry.id ? updatedEntry : entry,
+      ),
+    );
+  }, []);
+
   const toggleSaved = useCallback(async (id: number) => {
     setEntries((previous) =>
       previous.map((entry) =>
@@ -303,6 +305,8 @@ export const HistorySettings: React.FC = () => {
             entry.id === id ? { ...entry, saved: !entry.saved } : entry,
           ),
         );
+      } else {
+        replaceEntry(result.data);
       }
     } catch (error) {
       console.error("Failed to toggle saved status:", error);
@@ -312,7 +316,7 @@ export const HistorySettings: React.FC = () => {
         ),
       );
     }
-  }, []);
+  }, [replaceEntry]);
 
   const getAudioUrl = useCallback(
     async (fileName: string) => {
@@ -356,7 +360,8 @@ export const HistorySettings: React.FC = () => {
     if (result.status !== "ok") {
       throw new Error(String(result.error));
     }
-  }, []);
+    replaceEntry(result.data);
+  }, [replaceEntry]);
 
   const openRecordingsFolder = useCallback(async () => {
     try {
@@ -398,6 +403,7 @@ export const HistorySettings: React.FC = () => {
               getAudioUrl={getAudioUrl}
               deleteAudio={deleteHistoryEntry}
               retryTranscription={retryHistoryEntry}
+              replaceEntry={replaceEntry}
               showPostProcess={historyPostProcessEnabled}
               postProcessConfigured={postProcessConfigured}
               drawerOverrides={resolvedDrawerOverrides}
@@ -457,6 +463,7 @@ interface VoiceHistoryEntryProps {
   getAudioUrl: (fileName: string) => Promise<string | null>;
   deleteAudio: (id: number) => Promise<void>;
   retryTranscription: (id: number) => Promise<void>;
+  replaceEntry: (entry: HistoryEntryWithExtras) => void;
   showPostProcess: boolean;
   postProcessConfigured: boolean;
   drawerOverrides: ResolvedDrawerOverrides;
@@ -470,6 +477,7 @@ const VoiceHistoryEntryComponent: React.FC<VoiceHistoryEntryProps> = ({
   getAudioUrl,
   deleteAudio,
   retryTranscription,
+  replaceEntry,
   showPostProcess,
   postProcessConfigured,
   drawerOverrides,
@@ -534,25 +542,33 @@ const VoiceHistoryEntryComponent: React.FC<VoiceHistoryEntryProps> = ({
       const result = await commands.postProcessHistoryEntry(
         entry.id,
         drawerOverrides.providerId,
+        drawerOverrides.baseUrl,
         drawerOverrides.apiKey,
         drawerOverrides.modelId,
         drawerOverrides.promptText,
+        true,
       );
 
       if (result.status === "ok") {
+        replaceEntry(result.data);
         setShowOriginal(false);
         if (compareEnabled) {
           for (const model of compareModels.filter(
             (candidate) => candidate.enabled,
           )) {
             try {
-              await commands.postProcessHistoryEntry(
+              const comparisonResult = await commands.postProcessHistoryEntry(
                 entry.id,
                 model.provider,
+                model.baseUrl || null,
                 model.apiKey || null,
                 model.model,
                 drawerOverrides.promptText,
+                false,
               );
+              if (comparisonResult.status === "ok") {
+                replaceEntry(comparisonResult.data);
+              }
             } catch (error) {
               console.error(
                 `Comparison model ${model.provider}/${model.model} failed:`,
@@ -613,6 +629,7 @@ const VoiceHistoryEntryComponent: React.FC<VoiceHistoryEntryProps> = ({
       if (result.status === "error") {
         toast.error(result.error);
       } else {
+        replaceEntry(result.data);
         toast.success(t("settings.history.editSaved"));
       }
     } catch (error) {
@@ -639,19 +656,23 @@ const VoiceHistoryEntryComponent: React.FC<VoiceHistoryEntryProps> = ({
 
   return (
     <div className="px-4 py-2 pb-5 flex flex-col gap-3">
-      <div className="flex justify-between items-center gap-3">
-        <p className="text-sm font-medium">{formattedDate}</p>
-        <div className="flex items-center gap-2">
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+        <p className="min-w-0 truncate text-sm font-medium">
+          {formattedDate}
+        </p>
+        <div className="justify-self-center">
           {hasEnhancedText && (
             <button
               onClick={() => setShowOriginal((current) => !current)}
-              className="text-xs px-2 py-1 border border-text/20 rounded text-text/50 hover:text-logo-primary hover:border-logo-primary transition-colors cursor-pointer"
+              className="text-xs px-2 py-1 border border-text/20 rounded text-text/50 hover:text-logo-primary hover:border-logo-primary transition-colors cursor-pointer whitespace-nowrap"
             >
               {showOriginal
                 ? t("settings.history.showEnhanced")
                 : t("settings.history.showOriginal")}
             </button>
           )}
+        </div>
+        <div className="justify-self-end">
           <div className="flex items-center">
             {showPostProcess && (
               <IconButton
