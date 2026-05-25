@@ -13,3 +13,8 @@ Long-lived stateful services initialized at app startup in `lib.rs` and stored i
 ## Pattern
 
 Each manager is initialized in `lib.rs` setup closure and registered via `app.manage(Arc::new(Mutex::new(manager)))`. Access in commands via `app.state::<Arc<Mutex<Manager>>>()`.
+
+## Migration Safety
+
+- History database migrations are user-data sensitive. Add compatibility repair paths and tests for legacy insiders schemas instead of asking users to clear data.
+- Before validating a new migration against the real profile, test against a copied `~/.local/share/com.pais.handy` profile with temporary XDG directories.

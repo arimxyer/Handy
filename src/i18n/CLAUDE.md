@@ -6,16 +6,16 @@ Uses i18next with react-i18next. ESLint enforces no hardcoded strings in JSX.
 
 - `index.ts` — i18n initialization and configuration
 - `languages.ts` — Language metadata (name, native name, RTL flag)
-- `locales/` — 17 translation files: ar, cs, de, en (source), es, fr, it, ja, ko, pl, pt, ru, tr, uk, vi, zh, zh-TW
+- `locales/` — 20 translation files: ar, bg, cs, de, en (source), es, fr, he, it, ja, ko, pl, pt, ru, sv, tr, uk, vi, zh, zh-TW
 
 ## Adding Text
 
 1. Add key to `locales/en/translation.json` (English is the source language)
 2. Use in component: `const { t } = useTranslation(); t('section.key')`
-3. Other locales will fall back to English until translated
+3. Add the same key to other locale files with an English fallback if needed so `bun run check:translations` stays green
 
 ## Gotchas
 
 - Keys are nested objects (e.g., `settings.insights.history.label`)
 - Variables use `{{variable}}` syntax in translation strings
-- Only modify `en/translation.json` when adding features — other locales are community-maintained
+- Preserve existing non-English translations. For new feature keys, use English fallback values in other locales unless a real translation is available.

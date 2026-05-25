@@ -93,16 +93,18 @@ The raw binary (`src-tauri/target/release/handy`) cannot run standalone — it n
 cd /tmp
 ar x /path/to/Handy/src-tauri/target/release/bundle/deb/Handy_*_amd64.deb data.tar.gz
 tar xzf data.tar.gz
-sudo cp usr/bin/handy /usr/bin/
-sudo cp -r usr/lib/Handy /usr/lib/
-sudo cp -r usr/share/icons/hicolor/* /usr/share/icons/hicolor/
-sudo cp usr/share/applications/Handy.desktop /usr/share/applications/
+sudo install -m 0755 usr/bin/handy /usr/bin/handy
+sudo rm -rf /usr/lib/Handy
+sudo cp -a usr/lib/Handy /usr/lib/Handy
+sudo cp -a usr/share/icons/hicolor/* /usr/share/icons/hicolor/
+sudo cp -a usr/share/applications/Handy.desktop /usr/share/applications/Handy.desktop
+sudo chown -R root:root /usr/lib/Handy /usr/share/applications/Handy.desktop /usr/share/icons/hicolor
 ```
 
 After subsequent rebuilds, only the binary needs re-copying:
 
 ```bash
-sudo cp src-tauri/target/release/handy /usr/bin/
+sudo install -m 0755 src-tauri/target/release/handy /usr/bin/handy
 ```
 
 Resources only need re-copying if they change upstream (new icons, sounds, etc.).
@@ -131,7 +133,7 @@ cd src-tauri/target/release/bundle/appimage
 **Workaround:** The binary, deb, and rpm bundles all build fine — only the AppImage step fails. To skip it:
 
 ```bash
-bun run tauri build -- --bundles deb
+bun run tauri build --bundles deb --no-sign
 ```
 
 Then install using the deb extraction method above.

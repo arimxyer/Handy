@@ -11,14 +11,14 @@ Tauri frontend built with React, TypeScript, and Tailwind CSS v4.
 
 ## Directories
 
-- `components/settings/` — Settings UI components (35+ files, one per setting)
+- `components/settings/` — Settings UI components (60+ files, one per setting/section)
 - `components/settings/insights/` — Speech insights UI (insiders)
 - `components/settings/history/` — History settings, version viewer, post-process drawer (insiders)
 - `components/model-selector/` — Model download/selection interface
 - `components/onboarding/` — First-run experience (permissions, model download)
 - `overlay/` — Separate Tauri window for recording indicator overlay
 - `hooks/` — React hooks for settings, platform detection, drawer state
-- `i18n/` — Internationalization (i18next, 17 locales)
+- `i18n/` — Internationalization (i18next, 20 locales)
 - `lib/` — Constants and utility functions
 - `utils/` — Shared utility helpers
 

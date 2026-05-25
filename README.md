@@ -473,6 +473,7 @@ The `insiders` branch adds the following experimental features on top of upstrea
 - **Version history viewer** — Browse and restore previous versions of any transcription
 - **Post-process config drawer** — Compare results across different models side-by-side
 - **Speech pattern insights** — Analyze your speech patterns with structured LLM output, with history tracking and prompt enhancement
+- **Text Operations** — Process selected text with reusable LLM prompts and picker/output workflows
 
 ### Fork Workflow
 
@@ -480,9 +481,11 @@ The `insiders` branch adds the following experimental features on top of upstrea
 # Sync main with upstream
 mise run sync-upstream
 
-# Rebase insiders onto updated main
-git checkout insiders && git rebase main
+# Integrate insiders changes in an isolated worktree/branch
+git worktree add -b upgrade/insiders-<target> /tmp/handy-insiders-<target> insiders
 ```
+
+For upstream upgrades, back up `~/.local/share/com.pais.handy` and smoke-test migrations against a copied profile before launching a newer build against the real profile.
 
 See `mise tasks` for all available project tasks.
 
