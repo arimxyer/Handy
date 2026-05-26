@@ -18,6 +18,7 @@
     "about": "About",
     "insights": "Insights",
     "textOperations": "Text",
+    "prompts": "Prompts",
     "textSettings": "Text Settings",
     "voice": "Voice",
     "text": "Text"
@@ -817,6 +818,11 @@
       "actionItems": "Extract Action Items",
       "eli5": "Explain Simply"
     },
+    "drawer": {
+      "title": "Edit Prompt",
+      "editTooltip": "Edit this prompt",
+      "builtInReadOnly": "Built-in prompts cannot be edited. Use Save to create a copy."
+    },
     "prompts": {
       "selectedPrompt": {
         "title": "Prompt",
@@ -835,7 +841,11 @@
       "createPrompt": "Create",
       "cancel": "Cancel",
       "selectToEdit": "Select a prompt to edit it",
-      "createFirst": "Create a prompt to get started"
+      "createFirst": "Create a prompt to get started",
+      "builtInGroup": "Built-in",
+      "customGroup": "My Prompts",
+      "libraryTitle": "Prompt Library",
+      "libraryDescription": "Create and manage your custom prompts"
     },
     "inputLabel": "Text",
     "instructionsLabel": "Instructions",

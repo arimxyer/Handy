@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Copy, Play, RefreshCcw, Save, X } from "lucide-react";
+import { Copy, Pencil, Play, RefreshCcw, Save, X } from "lucide-react";
 import { commands, type LLMPrompt } from "@/bindings";
 import { Alert } from "../../ui/Alert";
 import {
@@ -9,6 +9,7 @@ import {
   SettingsGroup,
   Textarea,
 } from "@/components/ui";
+import type { DropdownItem } from "@/components/ui/Dropdown";
 import { Button } from "../../ui/Button";
 import { Input } from "../../ui/Input";
 import { useSettings } from "../../../hooks/useSettings";
@@ -16,13 +17,15 @@ import { ResetButton } from "../../ui/ResetButton";
 import { ProviderSelect } from "../PostProcessingSettingsApi/ProviderSelect";
 import { ModelSelect } from "../PostProcessingSettingsApi/ModelSelect";
 import { useTextOpsProviderState } from "./useTextOpsProviderState";
-
-const BUILTIN_PRESET_COUNT = 8;
+import { usePromptEditDrawer } from "../../../hooks/usePromptEditDrawer";
+import { PromptEditDrawer } from "./PromptEditDrawer";
+import { BUILTIN_PRESET_COUNT, isBuiltInPrompt } from "./promptUtils";
 
 export const TextOperationsPage: React.FC = () => {
   const { t } = useTranslation();
   const { getSetting, refreshSettings } = useSettings();
   const providerState = useTextOpsProviderState();
+  const drawer = usePromptEditDrawer();
 
   const allPrompts = getSetting("text_ops_prompts") || [];
   const savedSelectedId = getSetting("text_ops_selected_prompt_id") || null;
@@ -46,23 +49,20 @@ export const TextOperationsPage: React.FC = () => {
   const [saveName, setSaveName] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
-  // My Prompts CRUD state
-  const [isCreating, setIsCreating] = useState(false);
-  const [selectedCustomId, setSelectedCustomId] = useState<string | null>(null);
-  const [draftName, setDraftName] = useState("");
-  const [draftText, setDraftText] = useState("");
-
-  const selectedCustomPrompt =
-    customPrompts.find((p) => p.id === selectedCustomId) || null;
-
-  const presetOptions = useMemo(
-    () =>
-      presets.map((preset) => ({
-        value: preset.id,
-        label: preset.name,
-      })),
-    [presets],
-  );
+  const unifiedPromptOptions: DropdownItem[] = useMemo(() => {
+    const builtInOptions = presets.map((p) => ({
+      value: p.id,
+      label: p.name,
+    }));
+    if (customPrompts.length === 0) return builtInOptions;
+    return [
+      { kind: "header" as const, label: t("textOps.prompts.builtInGroup") },
+      ...builtInOptions,
+      { kind: "separator" as const },
+      { kind: "header" as const, label: t("textOps.prompts.customGroup") },
+      ...customPrompts.map((p) => ({ value: p.id, label: p.name })),
+    ];
+  }, [presets, customPrompts, t]);
 
   const providerLabel =
     providerState.selectedProvider?.label ?? providerState.selectedProviderId;
@@ -71,10 +71,7 @@ export const TextOperationsPage: React.FC = () => {
     : providerState.model.trim()
       ? `${providerLabel} / ${providerState.model.trim()}`
       : providerLabel;
-  const selectedPresetId =
-    loadedPrompt && presets.some((preset) => preset.id === loadedPrompt.id)
-      ? loadedPrompt.id
-      : null;
+  const selectedPromptId = loadedPrompt ? loadedPrompt.id : null;
 
   const initialPrompt = useMemo(() => {
     if (allPrompts.length === 0) return null;
@@ -92,21 +89,15 @@ export const TextOperationsPage: React.FC = () => {
     setHasInitializedPrompt(true);
   }, [hasInitializedPrompt, initialPrompt]);
 
+  // Clear loaded prompt if it was deleted from PromptsPage
   useEffect(() => {
-    if (isCreating) return;
-    if (selectedCustomPrompt) {
-      setDraftName(selectedCustomPrompt.name);
-      setDraftText(selectedCustomPrompt.prompt);
-    } else {
-      setDraftName("");
-      setDraftText("");
+    if (!loadedPrompt) return;
+    const stillExists = allPrompts.some((p) => p.id === loadedPrompt.id);
+    if (!stillExists) {
+      setLoadedPrompt(null);
+      setInstructionsText("");
     }
-  }, [
-    isCreating,
-    selectedCustomId,
-    selectedCustomPrompt?.name,
-    selectedCustomPrompt?.prompt,
-  ]);
+  }, [allPrompts, loadedPrompt]);
 
   useEffect(() => {
     if (!showSavePrompt) return;
@@ -127,10 +118,12 @@ export const TextOperationsPage: React.FC = () => {
     setErrorText("");
   };
 
-  const handlePresetSelect = (value: string) => {
-    const preset = presets.find((candidate) => candidate.id === value);
-    if (preset) {
-      loadPrompt(preset);
+  const handlePromptSelect = (value: string) => {
+    const prompt = allPrompts.find((candidate) => candidate.id === value);
+    if (prompt) {
+      loadPrompt(prompt);
+      void commands.setTextOpsSelectedPrompt(prompt.id);
+      drawer.close();
     }
   };
 
@@ -198,8 +191,6 @@ export const TextOperationsPage: React.FC = () => {
       if (result.status === "ok") {
         await refreshSettings();
         setLoadedPrompt(result.data);
-        setSelectedCustomId(result.data.id);
-        setIsCreating(false);
         setShowSavePrompt(false);
       }
     } catch (error) {
@@ -209,92 +200,29 @@ export const TextOperationsPage: React.FC = () => {
     }
   };
 
-  // My Prompts CRUD handlers
-  const handleCustomSelect = (value: string | null) => {
-    if (!value) return;
-    const prompt = customPrompts.find((candidate) => candidate.id === value);
-    if (!prompt) return;
-    setSelectedCustomId(value);
-    loadPrompt(prompt);
-    setIsCreating(false);
-  };
-
-  const handleStartCreate = () => {
-    setIsCreating(true);
-    setDraftName("");
-    setDraftText("");
-  };
-
-  const handleCancelCreate = () => {
-    setIsCreating(false);
-    if (selectedCustomPrompt) {
-      setDraftName(selectedCustomPrompt.name);
-      setDraftText(selectedCustomPrompt.prompt);
-    } else {
-      setDraftName("");
-      setDraftText("");
-    }
-  };
-
-  const handleCreatePrompt = async () => {
-    if (!draftName.trim() || !draftText.trim()) return;
-    try {
-      const result = await commands.addTextOpsPrompt(
-        draftName.trim(),
-        draftText.trim(),
-      );
-      if (result.status === "ok") {
-        await refreshSettings();
-        setSelectedCustomId(result.data.id);
-        loadPrompt(result.data);
-        setIsCreating(false);
-      }
-    } catch (error) {
-      console.error("Failed to create prompt:", error);
-    }
-  };
-
-  const handleUpdatePrompt = async () => {
-    if (!selectedCustomId || !draftName.trim() || !draftText.trim()) return;
+  const handleDrawerSave = async () => {
+    if (!drawer.editingPromptId || !drawer.editName.trim() || !drawer.editPromptText.trim())
+      return;
     try {
       await commands.updateTextOpsPrompt(
-        selectedCustomId,
-        draftName.trim(),
-        draftText.trim(),
+        drawer.editingPromptId,
+        drawer.editName.trim(),
+        drawer.editPromptText.trim(),
       );
       await refreshSettings();
-      if (loadedPrompt?.id === selectedCustomId) {
+      if (loadedPrompt?.id === drawer.editingPromptId) {
         setLoadedPrompt({
-          id: selectedCustomId,
-          name: draftName.trim(),
-          prompt: draftText.trim(),
+          id: drawer.editingPromptId,
+          name: drawer.editName.trim(),
+          prompt: drawer.editPromptText.trim(),
         });
-        setInstructionsText(draftText.trim());
+        setInstructionsText(drawer.editPromptText.trim());
       }
+      drawer.close();
     } catch (error) {
       console.error("Failed to update prompt:", error);
     }
   };
-
-  const handleDeletePrompt = async () => {
-    if (!selectedCustomId) return;
-    try {
-      await commands.deleteTextOpsPrompt(selectedCustomId);
-      await refreshSettings();
-      if (loadedPrompt?.id === selectedCustomId) {
-        setLoadedPrompt(null);
-      }
-      setSelectedCustomId(null);
-      setIsCreating(false);
-    } catch (error) {
-      console.error("Failed to delete prompt:", error);
-    }
-  };
-
-  const isDirty =
-    !!selectedCustomPrompt &&
-    (draftName.trim() !== selectedCustomPrompt.name ||
-      draftText.trim() !== selectedCustomPrompt.prompt.trim());
 
   return (
     <div className="max-w-3xl w-full mx-auto space-y-6">
@@ -368,147 +296,6 @@ export const TextOperationsPage: React.FC = () => {
         )}
       </SettingsGroup>
 
-      {/* My Prompts */}
-      <SettingsGroup title={t("textOps.customPrompts")}>
-        <div className="p-4 space-y-3">
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <Dropdown
-              selectedValue={selectedCustomId}
-              options={customPrompts.map((p) => ({
-                value: p.id,
-                label: p.name,
-              }))}
-              onSelect={handleCustomSelect}
-              placeholder={
-                customPrompts.length === 0
-                  ? t("textOps.prompts.noPrompts")
-                  : t("textOps.prompts.selectPrompt")
-              }
-              disabled={isCreating}
-              className="min-w-0 flex-1"
-            />
-            <Button
-              onClick={handleStartCreate}
-              variant="primary"
-              size="md"
-              disabled={isCreating}
-              className="shrink-0"
-            >
-              {t("textOps.prompts.createNew")}
-            </Button>
-          </div>
-
-          {!isCreating && customPrompts.length > 0 && selectedCustomPrompt && (
-            <div className="space-y-3">
-              <div className="space-y-2 flex flex-col">
-                <label className="text-sm font-semibold">
-                  {t("textOps.prompts.promptLabel")}
-                </label>
-                <Input
-                  type="text"
-                  value={draftName}
-                  onChange={(e) => setDraftName(e.target.value)}
-                  placeholder={t("textOps.prompts.promptLabelPlaceholder")}
-                  variant="compact"
-                />
-              </div>
-              <div className="space-y-2 flex flex-col">
-                <label className="text-sm font-semibold">
-                  {t("textOps.prompts.promptInstructions")}
-                </label>
-                <Textarea
-                  value={draftText}
-                  onChange={(e) => setDraftText(e.target.value)}
-                  placeholder={t(
-                    "textOps.prompts.promptInstructionsPlaceholder",
-                  )}
-                />
-                <p className="text-xs text-mid-gray/70">
-                  {t("textOps.prompts.promptTip")}
-                </p>
-              </div>
-              <div className="flex gap-2 pt-2">
-                <Button
-                  onClick={handleUpdatePrompt}
-                  variant="primary"
-                  size="md"
-                  disabled={!draftName.trim() || !draftText.trim() || !isDirty}
-                >
-                  {t("textOps.prompts.updatePrompt")}
-                </Button>
-                <Button
-                  onClick={handleDeletePrompt}
-                  variant="secondary"
-                  size="md"
-                  disabled={!selectedCustomId || customPrompts.length <= 1}
-                >
-                  {t("textOps.prompts.deletePrompt")}
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {!isCreating && !selectedCustomPrompt && (
-            <div className="border-t border-mid-gray/15 pt-3">
-              <p className="text-sm text-mid-gray/80">
-                {customPrompts.length > 0
-                  ? t("textOps.prompts.selectToEdit")
-                  : t("textOps.prompts.createFirst")}
-              </p>
-            </div>
-          )}
-
-          {isCreating && (
-            <div className="space-y-3">
-              <div className="space-y-2 flex flex-col">
-                <label className="text-sm font-semibold text-text">
-                  {t("textOps.prompts.promptLabel")}
-                </label>
-                <Input
-                  type="text"
-                  value={draftName}
-                  onChange={(e) => setDraftName(e.target.value)}
-                  placeholder={t("textOps.prompts.promptLabelPlaceholder")}
-                  variant="compact"
-                />
-              </div>
-              <div className="space-y-2 flex flex-col">
-                <label className="text-sm font-semibold">
-                  {t("textOps.prompts.promptInstructions")}
-                </label>
-                <Textarea
-                  value={draftText}
-                  onChange={(e) => setDraftText(e.target.value)}
-                  placeholder={t(
-                    "textOps.prompts.promptInstructionsPlaceholder",
-                  )}
-                />
-                <p className="text-xs text-mid-gray/70">
-                  {t("textOps.prompts.promptTip")}
-                </p>
-              </div>
-              <div className="flex gap-2 pt-2">
-                <Button
-                  onClick={handleCreatePrompt}
-                  variant="primary"
-                  size="md"
-                  disabled={!draftName.trim() || !draftText.trim()}
-                >
-                  {t("textOps.prompts.createPrompt")}
-                </Button>
-                <Button
-                  onClick={handleCancelCreate}
-                  variant="secondary"
-                  size="md"
-                >
-                  {t("textOps.prompts.cancel")}
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>
-      </SettingsGroup>
-
       {/* Editor */}
       <SettingsGroup title={t("textOps.title")}>
         <div className="p-4 space-y-5">
@@ -547,14 +334,35 @@ export const TextOperationsPage: React.FC = () => {
                   </span>
                 </div>
               </div>
-              <div className="w-full min-w-0 sm:w-64">
-                <Dropdown
-                  selectedValue={selectedPresetId}
-                  options={presetOptions}
-                  onSelect={handlePresetSelect}
-                  placeholder={t("textOps.presets")}
-                  className="w-full"
-                />
+              <div className="flex min-w-0 items-center gap-1.5">
+                <div className="w-full min-w-0 sm:w-64">
+                  <Dropdown
+                    selectedValue={selectedPromptId}
+                    options={unifiedPromptOptions}
+                    onSelect={handlePromptSelect}
+                    placeholder={t("textOps.presets")}
+                    className="w-full"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (loadedPrompt) drawer.loadPromptForEdit(loadedPrompt);
+                  }}
+                  disabled={
+                    !loadedPrompt ||
+                    isBuiltInPrompt(loadedPrompt.id, allPrompts)
+                  }
+                  className="p-1.5 rounded-md text-text/50 transition-colors hover:bg-mid-gray/10 hover:text-text disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shrink-0"
+                  title={
+                    loadedPrompt &&
+                    isBuiltInPrompt(loadedPrompt.id, allPrompts)
+                      ? t("textOps.drawer.builtInReadOnly")
+                      : t("textOps.drawer.editTooltip")
+                  }
+                >
+                  <Pencil className="h-4 w-4" />
+                </button>
               </div>
             </div>
             <Textarea
@@ -694,6 +502,18 @@ export const TextOperationsPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      <PromptEditDrawer
+        isOpen={drawer.isOpen}
+        close={drawer.close}
+        editName={drawer.editName}
+        setEditName={drawer.setEditName}
+        editPromptText={drawer.editPromptText}
+        setEditPromptText={drawer.setEditPromptText}
+        isDirty={drawer.isDirty}
+        editingPromptId={drawer.editingPromptId}
+        onSave={handleDrawerSave}
+      />
     </div>
   );
 };

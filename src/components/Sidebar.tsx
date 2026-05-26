@@ -1,6 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import {
+  BookOpen,
   Cog,
   FlaskConical,
   History,
@@ -23,6 +24,7 @@ import {
   ModelsSettings,
   TextOperationsPage,
   TextSettingsPage,
+  PromptsPage,
 } from "./settings";
 
 export type AppMode = "voice" | "text";
@@ -100,6 +102,13 @@ export const SECTIONS_CONFIG = {
     labelKey: "sidebar.textOperations",
     icon: Type,
     component: TextOperationsPage,
+    enabled: () => true,
+    mode: "text",
+  },
+  prompts: {
+    labelKey: "sidebar.prompts",
+    icon: BookOpen,
+    component: PromptsPage,
     enabled: () => true,
     mode: "text",
   },

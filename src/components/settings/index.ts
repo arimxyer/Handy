@@ -12,6 +12,7 @@ export { ModelsSettings } from "./models/ModelsSettings";
 export { TextSettingsPlaceholder } from "./TextPlaceholders";
 export { TextOperationsPage } from "./text-ops/TextOperationsPage";
 export { TextSettingsPage } from "./text-ops/TextSettingsPage";
+export { PromptsPage } from "./text-ops/PromptsPage";
 
 // Individual setting components
 export { MicrophoneSelector } from "./MicrophoneSelector";

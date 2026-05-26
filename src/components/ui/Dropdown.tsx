@@ -1,14 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-export interface DropdownOption {
-  value: string;
-  label: string;
-  disabled?: boolean;
-}
+export type DropdownItem =
+  | { value: string; label: string; disabled?: boolean }
+  | { kind: "separator" }
+  | { kind: "header"; label: string };
+
+export type DropdownOption = DropdownItem;
 
 interface DropdownProps {
-  options: DropdownOption[];
+  options: DropdownItem[];
   className?: string;
   selectedValue: string | null;
   onSelect: (value: string) => void;
@@ -43,7 +44,12 @@ export const Dropdown: React.FC<DropdownProps> = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const selectedOption = options.find(
+  const selectableOptions = options.filter(
+    (option): option is { value: string; label: string; disabled?: boolean } =>
+      !("kind" in option),
+  );
+
+  const selectedOption = selectableOptions.find(
     (option) => option.value === selectedValue,
   );
 
@@ -95,22 +101,42 @@ export const Dropdown: React.FC<DropdownProps> = ({
               {t("common.noOptionsFound")}
             </div>
           ) : (
-            options.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                className={`w-full px-2 py-1 text-sm text-start hover:bg-logo-primary/10 transition-colors duration-150 ${
-                  selectedValue === option.value
-                    ? "bg-logo-primary/20 font-semibold"
-                    : ""
-                } ${option.disabled ? "opacity-50 cursor-not-allowed" : ""}`}
-                onClick={() => handleSelect(option.value)}
-                disabled={option.disabled}
-                title={option.label}
-              >
-                <span className="block truncate">{option.label}</span>
-              </button>
-            ))
+            options.map((option, index) => {
+              if ("kind" in option && option.kind === "separator") {
+                return (
+                  <div
+                    key={`sep-${index}`}
+                    className="border-t border-mid-gray/20 my-1"
+                  />
+                );
+              }
+              if ("kind" in option && option.kind === "header") {
+                return (
+                  <div
+                    key={`hdr-${index}`}
+                    className="px-2 py-1 text-xs uppercase tracking-wide text-mid-gray font-medium"
+                  >
+                    {option.label}
+                  </div>
+                );
+              }
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  className={`w-full px-2 py-1 text-sm text-start hover:bg-logo-primary/10 transition-colors duration-150 ${
+                    selectedValue === option.value
+                      ? "bg-logo-primary/20 font-semibold"
+                      : ""
+                  } ${option.disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+                  onClick={() => handleSelect(option.value)}
+                  disabled={option.disabled}
+                  title={option.label}
+                >
+                  <span className="block truncate">{option.label}</span>
+                </button>
+              );
+            })
           )}
         </div>
       )}

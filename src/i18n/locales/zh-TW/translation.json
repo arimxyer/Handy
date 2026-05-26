@@ -20,7 +20,8 @@
     "textOperations": "Text",
     "textSettings": "Text Settings",
     "voice": "Voice",
-    "text": "Text"
+    "text": "Text",
+    "prompts": "Prompts"
   },
   "onboarding": {
     "subtitle": "首先，請選擇一種模型",
@@ -825,7 +826,11 @@
       "createPrompt": "Create",
       "cancel": "Cancel",
       "selectToEdit": "Select a prompt to edit it",
-      "createFirst": "Create a prompt to get started"
+      "createFirst": "Create a prompt to get started",
+      "builtInGroup": "Built-in",
+      "customGroup": "My Prompts",
+      "libraryTitle": "Prompt Library",
+      "libraryDescription": "Create and manage your custom prompts"
     },
     "inputLabel": "Text",
     "instructionsLabel": "Instructions",
@@ -836,6 +841,11 @@
       "title": "Save Instructions",
       "save": "Save Prompt",
       "saving": "Saving..."
+    },
+    "drawer": {
+      "title": "Edit Prompt",
+      "editTooltip": "Edit this prompt",
+      "builtInReadOnly": "Built-in prompts cannot be edited. Use Save to create a copy."
     }
   },
   "notifications": {
