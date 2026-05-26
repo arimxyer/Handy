@@ -3,7 +3,12 @@ import { useTranslation } from "react-i18next";
 import { Copy, Play, RefreshCcw, Save, X } from "lucide-react";
 import { commands, type LLMPrompt } from "@/bindings";
 import { Alert } from "../../ui/Alert";
-import { Dropdown, SettingsGroup, Textarea } from "@/components/ui";
+import {
+  Dropdown,
+  SettingContainer,
+  SettingsGroup,
+  Textarea,
+} from "@/components/ui";
 import { Button } from "../../ui/Button";
 import { Input } from "../../ui/Input";
 import { useSettings } from "../../../hooks/useSettings";
@@ -66,6 +71,10 @@ export const TextOperationsPage: React.FC = () => {
     : providerState.model.trim()
       ? `${providerLabel} / ${providerState.model.trim()}`
       : providerLabel;
+  const selectedPresetId =
+    loadedPrompt && presets.some((preset) => preset.id === loadedPrompt.id)
+      ? loadedPrompt.id
+      : null;
 
   const initialPrompt = useMemo(() => {
     if (allPrompts.length === 0) return null;
@@ -289,10 +298,80 @@ export const TextOperationsPage: React.FC = () => {
 
   return (
     <div className="max-w-3xl w-full mx-auto space-y-6">
+      <SettingsGroup title={t("textOps.settings.provider")}>
+        <SettingContainer
+          title={t("settings.postProcessing.api.provider.title")}
+          description={t("settings.postProcessing.api.provider.description")}
+          descriptionMode="tooltip"
+          layout="horizontal"
+          grouped={true}
+        >
+          <div className="flex min-w-0 items-center gap-2">
+            <ProviderSelect
+              options={providerState.providerOptions}
+              value={providerState.selectedProviderId}
+              onChange={providerState.handleProviderSelect}
+            />
+          </div>
+        </SettingContainer>
+
+        {providerState.appleIntelligenceUnavailable && (
+          <Alert variant="error" contained>
+            {t("settings.postProcessing.api.appleIntelligence.unavailable")}
+          </Alert>
+        )}
+
+        {!providerState.isAppleProvider && (
+          <SettingContainer
+            title={t("settings.postProcessing.api.model.title")}
+            description={
+              providerState.isCustomProvider
+                ? t("settings.postProcessing.api.model.descriptionCustom")
+                : t("settings.postProcessing.api.model.descriptionDefault")
+            }
+            descriptionMode="tooltip"
+            layout="stacked"
+            grouped={true}
+          >
+            <div className="flex min-w-0 items-center gap-2">
+              <ModelSelect
+                value={providerState.model}
+                options={providerState.modelOptions}
+                disabled={providerState.isModelUpdating}
+                isLoading={providerState.isFetchingModels}
+                placeholder={
+                  providerState.modelOptions.length > 0
+                    ? t(
+                        "settings.postProcessing.api.model.placeholderWithOptions",
+                      )
+                    : t(
+                        "settings.postProcessing.api.model.placeholderNoOptions",
+                      )
+                }
+                onSelect={providerState.handleModelSelect}
+                onCreate={providerState.handleModelCreate}
+                onBlur={() => {}}
+                className="min-w-0 flex-1"
+              />
+              <ResetButton
+                onClick={providerState.handleRefreshModels}
+                disabled={providerState.isFetchingModels}
+                ariaLabel={t("settings.postProcessing.api.model.refreshModels")}
+                className="flex h-10 w-10 shrink-0 items-center justify-center"
+              >
+                <RefreshCcw
+                  className={`h-4 w-4 ${providerState.isFetchingModels ? "animate-spin" : ""}`}
+                />
+              </ResetButton>
+            </div>
+          </SettingContainer>
+        )}
+      </SettingsGroup>
+
       {/* My Prompts */}
       <SettingsGroup title={t("textOps.customPrompts")}>
         <div className="p-4 space-y-3">
-          <div className="flex gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row">
             <Dropdown
               selectedValue={selectedCustomId}
               options={customPrompts.map((p) => ({
@@ -306,13 +385,14 @@ export const TextOperationsPage: React.FC = () => {
                   : t("textOps.prompts.selectPrompt")
               }
               disabled={isCreating}
-              className="flex-1"
+              className="min-w-0 flex-1"
             />
             <Button
               onClick={handleStartCreate}
               variant="primary"
               size="md"
               disabled={isCreating}
+              className="shrink-0"
             >
               {t("textOps.prompts.createNew")}
             </Button>
@@ -369,8 +449,8 @@ export const TextOperationsPage: React.FC = () => {
           )}
 
           {!isCreating && !selectedCustomPrompt && (
-            <div className="p-3 bg-mid-gray/5 rounded-md border border-mid-gray/20">
-              <p className="text-sm text-mid-gray">
+            <div className="border-t border-mid-gray/15 pt-3">
+              <p className="text-sm text-mid-gray/80">
                 {customPrompts.length > 0
                   ? t("textOps.prompts.selectToEdit")
                   : t("textOps.prompts.createFirst")}
@@ -431,118 +511,7 @@ export const TextOperationsPage: React.FC = () => {
 
       {/* Editor */}
       <SettingsGroup title={t("textOps.title")}>
-        <div className="border-b border-mid-gray/15 p-4 space-y-4">
-          <div className="grid gap-3 md:grid-cols-2">
-            <div className="space-y-2 min-w-0">
-              <label className="text-sm font-semibold">
-                {t("textOps.presets")}
-              </label>
-              <Dropdown
-                selectedValue={loadedPrompt?.id ?? null}
-                options={presetOptions}
-                onSelect={handlePresetSelect}
-                placeholder={t("textOps.presets")}
-                className="w-full"
-              />
-            </div>
-            <div className="space-y-2 min-w-0">
-              <label className="text-sm font-semibold">
-                {t("settings.postProcessing.api.provider.title")}
-              </label>
-              <ProviderSelect
-                options={providerState.providerOptions}
-                value={providerState.selectedProviderId}
-                onChange={providerState.handleProviderSelect}
-              />
-            </div>
-          </div>
-
-          {providerState.appleIntelligenceUnavailable && (
-            <Alert variant="error" contained>
-              {t("settings.postProcessing.api.appleIntelligence.unavailable")}
-            </Alert>
-          )}
-
-          {!providerState.isAppleProvider && (
-            <div className="space-y-2 min-w-0">
-              <label className="text-sm font-semibold">
-                {t("settings.postProcessing.api.model.title")}
-              </label>
-              <div className="flex min-w-0 items-center gap-2">
-                <ModelSelect
-                  value={providerState.model}
-                  options={providerState.modelOptions}
-                  disabled={providerState.isModelUpdating}
-                  isLoading={providerState.isFetchingModels}
-                  placeholder={
-                    providerState.modelOptions.length > 0
-                      ? t(
-                          "settings.postProcessing.api.model.placeholderWithOptions",
-                        )
-                      : t(
-                          "settings.postProcessing.api.model.placeholderNoOptions",
-                        )
-                  }
-                  onSelect={providerState.handleModelSelect}
-                  onCreate={providerState.handleModelCreate}
-                  onBlur={() => {}}
-                  className="min-w-0 flex-1"
-                />
-                <ResetButton
-                  onClick={providerState.handleRefreshModels}
-                  disabled={providerState.isFetchingModels}
-                  ariaLabel={t(
-                    "settings.postProcessing.api.model.refreshModels",
-                  )}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center"
-                >
-                  <RefreshCcw
-                    className={`h-4 w-4 ${providerState.isFetchingModels ? "animate-spin" : ""}`}
-                  />
-                </ResetButton>
-              </div>
-            </div>
-          )}
-
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            {loadedPrompt ? (
-              <span
-                className="min-w-0 truncate text-xs text-mid-gray/70"
-                title={loadedPrompt.name}
-              >
-                {t("textOps.loadedPrompt", { name: loadedPrompt.name })}
-              </span>
-            ) : (
-              <span />
-            )}
-            <div className="flex flex-wrap justify-end gap-2">
-              <Button
-                variant="secondary"
-                size="md"
-                onClick={handleOpenSavePrompt}
-                disabled={!instructionsText.trim() || isProcessing}
-                className="inline-flex items-center gap-2"
-              >
-                <Save className="h-4 w-4" />
-                {t("textOps.saveInstructions")}
-              </Button>
-              <Button
-                variant="primary"
-                size="md"
-                onClick={handleRun}
-                disabled={
-                  !inputText.trim() || !instructionsText.trim() || isProcessing
-                }
-                className="inline-flex items-center gap-2"
-              >
-                <Play className="h-4 w-4" />
-                {isProcessing ? t("textOps.processing") : t("textOps.run")}
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        <div className="p-4 space-y-4">
+        <div className="p-4 space-y-5">
           <div className="space-y-2">
             <label className="text-sm font-semibold">
               {t("textOps.inputLabel")}
@@ -551,20 +520,74 @@ export const TextOperationsPage: React.FC = () => {
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               placeholder={t("textOps.inputPlaceholder")}
-              className="w-full min-h-[180px]"
+              className="w-full min-h-[220px] leading-relaxed"
             />
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-semibold">
-              {t("textOps.instructionsLabel")}
-            </label>
+          <div className="space-y-2 rounded-md border border-mid-gray/20 bg-mid-gray/5 p-3">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+              <div className="min-w-0 space-y-1">
+                <label className="text-sm font-semibold">
+                  {t("textOps.instructionsLabel")}
+                </label>
+                <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+                  {loadedPrompt && (
+                    <span
+                      className="max-w-full truncate rounded-full bg-logo-primary/10 px-2 py-0.5 text-[11px] font-medium text-logo-primary"
+                      title={loadedPrompt.name}
+                    >
+                      {t("textOps.loadedPrompt", { name: loadedPrompt.name })}
+                    </span>
+                  )}
+                  <span
+                    className="max-w-full truncate rounded-full bg-mid-gray/10 px-2 py-0.5 text-[11px] text-text/55"
+                    title={currentModelLabel}
+                  >
+                    {currentModelLabel}
+                  </span>
+                </div>
+              </div>
+              <div className="w-full min-w-0 sm:w-64">
+                <Dropdown
+                  selectedValue={selectedPresetId}
+                  options={presetOptions}
+                  onSelect={handlePresetSelect}
+                  placeholder={t("textOps.presets")}
+                  className="w-full"
+                />
+              </div>
+            </div>
             <Textarea
               value={instructionsText}
               onChange={handleInstructionsChange}
               placeholder={t("textOps.instructionsPlaceholder")}
-              className="w-full min-h-[120px]"
+              className="w-full min-h-[120px] bg-background"
             />
+          </div>
+
+          <div className="flex flex-wrap justify-end gap-2 border-t border-mid-gray/15 pt-4">
+            <Button
+              variant="secondary"
+              size="md"
+              onClick={handleOpenSavePrompt}
+              disabled={!instructionsText.trim() || isProcessing}
+              className="inline-flex items-center gap-2"
+            >
+              <Save className="h-4 w-4" />
+              {t("textOps.saveInstructions")}
+            </Button>
+            <Button
+              variant="primary"
+              size="md"
+              onClick={handleRun}
+              disabled={
+                !inputText.trim() || !instructionsText.trim() || isProcessing
+              }
+              className="inline-flex items-center gap-2"
+            >
+              <Play className="h-4 w-4" />
+              {isProcessing ? t("textOps.processing") : t("textOps.run")}
+            </Button>
           </div>
 
           {errorText && <Alert variant="error">{errorText}</Alert>}
