@@ -929,6 +929,14 @@ async processText(text: string, promptId: string) : Promise<Result<string, strin
     else return { status: "error", error: e  as any };
 }
 },
+async processTextWithPrompt(text: string, prompt: string, promptName: string | null) : Promise<Result<string, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("process_text_with_prompt", { text, prompt, promptName }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
 async addTextOpsPrompt(name: string, prompt: string) : Promise<Result<LLMPrompt, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("add_text_ops_prompt", { name, prompt }) };

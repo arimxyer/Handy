@@ -836,6 +836,16 @@
       "cancel": "Cancel",
       "selectToEdit": "Select a prompt to edit it",
       "createFirst": "Create a prompt to get started"
+    },
+    "inputLabel": "Text",
+    "instructionsLabel": "Instructions",
+    "instructionsPlaceholder": "Tell Handy what to do with the text...",
+    "saveInstructions": "Save",
+    "loadedPrompt": "Using {{name}}",
+    "saveDialog": {
+      "title": "Save Instructions",
+      "save": "Save Prompt",
+      "saving": "Saving..."
     }
   }
 }

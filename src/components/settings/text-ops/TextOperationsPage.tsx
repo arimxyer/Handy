@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { commands } from "@/bindings";
+import { Copy, Play, Save, X } from "lucide-react";
+import { commands, type LLMPrompt } from "@/bindings";
 import { Alert } from "../../ui/Alert";
 import { Dropdown, SettingsGroup, Textarea } from "@/components/ui";
 import { Button } from "../../ui/Button";
@@ -20,14 +21,17 @@ export const TextOperationsPage: React.FC = () => {
   const customPrompts = allPrompts.slice(BUILTIN_PRESET_COUNT);
 
   // Run state
-  const [selectedPromptId, setSelectedPromptId] = useState<string>(
-    savedSelectedId || "",
-  );
+  const [loadedPrompt, setLoadedPrompt] = useState<LLMPrompt | null>(null);
+  const [hasInitializedPrompt, setHasInitializedPrompt] = useState(false);
   const [inputText, setInputText] = useState("");
+  const [instructionsText, setInstructionsText] = useState("");
   const [resultText, setResultText] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [copied, setCopied] = useState(false);
   const [errorText, setErrorText] = useState("");
+  const [showSavePrompt, setShowSavePrompt] = useState(false);
+  const [saveName, setSaveName] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   // My Prompts CRUD state
   const [isCreating, setIsCreating] = useState(false);
@@ -37,6 +41,22 @@ export const TextOperationsPage: React.FC = () => {
 
   const selectedCustomPrompt =
     customPrompts.find((p) => p.id === selectedCustomId) || null;
+
+  const initialPrompt = useMemo(() => {
+    if (allPrompts.length === 0) return null;
+    return (
+      allPrompts.find((prompt) => prompt.id === savedSelectedId) ??
+      presets[0] ??
+      null
+    );
+  }, [allPrompts, presets, savedSelectedId]);
+
+  useEffect(() => {
+    if (hasInitializedPrompt || !initialPrompt) return;
+    setLoadedPrompt(initialPrompt);
+    setInstructionsText(initialPrompt.prompt);
+    setHasInitializedPrompt(true);
+  }, [hasInitializedPrompt, initialPrompt]);
 
   useEffect(() => {
     if (isCreating) return;
@@ -54,20 +74,39 @@ export const TextOperationsPage: React.FC = () => {
     selectedCustomPrompt?.prompt,
   ]);
 
-  const handlePresetClick = (promptId: string) => {
-    setSelectedPromptId(promptId);
-  };
+  useEffect(() => {
+    if (!showSavePrompt) return;
 
-  const handleRunPromptSelect = (value: string) => {
-    setSelectedPromptId(value);
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setShowSavePrompt(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [showSavePrompt]);
+
+  const loadPrompt = (prompt: LLMPrompt) => {
+    setLoadedPrompt(prompt);
+    setInstructionsText(prompt.prompt);
+    setErrorText("");
   };
 
   const handleRun = async () => {
-    if (!inputText.trim() || !selectedPromptId || isProcessing) return;
+    if (!inputText.trim() || !instructionsText.trim() || isProcessing) return;
     setIsProcessing(true);
     setErrorText("");
     try {
-      const result = await commands.processText(inputText, selectedPromptId);
+      const promptName =
+        loadedPrompt && loadedPrompt.prompt.trim() === instructionsText.trim()
+          ? loadedPrompt.name
+          : null;
+      const result = await commands.processTextWithPrompt(
+        inputText,
+        instructionsText,
+        promptName,
+      );
       if (result.status === "ok") {
         setResultText(result.data);
       } else {
@@ -80,16 +119,60 @@ export const TextOperationsPage: React.FC = () => {
     }
   };
 
+  const handleInstructionsChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement>,
+  ) => {
+    const nextValue = event.target.value;
+    setInstructionsText(nextValue);
+    if (loadedPrompt && loadedPrompt.prompt.trim() !== nextValue.trim()) {
+      setLoadedPrompt(null);
+    }
+  };
+
   const handleCopy = async () => {
     await navigator.clipboard.writeText(resultText);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleOpenSavePrompt = () => {
+    const baseName =
+      loadedPrompt && loadedPrompt.prompt.trim() === instructionsText.trim()
+        ? loadedPrompt.name
+        : "";
+    setSaveName(baseName);
+    setShowSavePrompt(true);
+  };
+
+  const handleSavePrompt = async () => {
+    if (!saveName.trim() || !instructionsText.trim() || isSaving) return;
+    setIsSaving(true);
+    try {
+      const result = await commands.addTextOpsPrompt(
+        saveName.trim(),
+        instructionsText.trim(),
+      );
+      if (result.status === "ok") {
+        await refreshSettings();
+        setLoadedPrompt(result.data);
+        setSelectedCustomId(result.data.id);
+        setIsCreating(false);
+        setShowSavePrompt(false);
+      }
+    } catch (error) {
+      console.error("Failed to save prompt:", error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   // My Prompts CRUD handlers
   const handleCustomSelect = (value: string | null) => {
     if (!value) return;
+    const prompt = customPrompts.find((candidate) => candidate.id === value);
+    if (!prompt) return;
     setSelectedCustomId(value);
+    loadPrompt(prompt);
     setIsCreating(false);
   };
 
@@ -120,7 +203,7 @@ export const TextOperationsPage: React.FC = () => {
       if (result.status === "ok") {
         await refreshSettings();
         setSelectedCustomId(result.data.id);
-        setSelectedPromptId(result.data.id);
+        loadPrompt(result.data);
         setIsCreating(false);
       }
     } catch (error) {
@@ -137,6 +220,14 @@ export const TextOperationsPage: React.FC = () => {
         draftText.trim(),
       );
       await refreshSettings();
+      if (loadedPrompt?.id === selectedCustomId) {
+        setLoadedPrompt({
+          id: selectedCustomId,
+          name: draftName.trim(),
+          prompt: draftText.trim(),
+        });
+        setInstructionsText(draftText.trim());
+      }
     } catch (error) {
       console.error("Failed to update prompt:", error);
     }
@@ -147,6 +238,9 @@ export const TextOperationsPage: React.FC = () => {
     try {
       await commands.deleteTextOpsPrompt(selectedCustomId);
       await refreshSettings();
+      if (loadedPrompt?.id === selectedCustomId) {
+        setLoadedPrompt(null);
+      }
       setSelectedCustomId(null);
       setIsCreating(false);
     } catch (error) {
@@ -159,11 +253,6 @@ export const TextOperationsPage: React.FC = () => {
     (draftName.trim() !== selectedCustomPrompt.name ||
       draftText.trim() !== selectedCustomPrompt.prompt.trim());
 
-  const allPromptOptions = allPrompts.map((p) => ({
-    value: p.id,
-    label: p.name,
-  }));
-
   return (
     <div className="max-w-3xl w-full mx-auto space-y-6">
       {/* Quick Actions */}
@@ -175,9 +264,9 @@ export const TextOperationsPage: React.FC = () => {
                 key={preset.id}
                 variant="secondary"
                 size="sm"
-                onClick={() => handlePresetClick(preset.id)}
+                onClick={() => loadPrompt(preset)}
                 className={
-                  selectedPromptId === preset.id
+                  loadedPrompt?.id === preset.id
                     ? "ring-2 ring-logo-primary bg-logo-primary/20"
                     : ""
                 }
@@ -188,6 +277,96 @@ export const TextOperationsPage: React.FC = () => {
           </div>
         </div>
       </SettingsGroup>
+
+      {/* Input */}
+      <SettingsGroup title={t("textOps.title")}>
+        <div className="p-4 space-y-4">
+          <div className="space-y-2">
+            <label className="text-sm font-semibold">
+              {t("textOps.inputLabel")}
+            </label>
+            <Textarea
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              placeholder={t("textOps.inputPlaceholder")}
+              className="w-full min-h-[150px]"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between gap-3">
+              <label className="text-sm font-semibold">
+                {t("textOps.instructionsLabel")}
+              </label>
+              {loadedPrompt && (
+                <span
+                  className="min-w-0 truncate text-xs text-mid-gray/70"
+                  title={loadedPrompt.name}
+                >
+                  {t("textOps.loadedPrompt", { name: loadedPrompt.name })}
+                </span>
+              )}
+            </div>
+            <Textarea
+              value={instructionsText}
+              onChange={handleInstructionsChange}
+              placeholder={t("textOps.instructionsPlaceholder")}
+              className="w-full min-h-[120px]"
+            />
+          </div>
+
+          <div className="flex flex-wrap justify-end gap-2">
+            <Button
+              variant="secondary"
+              size="md"
+              onClick={handleOpenSavePrompt}
+              disabled={!instructionsText.trim() || isProcessing}
+              className="inline-flex items-center gap-2"
+            >
+              <Save className="h-4 w-4" />
+              {t("textOps.saveInstructions")}
+            </Button>
+            <Button
+              variant="primary"
+              size="md"
+              onClick={handleRun}
+              disabled={
+                !inputText.trim() || !instructionsText.trim() || isProcessing
+              }
+              className="inline-flex items-center gap-2"
+            >
+              <Play className="h-4 w-4" />
+              {isProcessing ? t("textOps.processing") : t("textOps.run")}
+            </Button>
+          </div>
+
+          {errorText && <Alert variant="error">{errorText}</Alert>}
+        </div>
+      </SettingsGroup>
+
+      {/* Result */}
+      {resultText && (
+        <SettingsGroup title={t("textOps.result")}>
+          <div className="p-4 space-y-3">
+            <Textarea
+              value={resultText}
+              readOnly
+              className="w-full min-h-[150px]"
+            />
+            <div className="flex justify-end">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleCopy}
+                className="inline-flex items-center gap-2"
+              >
+                <Copy className="h-3.5 w-3.5" />
+                {copied ? t("textOps.copied") : t("textOps.copyResult")}
+              </Button>
+            </div>
+          </div>
+        </SettingsGroup>
+      )}
 
       {/* My Prompts */}
       <SettingsGroup title={t("textOps.customPrompts")}>
@@ -329,55 +508,73 @@ export const TextOperationsPage: React.FC = () => {
         </div>
       </SettingsGroup>
 
-      {/* Input */}
-      <SettingsGroup title={t("textOps.title")}>
-        <div className="p-4 space-y-3">
-          <Textarea
-            value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
-            placeholder={t("textOps.inputPlaceholder")}
-            className="w-full min-h-[150px]"
-          />
-
-          {/* Run bar */}
-          <div className="flex gap-2 items-center">
-            <Dropdown
-              selectedValue={selectedPromptId || null}
-              options={allPromptOptions}
-              onSelect={handleRunPromptSelect}
-              placeholder={t("textOps.noPrompt")}
-              className="flex-1"
-            />
-            <Button
-              variant="primary"
-              size="md"
-              onClick={handleRun}
-              disabled={!inputText.trim() || !selectedPromptId || isProcessing}
-            >
-              {isProcessing ? t("textOps.processing") : t("textOps.run")}
-            </Button>
-          </div>
-
-          {errorText && <Alert variant="error">{errorText}</Alert>}
-        </div>
-      </SettingsGroup>
-
-      {/* Result */}
-      {resultText && (
-        <SettingsGroup title={t("textOps.result")}>
-          <div className="p-4 space-y-3">
-            <Textarea
-              value={resultText}
-              readOnly
-              className="w-full min-h-[150px]"
-            />
-            <div className="flex justify-end">
-              <Button variant="secondary" size="sm" onClick={handleCopy}>
-                {copied ? t("textOps.copied") : t("textOps.copyResult")}
-              </Button>
+      {showSavePrompt && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label={t("textOps.saveDialog.title")}
+          onMouseDown={() => setShowSavePrompt(false)}
+        >
+          <div
+            className="w-full max-w-sm rounded-lg border border-mid-gray/20 bg-background p-4 shadow-xl"
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-sm font-semibold">
+                {t("textOps.saveDialog.title")}
+              </h2>
+              <button
+                type="button"
+                onClick={() => setShowSavePrompt(false)}
+                className="rounded-md p-1 text-text/50 transition-colors hover:bg-mid-gray/10 hover:text-text cursor-pointer"
+                aria-label={t("common.close")}
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="space-y-3">
+              <div className="space-y-2 flex flex-col">
+                <label className="text-sm font-semibold">
+                  {t("textOps.prompts.promptLabel")}
+                </label>
+                <Input
+                  type="text"
+                  value={saveName}
+                  onChange={(event) => setSaveName(event.target.value)}
+                  placeholder={t("textOps.prompts.promptLabelPlaceholder")}
+                  variant="compact"
+                  autoFocus
+                />
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="md"
+                  onClick={() => setShowSavePrompt(false)}
+                >
+                  {t("textOps.prompts.cancel")}
+                </Button>
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="md"
+                  onClick={handleSavePrompt}
+                  disabled={
+                    !saveName.trim() || !instructionsText.trim() || isSaving
+                  }
+                  className="inline-flex items-center gap-2"
+                >
+                  <Save className="h-4 w-4" />
+                  {isSaving
+                    ? t("textOps.saveDialog.saving")
+                    : t("textOps.saveDialog.save")}
+                </Button>
+              </div>
             </div>
           </div>
-        </SettingsGroup>
+        </div>
       )}
     </div>
   );

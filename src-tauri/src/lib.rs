@@ -469,6 +469,7 @@ pub fn run(cli_args: CliArgs) {
             commands::insights::change_insights_use_all_history,
             commands::insights::clear_insights_history,
             commands::text_ops::process_text,
+            commands::text_ops::process_text_with_prompt,
             commands::text_ops::add_text_ops_prompt,
             commands::text_ops::update_text_ops_prompt,
             commands::text_ops::delete_text_ops_prompt,

@@ -13,6 +13,54 @@ pub async fn process_text(
     history_manager: State<'_, Arc<HistoryManager>>,
 ) -> Result<String, String> {
     let settings = get_settings(&app);
+    let prompt = settings
+        .text_ops_prompts
+        .iter()
+        .find(|p| p.id == prompt_id)
+        .ok_or_else(|| format!("Prompt with id '{}' not found", prompt_id))?;
+
+    process_text_with_prompt_impl(
+        text,
+        prompt.prompt.clone(),
+        prompt.name.clone(),
+        app,
+        history_manager.inner().as_ref(),
+    )
+    .await
+}
+
+#[tauri::command]
+#[specta::specta]
+pub async fn process_text_with_prompt(
+    text: String,
+    prompt: String,
+    prompt_name: Option<String>,
+    app: AppHandle,
+    history_manager: State<'_, Arc<HistoryManager>>,
+) -> Result<String, String> {
+    let prompt_name = prompt_name
+        .map(|name| name.trim().to_string())
+        .filter(|name| !name.is_empty())
+        .unwrap_or_else(|| "Custom Instructions".to_string());
+
+    process_text_with_prompt_impl(
+        text,
+        prompt,
+        prompt_name,
+        app,
+        history_manager.inner().as_ref(),
+    )
+    .await
+}
+
+async fn process_text_with_prompt_impl(
+    text: String,
+    prompt: String,
+    prompt_name: String,
+    app: AppHandle,
+    history_manager: &HistoryManager,
+) -> Result<String, String> {
+    let settings = get_settings(&app);
 
     let provider = settings
         .active_text_ops_provider()
@@ -35,16 +83,7 @@ pub async fn process_text(
         .cloned()
         .unwrap_or_default();
 
-    let prompt = settings
-        .text_ops_prompts
-        .iter()
-        .find(|p| p.id == prompt_id)
-        .ok_or_else(|| format!("Prompt with id '{}' not found", prompt_id))?;
-
-    let prompt_name = prompt.name.clone();
-
-    // Strip ${output} placeholder from prompt template to get system prompt
-    let system_prompt = prompt.prompt.replace("${output}", "").trim().to_string();
+    let system_prompt = prompt.replace("${output}", "").trim().to_string();
     let (reasoning_effort, reasoning) = match provider.id.as_str() {
         "custom" => (Some("none".to_string()), None),
         "openrouter" => (
