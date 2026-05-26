@@ -5,7 +5,7 @@
       "type": "frame",
       "id": "frHGw",
       "x": 0,
-      "y": 0,
+      "y": -1522,
       "name": "Prompts Library",
       "clip": true,
       "width": 920,
@@ -426,7 +426,8 @@
                       "width": "fill_container",
                       "content": "Fix spelling, grammar, and punctuation errors in the text",
                       "fontFamily": "Inter",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -501,7 +502,8 @@
                       "width": "fill_container",
                       "content": "Rewrite the following text in a formal, professional tone",
                       "fontFamily": "Inter",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -576,7 +578,8 @@
                       "width": "fill_container",
                       "content": "Provide a concise summary of the following text",
                       "fontFamily": "Inter",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -651,7 +654,8 @@
                       "width": "fill_container",
                       "content": "Simplify the following text to be easier to understand",
                       "fontFamily": "Inter",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -726,7 +730,8 @@
                       "width": "fill_container",
                       "content": "Expand on the following text with more detail and examples",
                       "fontFamily": "Inter",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -801,7 +806,8 @@
                       "width": "fill_container",
                       "content": "Convert the following text into organized bullet points",
                       "fontFamily": "Inter",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -876,7 +882,8 @@
                       "width": "fill_container",
                       "content": "Translate the following text to the specified language",
                       "fontFamily": "Inter",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -951,7 +958,8 @@
                       "width": "fill_container",
                       "content": "Process the text using custom instructions provided below",
                       "fontFamily": "Inter",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     }
                   ]
                 }
@@ -1074,7 +1082,8 @@
                       "width": "fill_container",
                       "content": "Take these rough meeting notes and organize them into clear action items, decisions, and follow-ups",
                       "fontFamily": "Inter",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -1177,7 +1186,8 @@
                       "width": "fill_container",
                       "content": "Analyze the following code changes and provide a concise review summary with potential issues",
                       "fontFamily": "Inter",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -1280,7 +1290,8 @@
                       "width": "fill_container",
                       "content": "Draft a professional email based on the following bullet points and context",
                       "fontFamily": "Inter",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     }
                   ]
                 }
@@ -1294,7 +1305,7 @@
       "type": "frame",
       "id": "sUmu6",
       "x": 1000,
-      "y": 0,
+      "y": -1522,
       "name": "Text Editor",
       "clip": true,
       "width": 920,
@@ -1574,7 +1585,7 @@
               },
               "padding": [
                 8,
-                16
+                32
               ],
               "justifyContent": "space_between",
               "alignItems": "center",
@@ -1609,7 +1620,8 @@
                       "fill": "#0f0f0f80",
                       "content": "OpenAI / gpt-4o",
                       "fontFamily": "Inter",
-                      "fontSize": 11
+                      "fontSize": 11,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -1627,7 +1639,43 @@
                       "fill": "#0f0f0f4D",
                       "content": "Ctrl+K",
                       "fontFamily": "Inter",
-                      "fontSize": 11
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "UgiNO",
+                      "name": "Versions Toggle",
+                      "fill": "#8080801A",
+                      "cornerRadius": 9999,
+                      "gap": 4,
+                      "padding": [
+                        3,
+                        10
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "T25Np",
+                          "name": "VT Clock",
+                          "width": 12,
+                          "height": 12,
+                          "iconFontName": "history",
+                          "iconFontFamily": "lucide",
+                          "fill": "#0f0f0f80"
+                        },
+                        {
+                          "type": "text",
+                          "id": "t1kO4N",
+                          "name": "VT Label",
+                          "fill": "#0f0f0f80",
+                          "content": "Versions",
+                          "fontFamily": "Inter",
+                          "fontSize": 11,
+                          "fontWeight": "500"
+                        }
+                      ]
                     }
                   ]
                 }
@@ -1648,7 +1696,7 @@
               "gap": 6,
               "padding": [
                 6,
-                12
+                32
               ],
               "alignItems": "center",
               "children": [
@@ -1840,28 +1888,31 @@
               "name": "Document Area",
               "width": "fill_container",
               "height": "fill_container",
-              "layout": "none",
+              "layout": "vertical",
+              "padding": [
+                24,
+                32
+              ],
               "children": [
                 {
                   "type": "text",
                   "id": "qOuyk",
-                  "x": 0,
-                  "y": 0,
                   "name": "Document Text",
                   "fill": "$color-text",
                   "textGrowth": "fixed-width",
-                  "width": 700,
+                  "width": "fill_container",
                   "content": "The quarterly report highlights several key achievements across all departments. Revenue growth exceeded expectations at 18% year-over-year, driven primarily by expansion into new markets and improved customer retention rates.\n\nNotably, the engineering team completed the platform migration ahead of schedule, reducing infrastructure costs by 23%. Customer satisfaction scores reached an all-time high of 94%, attributed to the redesigned onboarding flow and expanded support hours.\n\nHowever, there are areas requiring attention. Marketing spend efficiency declined compared to Q3, and the sales pipeline for enterprise accounts shows signs of slowing. The leadership team recommends reallocating budget toward account-based marketing strategies and investing in sales enablement tools.",
                   "lineHeight": 1.6,
                   "fontFamily": "Inter",
-                  "fontSize": 15
+                  "fontSize": 15,
+                  "fontWeight": "normal"
                 },
                 {
                   "type": "frame",
                   "id": "YZ7VS",
                   "layoutPosition": "absolute",
-                  "x": 90,
-                  "y": 360,
+                  "x": 120,
+                  "y": 380,
                   "name": "CMD-K Popover",
                   "width": 520,
                   "fill": "$color-background",
@@ -1912,7 +1963,8 @@
                           "width": "fill_container",
                           "content": "Describe what to do with this text...",
                           "fontFamily": "Inter",
-                          "fontSize": 14
+                          "fontSize": 14,
+                          "fontWeight": "normal"
                         },
                         {
                           "type": "frame",
@@ -1966,7 +2018,8 @@
                               "fill": "#0f0f0f80",
                               "content": "Fix Grammar",
                               "fontFamily": "Inter",
-                              "fontSize": 11
+                              "fontSize": 11,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -1988,7 +2041,8 @@
                               "fill": "#0f0f0f80",
                               "content": "Summarize",
                               "fontFamily": "Inter",
-                              "fontSize": 11
+                              "fontSize": 11,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -2010,11 +2064,51 @@
                               "fill": "#0f0f0f80",
                               "content": "Simplify",
                               "fontFamily": "Inter",
-                              "fontSize": 11
+                              "fontSize": 11,
+                              "fontWeight": "normal"
                             }
                           ]
                         }
                       ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "UkI1q",
+                  "layoutPosition": "absolute",
+                  "x": 680,
+                  "y": 400,
+                  "name": "AI Trigger Button",
+                  "fill": "$color-background-ui",
+                  "cornerRadius": 9999,
+                  "effect": {
+                    "type": "shadow",
+                    "shadowType": "outer",
+                    "color": "#00000020",
+                    "offset": {
+                      "x": 0,
+                      "y": 2
+                    },
+                    "blur": 12
+                  },
+                  "gap": 6,
+                  "padding": [
+                    8,
+                    12
+                  ],
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "A1QFO",
+                      "name": "AI Btn Icon",
+                      "width": 16,
+                      "height": 16,
+                      "iconFontName": "sparkles",
+                      "iconFontFamily": "lucide",
+                      "fill": "#ffffff"
                     }
                   ]
                 }
@@ -2035,7 +2129,7 @@
               },
               "padding": [
                 8,
-                16
+                32
               ],
               "justifyContent": "space_between",
               "alignItems": "center",
@@ -2064,7 +2158,8 @@
                       "fill": "#0f0f0f99",
                       "content": "Result applied",
                       "fontFamily": "Inter",
-                      "fontSize": 13
+                      "fontSize": 13,
+                      "fontWeight": "normal"
                     },
                     {
                       "type": "frame",
@@ -2084,7 +2179,8 @@
                           "fill": "#0f0f0f80",
                           "content": "gpt-4o",
                           "fontFamily": "Inter",
-                          "fontSize": 11
+                          "fontSize": 11,
+                          "fontWeight": "normal"
                         }
                       ]
                     }
@@ -2156,7 +2252,7 @@
       "type": "frame",
       "id": "fmmsc",
       "x": 2000,
-      "y": 0,
+      "y": -1522,
       "name": "Text History",
       "clip": true,
       "width": 920,
@@ -2497,7 +2593,8 @@
                               "fill": "#0f0f0f99",
                               "content": "May 26, 2026 2:30 PM",
                               "fontFamily": "Inter",
-                              "fontSize": 13
+                              "fontSize": 13,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "frame",
@@ -2690,6 +2787,7 @@
                               "content": "The quartely report highlites several key achivements accross all departments. Revenue groth exceeded expectations...",
                               "fontFamily": "Inter",
                               "fontSize": 13,
+                              "fontWeight": "normal",
                               "fontStyle": "italic"
                             }
                           ]
@@ -2766,7 +2864,8 @@
                               "width": "fill_container",
                               "content": "The quarterly report highlights several key achievements across all departments. Revenue growth exceeded expectations...",
                               "fontFamily": "Inter",
-                              "fontSize": 13
+                              "fontSize": 13,
+                              "fontWeight": "normal"
                             }
                           ]
                         }
@@ -2858,7 +2957,8 @@
                               "fill": "#0f0f0f99",
                               "content": "May 26, 2026 1:15 PM",
                               "fontFamily": "Inter",
-                              "fontSize": 13
+                              "fontSize": 13,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "frame",
@@ -3051,6 +3151,7 @@
                               "content": "Our team has been working on several initiatives this quarter including the new customer portal, internal tooling improvements, and the migration to the new cloud infrastructure...",
                               "fontFamily": "Inter",
                               "fontSize": 13,
+                              "fontWeight": "normal",
                               "fontStyle": "italic"
                             }
                           ]
@@ -3127,9 +3228,2733 @@
                               "width": "fill_container",
                               "content": "Key Q2 initiatives: customer portal launch, internal tooling improvements, and cloud infrastructure migration.",
                               "fontFamily": "Inter",
-                              "fontSize": 13
+                              "fontSize": 13,
+                              "fontWeight": "normal"
                             }
                           ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "VwpjW",
+      "x": 3000,
+      "y": -1522,
+      "name": "Editor + Version History",
+      "clip": true,
+      "width": 1200,
+      "height": 620,
+      "fill": "$color-background",
+      "cornerRadius": "$rounded-xl",
+      "stroke": {
+        "align": "inside",
+        "thickness": 1,
+        "fill": "#80808033"
+      },
+      "children": [
+        {
+          "type": "frame",
+          "id": "cnvXy",
+          "name": "VH Sidebar",
+          "width": 160,
+          "height": "fill_container",
+          "stroke": {
+            "align": "inside",
+            "thickness": {
+              "right": 1
+            },
+            "fill": "#80808033"
+          },
+          "layout": "vertical",
+          "gap": 8,
+          "padding": [
+            16,
+            8
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "SBNfz",
+              "name": "VH Logo",
+              "fill": "$color-background-ui",
+              "content": "Handy",
+              "fontFamily": "Inter",
+              "fontSize": 18,
+              "fontWeight": "700"
+            },
+            {
+              "type": "frame",
+              "id": "TlnHW",
+              "name": "VH Mode Toggle",
+              "width": "fill_container",
+              "fill": "#8080801A",
+              "cornerRadius": "$rounded-lg",
+              "gap": 4,
+              "padding": 4,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "s9phOp",
+                  "name": "VH Voice",
+                  "width": "fill_container",
+                  "height": 28,
+                  "cornerRadius": "$rounded-md",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "c5dDw",
+                      "name": "VH Mic",
+                      "width": 16,
+                      "height": 16,
+                      "iconFontName": "mic",
+                      "iconFontFamily": "lucide",
+                      "fill": "$color-text"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "f75yp",
+                  "name": "VH Text",
+                  "width": "fill_container",
+                  "height": 28,
+                  "fill": "#faa2caCC",
+                  "cornerRadius": "$rounded-md",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "WkC9D",
+                      "name": "VH Type",
+                      "width": 16,
+                      "height": 16,
+                      "iconFontName": "type",
+                      "iconFontFamily": "lucide",
+                      "fill": "$color-text"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Puxdo",
+              "name": "VH Nav",
+              "width": "fill_container",
+              "stroke": {
+                "align": "inside",
+                "thickness": {
+                  "top": 1
+                },
+                "fill": "#80808033"
+              },
+              "layout": "vertical",
+              "gap": 4,
+              "padding": [
+                8,
+                0,
+                0,
+                0
+              ],
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "XVKj1",
+                  "name": "VH Nav Text Operations",
+                  "width": "fill_container",
+                  "fill": "#faa2caCC",
+                  "cornerRadius": "$rounded-lg",
+                  "gap": 8,
+                  "padding": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "g9OXO",
+                      "name": "VH Text Operations Ic",
+                      "width": 20,
+                      "height": 20,
+                      "iconFontName": "type",
+                      "iconFontFamily": "lucide",
+                      "fill": "$color-text"
+                    },
+                    {
+                      "type": "text",
+                      "id": "BTgNe",
+                      "name": "VH Text Operations Lb",
+                      "fill": "$color-text",
+                      "content": "Text Operations",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "fzZFD",
+                  "name": "VH Nav Prompts",
+                  "opacity": 0.85,
+                  "width": "fill_container",
+                  "cornerRadius": "$rounded-lg",
+                  "gap": 8,
+                  "padding": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "j4jTj",
+                      "name": "VH Prompts Ic",
+                      "width": 20,
+                      "height": 20,
+                      "iconFontName": "book-open",
+                      "iconFontFamily": "lucide",
+                      "fill": "$color-text"
+                    },
+                    {
+                      "type": "text",
+                      "id": "NDFlp",
+                      "name": "VH Prompts Lb",
+                      "fill": "$color-text",
+                      "content": "Prompts",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "PbYMp",
+                  "name": "VH Nav Text Settings",
+                  "opacity": 0.85,
+                  "width": "fill_container",
+                  "cornerRadius": "$rounded-lg",
+                  "gap": 8,
+                  "padding": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "AWW0R",
+                      "name": "VH Text Settings Ic",
+                      "width": 20,
+                      "height": 20,
+                      "iconFontName": "settings",
+                      "iconFontFamily": "lucide",
+                      "fill": "$color-text"
+                    },
+                    {
+                      "type": "text",
+                      "id": "X4QZj",
+                      "name": "VH Text Settings Lb",
+                      "fill": "$color-text",
+                      "content": "Text Settings",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "cLNyq",
+                  "name": "VH Nav History",
+                  "opacity": 0.85,
+                  "width": "fill_container",
+                  "cornerRadius": "$rounded-lg",
+                  "gap": 8,
+                  "padding": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "Er3oO",
+                      "name": "VH History Ic",
+                      "width": 20,
+                      "height": 20,
+                      "iconFontName": "history",
+                      "iconFontFamily": "lucide",
+                      "fill": "$color-text"
+                    },
+                    {
+                      "type": "text",
+                      "id": "S8CEQ",
+                      "name": "VH History Lb",
+                      "fill": "$color-text",
+                      "content": "History",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "VUgQt",
+          "name": "VH Editor Content",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "hRgal",
+              "name": "VH Status Bar",
+              "width": "fill_container",
+              "stroke": {
+                "align": "inside",
+                "thickness": {
+                  "bottom": 1
+                },
+                "fill": "#80808033"
+              },
+              "padding": [
+                8,
+                32
+              ],
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "t5uI1f",
+                  "name": "VH Model Badge",
+                  "fill": "#8080801A",
+                  "cornerRadius": 9999,
+                  "gap": 4,
+                  "padding": [
+                    3,
+                    10
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "OBC3X",
+                      "name": "VH CPU",
+                      "width": 12,
+                      "height": 12,
+                      "iconFontName": "cpu",
+                      "iconFontFamily": "lucide",
+                      "fill": "#0f0f0f80"
+                    },
+                    {
+                      "type": "text",
+                      "id": "zUm0I",
+                      "name": "VH Model",
+                      "fill": "#0f0f0f80",
+                      "content": "OpenAI / gpt-4o",
+                      "fontFamily": "Inter",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "gtKJE",
+                  "name": "VH Hint Area",
+                  "gap": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "OKJFz",
+                      "name": "VH Hint",
+                      "fill": "#0f0f0f4D",
+                      "content": "Ctrl+K",
+                      "fontFamily": "Inter",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "rsAm4",
+                      "name": "VH History Toggle",
+                      "fill": "#faa2ca1A",
+                      "cornerRadius": 9999,
+                      "gap": 4,
+                      "padding": [
+                        3,
+                        10
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "gg9bu",
+                          "name": "VH Clock Icon",
+                          "width": 12,
+                          "height": 12,
+                          "iconFontName": "history",
+                          "iconFontFamily": "lucide",
+                          "fill": "$color-background-ui"
+                        },
+                        {
+                          "type": "text",
+                          "id": "xAKr8",
+                          "name": "VH Toggle Label",
+                          "fill": "$color-background-ui",
+                          "content": "Versions",
+                          "fontFamily": "Inter",
+                          "fontSize": 11,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "JDmUI",
+              "name": "VH Toolbar",
+              "width": "fill_container",
+              "stroke": {
+                "align": "inside",
+                "thickness": {
+                  "bottom": 1
+                },
+                "fill": "#80808033"
+              },
+              "gap": 6,
+              "padding": [
+                6,
+                32
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "SA3cE",
+                  "name": "VH P Fix Grammar",
+                  "fill": "#8080801A",
+                  "cornerRadius": "$rounded-md",
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#80808020"
+                  },
+                  "padding": [
+                    5,
+                    10
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "WxJbB",
+                      "name": "VH PT Fix Grammar",
+                      "fill": "$color-text",
+                      "content": "Fix Grammar",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "GWXtN",
+                  "name": "VH P Summarize",
+                  "fill": "#8080801A",
+                  "cornerRadius": "$rounded-md",
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#80808020"
+                  },
+                  "padding": [
+                    5,
+                    10
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "skMzP",
+                      "name": "VH PT Summarize",
+                      "fill": "$color-text",
+                      "content": "Summarize",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "RX2zX",
+                  "name": "VH P Simplify",
+                  "fill": "#8080801A",
+                  "cornerRadius": "$rounded-md",
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#80808020"
+                  },
+                  "padding": [
+                    5,
+                    10
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "PsvvY",
+                      "name": "VH PT Simplify",
+                      "fill": "$color-text",
+                      "content": "Simplify",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "B8gMK",
+                  "name": "VH P Rewrite",
+                  "fill": "#8080801A",
+                  "cornerRadius": "$rounded-md",
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#80808020"
+                  },
+                  "padding": [
+                    5,
+                    10
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "k8vugC",
+                      "name": "VH PT Rewrite",
+                      "fill": "$color-text",
+                      "content": "Rewrite",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Om38O",
+                  "name": "VH P Expand",
+                  "fill": "#8080801A",
+                  "cornerRadius": "$rounded-md",
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#80808020"
+                  },
+                  "padding": [
+                    5,
+                    10
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "C1hJW",
+                      "name": "VH PT Expand",
+                      "fill": "$color-text",
+                      "content": "Expand",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "uRjTL",
+                  "name": "VH Overflow",
+                  "fill": "#8080801A",
+                  "cornerRadius": "$rounded-md",
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#80808020"
+                  },
+                  "gap": 2,
+                  "padding": [
+                    5,
+                    10
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "h7XgK",
+                      "name": "VH OF Text",
+                      "fill": "#0f0f0f80",
+                      "content": "+3",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "icon_font",
+                      "id": "C5o44k",
+                      "name": "VH OF Chev",
+                      "width": 12,
+                      "height": 12,
+                      "iconFontName": "chevron-down",
+                      "iconFontFamily": "lucide",
+                      "fill": "#0f0f0f80"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "yRQ9M",
+              "name": "Editor And Panel",
+              "width": "fill_container",
+              "height": "fill_container",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "LOxJT",
+                  "name": "VH Doc Area",
+                  "width": "fill_container",
+                  "height": "fill_container",
+                  "layout": "vertical",
+                  "padding": [
+                    24,
+                    32
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "hH4I8",
+                      "name": "VH Doc Text",
+                      "fill": "$color-text",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "The quarterly report highlights several key achievements across all departments. Revenue growth exceeded expectations at 18% year-over-year, driven primarily by expansion into new markets and improved customer retention rates.\n\nNotably, the engineering team completed the platform migration ahead of schedule, reducing infrastructure costs by 23%. Customer satisfaction scores reached an all-time high of 94%, attributed to the redesigned onboarding flow and expanded support hours.\n\nHowever, there are areas requiring attention. Marketing spend efficiency declined compared to Q3, and the sales pipeline for enterprise accounts shows signs of slowing. The leadership team recommends reallocating budget toward account-based marketing strategies and investing in sales enablement tools.",
+                      "lineHeight": 1.6,
+                      "fontFamily": "Inter",
+                      "fontSize": 15,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "K0hav",
+                  "name": "Version Panel",
+                  "width": 300,
+                  "height": "fill_container",
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": {
+                      "left": 1
+                    },
+                    "fill": "#80808033"
+                  },
+                  "layout": "vertical",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "FJBm0",
+                      "name": "VP Header",
+                      "width": "fill_container",
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": {
+                          "bottom": 1
+                        },
+                        "fill": "#80808033"
+                      },
+                      "padding": [
+                        12,
+                        16
+                      ],
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "Db1yx",
+                          "name": "VP Header Left",
+                          "gap": 8,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon_font",
+                              "id": "W8jIcs",
+                              "name": "VP Clock",
+                              "width": 16,
+                              "height": 16,
+                              "iconFontName": "history",
+                              "iconFontFamily": "lucide",
+                              "fill": "$color-background-ui"
+                            },
+                            {
+                              "type": "text",
+                              "id": "WEJVr",
+                              "name": "VP Title",
+                              "fill": "$color-text",
+                              "content": "Version History",
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "eti9Z",
+                          "name": "VP Close",
+                          "cornerRadius": "$rounded-sm",
+                          "padding": 4,
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon_font",
+                              "id": "aVp4G",
+                              "name": "VP X",
+                              "width": 14,
+                              "height": 14,
+                              "iconFontName": "x",
+                              "iconFontFamily": "lucide",
+                              "fill": "#0f0f0f50"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "S1fNF",
+                      "name": "VP List",
+                      "width": "fill_container",
+                      "height": "fill_container",
+                      "layout": "vertical",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "PYXll",
+                          "name": "Version Now",
+                          "width": "fill_container",
+                          "fill": "#faa2ca0D",
+                          "gap": 12,
+                          "padding": [
+                            12,
+                            16
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "zmWnD",
+                              "name": "V Indicator Now",
+                              "layout": "vertical",
+                              "gap": 4,
+                              "padding": [
+                                4,
+                                0,
+                                0,
+                                0
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "ellipse",
+                                  "id": "l2df2g",
+                                  "name": "V Dot Now",
+                                  "fill": "$color-background-ui",
+                                  "width": 8,
+                                  "height": 8
+                                },
+                                {
+                                  "type": "rectangle",
+                                  "id": "B3QFbj",
+                                  "name": "V Line Now",
+                                  "fill": "#80808033",
+                                  "width": 1,
+                                  "height": 40
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "M037x",
+                              "name": "V Content Now",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 4,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "YSrS8",
+                                  "name": "V Top Now",
+                                  "width": "fill_container",
+                                  "justifyContent": "space_between",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "XoFWT",
+                                      "name": "V Time Now",
+                                      "fill": "$color-text",
+                                      "content": "Now",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 12,
+                                      "fontWeight": "500"
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "yy3ZD",
+                                      "name": "V Active Badge",
+                                      "fill": "#faa2ca1A",
+                                      "cornerRadius": 9999,
+                                      "padding": [
+                                        1,
+                                        6
+                                      ],
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "O3j96p",
+                                          "name": "V Active Text",
+                                          "fill": "$color-background-ui",
+                                          "content": "Current",
+                                          "fontFamily": "Inter",
+                                          "fontSize": 10,
+                                          "fontWeight": "500"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "vq8hQ",
+                                  "name": "V Action Now",
+                                  "gap": 6,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "icon_font",
+                                      "id": "AJRm0",
+                                      "name": "V Ic Now",
+                                      "width": 12,
+                                      "height": 12,
+                                      "iconFontName": "sparkles",
+                                      "iconFontFamily": "lucide",
+                                      "fill": "$color-background-ui"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "g4Rck",
+                                      "name": "V Act Now",
+                                      "fill": "#0f0f0f99",
+                                      "content": "Fix Grammar",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 11
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "spFmF",
+                                      "name": "V Model Now",
+                                      "fill": "#8080801A",
+                                      "cornerRadius": 9999,
+                                      "padding": [
+                                        1,
+                                        6
+                                      ],
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "LgtYw",
+                                          "name": "V ML Now",
+                                          "fill": "#0f0f0f60",
+                                          "content": "gpt-4o",
+                                          "fontFamily": "Inter",
+                                          "fontSize": 10,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "RS1L0",
+                                      "name": "VP Diff Now",
+                                      "fill": "#8080801A",
+                                      "cornerRadius": 9999,
+                                      "gap": 3,
+                                      "padding": [
+                                        1,
+                                        6
+                                      ],
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "o51QD",
+                                          "name": "VP DA Now",
+                                          "fill": "#16a34a",
+                                          "content": "+8",
+                                          "fontFamily": "Inter",
+                                          "fontSize": 9,
+                                          "fontWeight": "600"
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "VNX3I",
+                                          "name": "VP DD Now",
+                                          "fill": "#dc2626",
+                                          "content": "−6",
+                                          "fontFamily": "Inter",
+                                          "fontSize": 9,
+                                          "fontWeight": "600"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "QRNu1",
+                                  "name": "VP Prompt Now",
+                                  "width": "fill_container",
+                                  "fill": "#8080800A",
+                                  "cornerRadius": "$rounded-sm",
+                                  "gap": 4,
+                                  "padding": [
+                                    4,
+                                    8
+                                  ],
+                                  "children": [
+                                    {
+                                      "type": "icon_font",
+                                      "id": "A4iU7E",
+                                      "name": "VP PIcon Now",
+                                      "width": 10,
+                                      "height": 10,
+                                      "iconFontName": "message-square",
+                                      "iconFontFamily": "lucide",
+                                      "fill": "#0f0f0f40"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "v1bNH0",
+                                      "name": "VP PTxt Now",
+                                      "fill": "#0f0f0f60",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "\"Fix all grammar and spelling errors\"",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 10,
+                                      "fontStyle": "italic"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "QRbXp",
+                                  "name": "V Desc Now",
+                                  "fill": "#0f0f0f60",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "Fixed 4 spelling errors, 2 grammar issues",
+                                  "fontFamily": "Inter",
+                                  "fontSize": 11
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "g0SBo",
+                          "name": "Version 2:28 PM",
+                          "width": "fill_container",
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": {
+                              "top": 1
+                            },
+                            "fill": "#80808033"
+                          },
+                          "gap": 12,
+                          "padding": [
+                            12,
+                            16
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "z7wKg",
+                              "name": "V Indicator 2:28 PM",
+                              "layout": "vertical",
+                              "gap": 4,
+                              "padding": [
+                                4,
+                                0,
+                                0,
+                                0
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "ellipse",
+                                  "id": "Ktq7I",
+                                  "name": "V Dot 2:28 PM",
+                                  "fill": "#80808055",
+                                  "width": 8,
+                                  "height": 8
+                                },
+                                {
+                                  "type": "rectangle",
+                                  "id": "UewLg",
+                                  "name": "V Line 2:28 PM",
+                                  "fill": "#80808033",
+                                  "width": 1,
+                                  "height": 40
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "S4d24D",
+                              "name": "V Content 2:28 PM",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 4,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "uZO1t",
+                                  "name": "V Top 2:28 PM",
+                                  "width": "fill_container",
+                                  "justifyContent": "space_between",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "A9UG8O",
+                                      "name": "V Time 2:28 PM",
+                                      "fill": "#0f0f0f99",
+                                      "content": "2:28 PM",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 12,
+                                      "fontWeight": "500"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "L0cJYk",
+                                      "name": "V Restore 2:28 PM",
+                                      "fill": "$color-logo-primary",
+                                      "content": "Restore",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 11,
+                                      "fontWeight": "500"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "rbJCr",
+                                  "name": "V Action 2:28 PM",
+                                  "gap": 6,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "icon_font",
+                                      "id": "posih",
+                                      "name": "V Ic 2:28 PM",
+                                      "width": 12,
+                                      "height": 12,
+                                      "iconFontName": "sparkles",
+                                      "iconFontFamily": "lucide",
+                                      "fill": "$color-background-ui"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "yoLOO",
+                                      "name": "V Act 2:28 PM",
+                                      "fill": "#0f0f0f99",
+                                      "content": "Expand",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 11
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "kkuAl",
+                                      "name": "V Model 2:28 PM",
+                                      "fill": "#8080801A",
+                                      "cornerRadius": 9999,
+                                      "padding": [
+                                        1,
+                                        6
+                                      ],
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "j80WA",
+                                          "name": "V ML 2:28 PM",
+                                          "fill": "#0f0f0f60",
+                                          "content": "gpt-4o",
+                                          "fontFamily": "Inter",
+                                          "fontSize": 10,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "w3nVAo",
+                                      "name": "VP Diff 2:28 PM",
+                                      "fill": "#8080801A",
+                                      "cornerRadius": 9999,
+                                      "gap": 3,
+                                      "padding": [
+                                        1,
+                                        6
+                                      ],
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "l6XD8s",
+                                          "name": "VP DA 2:28 PM",
+                                          "fill": "#16a34a",
+                                          "content": "+24",
+                                          "fontFamily": "Inter",
+                                          "fontSize": 9,
+                                          "fontWeight": "600"
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "nnXUE",
+                                          "name": "VP DD 2:28 PM",
+                                          "fill": "#dc2626",
+                                          "content": "−3",
+                                          "fontFamily": "Inter",
+                                          "fontSize": 9,
+                                          "fontWeight": "600"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "oDwaz",
+                                  "name": "VP Prompt 2:28 PM",
+                                  "width": "fill_container",
+                                  "fill": "#8080800A",
+                                  "cornerRadius": "$rounded-sm",
+                                  "gap": 4,
+                                  "padding": [
+                                    4,
+                                    8
+                                  ],
+                                  "children": [
+                                    {
+                                      "type": "icon_font",
+                                      "id": "LToGi",
+                                      "name": "VP PIcon 2:28 PM",
+                                      "width": 10,
+                                      "height": 10,
+                                      "iconFontName": "message-square",
+                                      "iconFontFamily": "lucide",
+                                      "fill": "#0f0f0f40"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "Vy4si",
+                                      "name": "VP PTxt 2:28 PM",
+                                      "fill": "#0f0f0f60",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "\"Expand the leadership recommendations with specific strategies\"",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 10,
+                                      "fontStyle": "italic"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "BZIwe",
+                                  "name": "V Desc 2:28 PM",
+                                  "fill": "#0f0f0f60",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "Expanded leadership recommendations section",
+                                  "fontFamily": "Inter",
+                                  "fontSize": 11
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "gkMvj",
+                          "name": "Version 2:25 PM",
+                          "width": "fill_container",
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": {
+                              "top": 1
+                            },
+                            "fill": "#80808033"
+                          },
+                          "gap": 12,
+                          "padding": [
+                            12,
+                            16
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "BTFLo",
+                              "name": "V Indicator 2:25 PM",
+                              "layout": "vertical",
+                              "gap": 4,
+                              "padding": [
+                                4,
+                                0,
+                                0,
+                                0
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "ellipse",
+                                  "id": "nXd13",
+                                  "name": "V Dot 2:25 PM",
+                                  "fill": "#80808055",
+                                  "width": 8,
+                                  "height": 8
+                                },
+                                {
+                                  "type": "rectangle",
+                                  "id": "V5AoR",
+                                  "name": "V Line 2:25 PM",
+                                  "fill": "#80808033",
+                                  "width": 1,
+                                  "height": 40
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "FXq7Q",
+                              "name": "V Content 2:25 PM",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 4,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "QmxBp",
+                                  "name": "V Top 2:25 PM",
+                                  "width": "fill_container",
+                                  "justifyContent": "space_between",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "gJBRI",
+                                      "name": "V Time 2:25 PM",
+                                      "fill": "#0f0f0f99",
+                                      "content": "2:25 PM",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 12,
+                                      "fontWeight": "500"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "lTfax",
+                                      "name": "V Restore 2:25 PM",
+                                      "fill": "$color-logo-primary",
+                                      "content": "Restore",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 11,
+                                      "fontWeight": "500"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "UFfhS",
+                                  "name": "V Action 2:25 PM",
+                                  "gap": 6,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "icon_font",
+                                      "id": "UYG9Y",
+                                      "name": "V Ic 2:25 PM",
+                                      "width": 12,
+                                      "height": 12,
+                                      "iconFontName": "sparkles",
+                                      "iconFontFamily": "lucide",
+                                      "fill": "$color-background-ui"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "URqYB",
+                                      "name": "V Act 2:25 PM",
+                                      "fill": "#0f0f0f99",
+                                      "content": "Summarize",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 11
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "c8pVK",
+                                      "name": "V Model 2:25 PM",
+                                      "fill": "#8080801A",
+                                      "cornerRadius": 9999,
+                                      "padding": [
+                                        1,
+                                        6
+                                      ],
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "zKkR9",
+                                          "name": "V ML 2:25 PM",
+                                          "fill": "#0f0f0f60",
+                                          "content": "gpt-4o",
+                                          "fontFamily": "Inter",
+                                          "fontSize": 10,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "DZ1dN",
+                                      "name": "VP Diff 2:25 PM",
+                                      "fill": "#8080801A",
+                                      "cornerRadius": 9999,
+                                      "gap": 3,
+                                      "padding": [
+                                        1,
+                                        6
+                                      ],
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "K2ERD",
+                                          "name": "VP DA 2:25 PM",
+                                          "fill": "#16a34a",
+                                          "content": "+5",
+                                          "fontFamily": "Inter",
+                                          "fontSize": 9,
+                                          "fontWeight": "600"
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "mEDUN",
+                                          "name": "VP DD 2:25 PM",
+                                          "fill": "#dc2626",
+                                          "content": "−42",
+                                          "fontFamily": "Inter",
+                                          "fontSize": 9,
+                                          "fontWeight": "600"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "ggO0Q",
+                                  "name": "VP Prompt 2:25 PM",
+                                  "width": "fill_container",
+                                  "fill": "#8080800A",
+                                  "cornerRadius": "$rounded-sm",
+                                  "gap": 4,
+                                  "padding": [
+                                    4,
+                                    8
+                                  ],
+                                  "children": [
+                                    {
+                                      "type": "icon_font",
+                                      "id": "VDF9u",
+                                      "name": "VP PIcon 2:25 PM",
+                                      "width": 10,
+                                      "height": 10,
+                                      "iconFontName": "message-square",
+                                      "iconFontFamily": "lucide",
+                                      "fill": "#0f0f0f40"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "RWS7f",
+                                      "name": "VP PTxt 2:25 PM",
+                                      "fill": "#0f0f0f60",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "\"Summarize this into key takeaways\"",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 10,
+                                      "fontStyle": "italic"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "A1pnq",
+                                  "name": "V Desc 2:25 PM",
+                                  "fill": "#0f0f0f60",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "Condensed 3 paragraphs into key takeaways",
+                                  "fontFamily": "Inter",
+                                  "fontSize": 11
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "XD3Yn",
+                          "name": "Version 2:20 PM",
+                          "width": "fill_container",
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": {
+                              "top": 1
+                            },
+                            "fill": "#80808033"
+                          },
+                          "gap": 12,
+                          "padding": [
+                            12,
+                            16
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "zvvPj",
+                              "name": "V Indicator 2:20 PM",
+                              "layout": "vertical",
+                              "gap": 4,
+                              "padding": [
+                                4,
+                                0,
+                                0,
+                                0
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "ellipse",
+                                  "id": "kXH1z",
+                                  "name": "V Dot 2:20 PM",
+                                  "fill": "#80808055",
+                                  "width": 8,
+                                  "height": 8
+                                },
+                                {
+                                  "type": "rectangle",
+                                  "id": "A7LT6M",
+                                  "name": "V Line 2:20 PM",
+                                  "fill": "#80808033",
+                                  "width": 1,
+                                  "height": 40
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "HdJ11",
+                              "name": "V Content 2:20 PM",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 4,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "f5xsV",
+                                  "name": "V Top 2:20 PM",
+                                  "width": "fill_container",
+                                  "justifyContent": "space_between",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "O5fqXo",
+                                      "name": "V Time 2:20 PM",
+                                      "fill": "#0f0f0f99",
+                                      "content": "2:20 PM",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 12,
+                                      "fontWeight": "500"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "prrcZ",
+                                      "name": "V Restore 2:20 PM",
+                                      "fill": "$color-logo-primary",
+                                      "content": "Restore",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 11,
+                                      "fontWeight": "500"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "oTSfg",
+                                  "name": "V Action 2:20 PM",
+                                  "gap": 6,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "icon_font",
+                                      "id": "MHw9e",
+                                      "name": "V Ic 2:20 PM",
+                                      "width": 12,
+                                      "height": 12,
+                                      "iconFontName": "pencil",
+                                      "iconFontFamily": "lucide",
+                                      "fill": "#0f0f0f60"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "W7nVaz",
+                                      "name": "V Act 2:20 PM",
+                                      "fill": "#0f0f0f99",
+                                      "content": "Manual edit",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 11
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "oiZK6",
+                                      "name": "VP Diff 2:20 PM",
+                                      "fill": "#8080801A",
+                                      "cornerRadius": 9999,
+                                      "gap": 3,
+                                      "padding": [
+                                        1,
+                                        6
+                                      ],
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "lLAAL",
+                                          "name": "VP DA 2:20 PM",
+                                          "fill": "#16a34a",
+                                          "content": "+2",
+                                          "fontFamily": "Inter",
+                                          "fontSize": 9,
+                                          "fontWeight": "600"
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "DCsRY",
+                                          "name": "VP DD 2:20 PM",
+                                          "fill": "#dc2626",
+                                          "content": "−0",
+                                          "fontFamily": "Inter",
+                                          "fontSize": 9,
+                                          "fontWeight": "600"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "BjaaH",
+                                  "name": "V Desc 2:20 PM",
+                                  "fill": "#0f0f0f60",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "Added revenue growth figures",
+                                  "fontFamily": "Inter",
+                                  "fontSize": 11
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "X2T7B",
+                          "name": "Version 2:15 PM",
+                          "width": "fill_container",
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": {
+                              "top": 1
+                            },
+                            "fill": "#80808033"
+                          },
+                          "gap": 12,
+                          "padding": [
+                            12,
+                            16
+                          ],
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "Zz2wj",
+                              "name": "V Indicator 2:15 PM",
+                              "layout": "vertical",
+                              "gap": 4,
+                              "padding": [
+                                4,
+                                0,
+                                0,
+                                0
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "ellipse",
+                                  "id": "DFenn",
+                                  "name": "V Dot 2:15 PM",
+                                  "fill": "#80808055",
+                                  "width": 8,
+                                  "height": 8
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "BU59T",
+                              "name": "V Content 2:15 PM",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 4,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "vCi5U",
+                                  "name": "V Top 2:15 PM",
+                                  "width": "fill_container",
+                                  "justifyContent": "space_between",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "m7gqc",
+                                      "name": "V Time 2:15 PM",
+                                      "fill": "#0f0f0f99",
+                                      "content": "2:15 PM",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 12,
+                                      "fontWeight": "500"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "PhctD",
+                                      "name": "V Restore 2:15 PM",
+                                      "fill": "$color-logo-primary",
+                                      "content": "Restore",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 11,
+                                      "fontWeight": "500"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "pSbYq",
+                                  "name": "V Action 2:15 PM",
+                                  "gap": 6,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "icon_font",
+                                      "id": "I4yab0",
+                                      "name": "V Ic 2:15 PM",
+                                      "width": 12,
+                                      "height": 12,
+                                      "iconFontName": "clipboard",
+                                      "iconFontFamily": "lucide",
+                                      "fill": "#0f0f0f60"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "orXMd",
+                                      "name": "V Act 2:15 PM",
+                                      "fill": "#0f0f0f99",
+                                      "content": "Original",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 11
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "APlll",
+                                  "name": "V Desc 2:15 PM",
+                                  "fill": "#0f0f0f60",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "Pasted from clipboard",
+                                  "fontFamily": "Inter",
+                                  "fontSize": 11
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "a14uyI",
+      "x": 4280,
+      "y": -1522,
+      "name": "Editor — Diff Review",
+      "clip": true,
+      "width": 920,
+      "height": 680,
+      "fill": "$color-background",
+      "cornerRadius": "$rounded-xl",
+      "stroke": {
+        "align": "inside",
+        "thickness": 1,
+        "fill": "#80808033"
+      },
+      "children": [
+        {
+          "type": "frame",
+          "id": "V3eio",
+          "name": "Diff Sidebar",
+          "width": 160,
+          "height": "fill_container",
+          "stroke": {
+            "align": "inside",
+            "thickness": {
+              "right": 1
+            },
+            "fill": "#80808033"
+          },
+          "layout": "vertical",
+          "gap": 8,
+          "padding": [
+            16,
+            8
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "jlBvS",
+              "name": "Diff Logo",
+              "fill": "$color-background-ui",
+              "content": "Handy",
+              "fontFamily": "Inter",
+              "fontSize": 18,
+              "fontWeight": "700"
+            },
+            {
+              "type": "frame",
+              "id": "FJQxW",
+              "name": "Diff MT",
+              "width": "fill_container",
+              "fill": "#8080801A",
+              "cornerRadius": "$rounded-lg",
+              "gap": 4,
+              "padding": 4,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "ZcGXo",
+                  "name": "Diff V",
+                  "width": "fill_container",
+                  "height": 28,
+                  "cornerRadius": "$rounded-md",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "UZZ5M",
+                      "name": "Diff Mic",
+                      "width": 16,
+                      "height": 16,
+                      "iconFontName": "mic",
+                      "iconFontFamily": "lucide",
+                      "fill": "$color-text"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "SB3qM",
+                  "name": "Diff T",
+                  "width": "fill_container",
+                  "height": 28,
+                  "fill": "#faa2caCC",
+                  "cornerRadius": "$rounded-md",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "BLCzu",
+                      "name": "Diff Type",
+                      "width": 16,
+                      "height": 16,
+                      "iconFontName": "type",
+                      "iconFontFamily": "lucide",
+                      "fill": "$color-text"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "bzyjd",
+              "name": "Diff Nav",
+              "width": "fill_container",
+              "stroke": {
+                "align": "inside",
+                "thickness": {
+                  "top": 1
+                },
+                "fill": "#80808033"
+              },
+              "layout": "vertical",
+              "gap": 4,
+              "padding": [
+                8,
+                0,
+                0,
+                0
+              ],
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "GE4RQ",
+                  "name": "DN Text Operations",
+                  "width": "fill_container",
+                  "fill": "#faa2caCC",
+                  "cornerRadius": "$rounded-lg",
+                  "gap": 8,
+                  "padding": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "UmYgU",
+                      "name": "DI Text Operations",
+                      "width": 20,
+                      "height": 20,
+                      "iconFontName": "type",
+                      "iconFontFamily": "lucide",
+                      "fill": "$color-text"
+                    },
+                    {
+                      "type": "text",
+                      "id": "xH98U",
+                      "name": "DL Text Operations",
+                      "fill": "$color-text",
+                      "content": "Text Operations",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "j0tWk",
+                  "name": "DN Prompts",
+                  "opacity": 0.85,
+                  "width": "fill_container",
+                  "cornerRadius": "$rounded-lg",
+                  "gap": 8,
+                  "padding": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "OaEm2",
+                      "name": "DI Prompts",
+                      "width": 20,
+                      "height": 20,
+                      "iconFontName": "book-open",
+                      "iconFontFamily": "lucide",
+                      "fill": "$color-text"
+                    },
+                    {
+                      "type": "text",
+                      "id": "LBvFb",
+                      "name": "DL Prompts",
+                      "fill": "$color-text",
+                      "content": "Prompts",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "fI2TM",
+                  "name": "DN Text Settings",
+                  "opacity": 0.85,
+                  "width": "fill_container",
+                  "cornerRadius": "$rounded-lg",
+                  "gap": 8,
+                  "padding": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "wX0pd",
+                      "name": "DI Text Settings",
+                      "width": 20,
+                      "height": 20,
+                      "iconFontName": "settings",
+                      "iconFontFamily": "lucide",
+                      "fill": "$color-text"
+                    },
+                    {
+                      "type": "text",
+                      "id": "nKo0M",
+                      "name": "DL Text Settings",
+                      "fill": "$color-text",
+                      "content": "Text Settings",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "k91v0",
+                  "name": "DN History",
+                  "opacity": 0.85,
+                  "width": "fill_container",
+                  "cornerRadius": "$rounded-lg",
+                  "gap": 8,
+                  "padding": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "vVadk",
+                      "name": "DI History",
+                      "width": 20,
+                      "height": 20,
+                      "iconFontName": "history",
+                      "iconFontFamily": "lucide",
+                      "fill": "$color-text"
+                    },
+                    {
+                      "type": "text",
+                      "id": "VEWd3",
+                      "name": "DL History",
+                      "fill": "$color-text",
+                      "content": "History",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "e2vBt",
+          "name": "Diff Content",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "KGB9W",
+              "name": "Diff Status Bar",
+              "width": "fill_container",
+              "stroke": {
+                "align": "inside",
+                "thickness": {
+                  "bottom": 1
+                },
+                "fill": "#80808033"
+              },
+              "padding": [
+                8,
+                32
+              ],
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "ORFwA",
+                  "name": "Diff Model Badge",
+                  "fill": "#8080801A",
+                  "cornerRadius": 9999,
+                  "gap": 4,
+                  "padding": [
+                    3,
+                    10
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "RIqTq",
+                      "name": "Diff CPU",
+                      "width": 12,
+                      "height": 12,
+                      "iconFontName": "cpu",
+                      "iconFontFamily": "lucide",
+                      "fill": "#0f0f0f80"
+                    },
+                    {
+                      "type": "text",
+                      "id": "yLe1p",
+                      "name": "Diff Model Txt",
+                      "fill": "#0f0f0f80",
+                      "content": "OpenAI / gpt-4o",
+                      "fontFamily": "Inter",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "d18PZ",
+                  "name": "DS Right",
+                  "gap": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "rabOI",
+                      "name": "DS Kbd",
+                      "fill": "#0f0f0f4D",
+                      "content": "Ctrl+K",
+                      "fontFamily": "Inter",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "e5cEN",
+                      "name": "DS Versions",
+                      "fill": "#8080801A",
+                      "cornerRadius": 9999,
+                      "gap": 4,
+                      "padding": [
+                        3,
+                        10
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "qMQ1J",
+                          "name": "DS VClock",
+                          "width": 12,
+                          "height": 12,
+                          "iconFontName": "history",
+                          "iconFontFamily": "lucide",
+                          "fill": "#0f0f0f80"
+                        },
+                        {
+                          "type": "text",
+                          "id": "fhm1l",
+                          "name": "DS VLabel",
+                          "fill": "#0f0f0f80",
+                          "content": "Versions",
+                          "fontFamily": "Inter",
+                          "fontSize": 11,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "R4yN6W",
+              "name": "Diff Toolbar",
+              "width": "fill_container",
+              "stroke": {
+                "align": "inside",
+                "thickness": {
+                  "bottom": 1
+                },
+                "fill": "#80808033"
+              },
+              "gap": 6,
+              "padding": [
+                6,
+                32
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "CAabR",
+                  "name": "DP Fix Grammar",
+                  "opacity": 0.5,
+                  "fill": "#8080801A",
+                  "cornerRadius": "$rounded-md",
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#80808020"
+                  },
+                  "padding": [
+                    5,
+                    10
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "z3mra",
+                      "name": "DPT Fix Grammar",
+                      "fill": "$color-text",
+                      "content": "Fix Grammar",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "vrLFt",
+                  "name": "DP Summarize",
+                  "opacity": 0.5,
+                  "fill": "#8080801A",
+                  "cornerRadius": "$rounded-md",
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#80808020"
+                  },
+                  "padding": [
+                    5,
+                    10
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "rKUOS",
+                      "name": "DPT Summarize",
+                      "fill": "$color-text",
+                      "content": "Summarize",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "CfzH7",
+                  "name": "DP Simplify",
+                  "opacity": 0.5,
+                  "fill": "#8080801A",
+                  "cornerRadius": "$rounded-md",
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#80808020"
+                  },
+                  "padding": [
+                    5,
+                    10
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "IYkij",
+                      "name": "DPT Simplify",
+                      "fill": "$color-text",
+                      "content": "Simplify",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "I645oq",
+                  "name": "DP Rewrite",
+                  "opacity": 0.5,
+                  "fill": "#8080801A",
+                  "cornerRadius": "$rounded-md",
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#80808020"
+                  },
+                  "padding": [
+                    5,
+                    10
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "XFSVX",
+                      "name": "DPT Rewrite",
+                      "fill": "$color-text",
+                      "content": "Rewrite",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "f8Yc9h",
+                  "name": "DP Expand",
+                  "opacity": 0.5,
+                  "fill": "#8080801A",
+                  "cornerRadius": "$rounded-md",
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#80808020"
+                  },
+                  "padding": [
+                    5,
+                    10
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "s470iy",
+                      "name": "DPT Expand",
+                      "fill": "$color-text",
+                      "content": "Expand",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "yTtF1",
+                  "name": "Diff OF",
+                  "opacity": 0.5,
+                  "fill": "#8080801A",
+                  "cornerRadius": "$rounded-md",
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#80808020"
+                  },
+                  "gap": 2,
+                  "padding": [
+                    5,
+                    10
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "mw1Bn",
+                      "name": "DOF Txt",
+                      "fill": "#0f0f0f80",
+                      "content": "+3",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "icon_font",
+                      "id": "uEaF1",
+                      "name": "DOF Chev",
+                      "width": 12,
+                      "height": 12,
+                      "iconFontName": "chevron-down",
+                      "iconFontFamily": "lucide",
+                      "fill": "#0f0f0f80"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "wSYAT",
+              "name": "Diff Accept Bar",
+              "width": "fill_container",
+              "fill": "#faa2ca0D",
+              "stroke": {
+                "align": "inside",
+                "thickness": {
+                  "bottom": 1
+                },
+                "fill": "#faa2ca33"
+              },
+              "padding": [
+                8,
+                32
+              ],
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "bbLtj",
+                  "name": "AB Left",
+                  "gap": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "xU9VV",
+                      "name": "AB Sparkle",
+                      "width": 14,
+                      "height": 14,
+                      "iconFontName": "sparkles",
+                      "iconFontFamily": "lucide",
+                      "fill": "$color-background-ui"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "mmCsZ",
+                      "name": "AB Prompt",
+                      "gap": 6,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Ghdo2",
+                          "name": "AB Prompt Text",
+                          "fill": "#0f0f0f99",
+                          "content": "\"Fix all grammar and spelling errors\"",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontStyle": "italic"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "DXgXZ",
+                      "name": "AB Stats",
+                      "fill": "#8080801A",
+                      "cornerRadius": 9999,
+                      "gap": 4,
+                      "padding": [
+                        2,
+                        8
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "eggPE",
+                          "name": "AB Additions",
+                          "fill": "#16a34a",
+                          "content": "+8",
+                          "fontFamily": "Inter",
+                          "fontSize": 10,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "AstcS",
+                          "name": "AB Deletions",
+                          "fill": "#dc2626",
+                          "content": "−6",
+                          "fontFamily": "Inter",
+                          "fontSize": 10,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Q3q1He",
+                      "name": "AB Model",
+                      "fill": "#8080801A",
+                      "cornerRadius": 9999,
+                      "padding": [
+                        2,
+                        8
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "W1Cdn",
+                          "name": "AB Model Txt",
+                          "fill": "#0f0f0f60",
+                          "content": "gpt-4o",
+                          "fontFamily": "Inter",
+                          "fontSize": 10,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "lJac1",
+                  "name": "AB Right",
+                  "gap": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "UC1Y8",
+                      "name": "Diff Toggle",
+                      "cornerRadius": "$rounded-md",
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1,
+                        "fill": "#80808033"
+                      },
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "iuNIB",
+                          "name": "DT Unified",
+                          "fill": "#8080801A",
+                          "cornerRadius": [
+                            6,
+                            0,
+                            0,
+                            6
+                          ],
+                          "padding": [
+                            4,
+                            10
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "wlqj9",
+                              "name": "DT Unified Txt",
+                              "fill": "$color-text",
+                              "content": "Unified",
+                              "fontFamily": "Inter",
+                              "fontSize": 11,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "zUsic",
+                          "name": "DT Split",
+                          "cornerRadius": [
+                            0,
+                            6,
+                            6,
+                            0
+                          ],
+                          "padding": [
+                            4,
+                            10
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "dBe67",
+                              "name": "DT Split Txt",
+                              "fill": "#0f0f0f60",
+                              "content": "Split",
+                              "fontFamily": "Inter",
+                              "fontSize": 11,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "xYj8C",
+                      "name": "AB Revert",
+                      "cornerRadius": "$rounded-lg",
+                      "padding": [
+                        5,
+                        12
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "zm1cl",
+                          "name": "AB Revert Txt",
+                          "fill": "#0f0f0f99",
+                          "content": "Revert",
+                          "fontFamily": "Inter",
+                          "fontSize": 13,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "D86AA",
+                      "name": "AB Accept",
+                      "fill": "$color-background-ui",
+                      "cornerRadius": "$rounded-lg",
+                      "padding": [
+                        5,
+                        12
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "K7aCbr",
+                          "name": "AB Accept Txt",
+                          "fill": "#ffffff",
+                          "content": "Accept",
+                          "fontFamily": "Inter",
+                          "fontSize": 13,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "mLgUB",
+              "name": "Diff Document",
+              "width": "fill_container",
+              "height": "fill_container",
+              "layout": "vertical",
+              "gap": 12,
+              "padding": [
+                24,
+                32
+              ],
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "bp6su",
+                  "name": "Diff Para 1",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "SxIo6",
+                      "name": "P1 Text",
+                      "fill": "$color-text",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "The quarterly report highlights several key achievements across all departments. Revenue growth exceeded expectations at 18% year-over-year, driven primarily by expansion into new markets and improved customer retention rates.",
+                      "lineHeight": 1.6,
+                      "fontFamily": "Inter",
+                      "fontSize": 15,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "ZcZgT",
+                  "name": "Diff Para 2",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "GnZ6V",
+                      "name": "P2 Line 1",
+                      "width": "fill_container",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "lPDAF",
+                          "name": "P2 Pre",
+                          "fill": "$color-text",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Notably, the engineering team completed the platform migration ahead of schedule, reducing infrastructure costs by 23%. Customer satisfaction scores reached an all-time high of 94%, ",
+                          "lineHeight": 1.6,
+                          "fontFamily": "Inter",
+                          "fontSize": 15,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "i9vmj",
+                      "name": "Del 1",
+                      "width": "fill_container",
+                      "fill": "#dc26261A",
+                      "cornerRadius": 3,
+                      "padding": [
+                        1,
+                        2
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "BiNfX",
+                          "name": "Del 1 Txt",
+                          "fill": "#dc2626",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "attributed to the redesigned onboarding flow and expanded support hours.",
+                          "lineHeight": 1.6,
+                          "fontFamily": "Inter",
+                          "fontSize": 15,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "w0C5gd",
+                      "name": "Add 1",
+                      "width": "fill_container",
+                      "fill": "#16a34a1A",
+                      "cornerRadius": 3,
+                      "padding": [
+                        1,
+                        2
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "kYrnM",
+                          "name": "Add 1 Txt",
+                          "fill": "#16a34a",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "which is attributed to the redesigned onboarding flow and the expanded support hours.",
+                          "lineHeight": 1.6,
+                          "fontFamily": "Inter",
+                          "fontSize": 15,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Q5z8m",
+                  "name": "Diff Para 3",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "kz10l",
+                      "name": "P3 Pre",
+                      "fill": "$color-text",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "However, there are areas requiring attention. Marketing spend efficiency declined compared to Q3, and the sales pipeline for enterprise accounts shows signs of slowing. The leadership team recommends ",
+                      "lineHeight": 1.6,
+                      "fontFamily": "Inter",
+                      "fontSize": 15,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "xRJmk",
+                      "name": "Del 2",
+                      "width": "fill_container",
+                      "fill": "#dc26261A",
+                      "cornerRadius": 3,
+                      "padding": [
+                        1,
+                        2
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "tPwkn",
+                          "name": "Del 2 Txt",
+                          "fill": "#dc2626",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "reallocating budget toward account-based marketing strategies and investing in sales enablement tools.",
+                          "lineHeight": 1.6,
+                          "fontFamily": "Inter",
+                          "fontSize": 15,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "s3uh5",
+                      "name": "Add 2",
+                      "width": "fill_container",
+                      "fill": "#16a34a1A",
+                      "cornerRadius": 3,
+                      "padding": [
+                        1,
+                        2
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Ay1tj",
+                          "name": "Add 2 Txt",
+                          "fill": "#16a34a",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "re-allocating the budget toward account-based marketing strategies and investing in sales-enablement tools.",
+                          "lineHeight": 1.6,
+                          "fontFamily": "Inter",
+                          "fontSize": 15,
+                          "fontWeight": "normal"
                         }
                       ]
                     }
@@ -3264,6 +6089,155 @@
     "spacing-xs": {
       "type": "number",
       "value": 4
+    },
+    "color-logo-primary-10": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#faa2ca1A",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#f28cbb1A",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    },
+    "color-logo-primary-20": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#faa2ca33",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#f28cbb33",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    },
+    "color-logo-primary-80": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#faa2caCC",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#f28cbbCC",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    },
+    "color-mid-gray-10": {
+      "type": "color",
+      "value": "#8080801A"
+    },
+    "color-mid-gray-20": {
+      "type": "color",
+      "value": "#80808033"
+    },
+    "color-mid-gray-80": {
+      "type": "color",
+      "value": "#808080CC"
+    },
+    "color-text-50": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#0f0f0f80",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#fbfbfb80",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    },
+    "color-text-60": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#0f0f0f99",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#fbfbfb99",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    },
+    "color-text-80": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#0f0f0fCC",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#fbfbfbCC",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    },
+    "font-family": {
+      "type": "string",
+      "value": "Inter"
+    },
+    "font-size-body": {
+      "type": "number",
+      "value": 15
+    },
+    "font-size-body-sm": {
+      "type": "number",
+      "value": 14
+    },
+    "font-size-caption": {
+      "type": "number",
+      "value": 10
+    },
+    "font-size-label-md": {
+      "type": "number",
+      "value": 14
+    },
+    "font-size-label-sm": {
+      "type": "number",
+      "value": 12
+    },
+    "font-size-label-xs": {
+      "type": "number",
+      "value": 11
+    },
+    "rounded-full": {
+      "type": "number",
+      "value": 9999
     }
+  },
+  "imports": {
+    "0": "handy-style-library.lib.pen"
   }
 }
