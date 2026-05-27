@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Copy, Pencil, Play, RefreshCcw, Save, X } from "lucide-react";
+import { Copy, Play, RefreshCcw, Save, X } from "lucide-react";
 import { commands, type LLMPrompt } from "@/bindings";
 import { Alert } from "../../ui/Alert";
 import {
@@ -17,15 +17,12 @@ import { ResetButton } from "../../ui/ResetButton";
 import { ProviderSelect } from "../PostProcessingSettingsApi/ProviderSelect";
 import { ModelSelect } from "../PostProcessingSettingsApi/ModelSelect";
 import { useTextOpsProviderState } from "./useTextOpsProviderState";
-import { usePromptEditDrawer } from "../../../hooks/usePromptEditDrawer";
-import { PromptEditDrawer } from "./PromptEditDrawer";
 import { BUILTIN_PRESET_COUNT, isBuiltInPrompt } from "./promptUtils";
 
 export const TextOperationsPage: React.FC = () => {
   const { t } = useTranslation();
   const { getSetting, refreshSettings } = useSettings();
   const providerState = useTextOpsProviderState();
-  const drawer = usePromptEditDrawer();
 
   const allPrompts = getSetting("text_ops_prompts") || [];
   const savedSelectedId = getSetting("text_ops_selected_prompt_id") || null;
@@ -123,7 +120,6 @@ export const TextOperationsPage: React.FC = () => {
     if (prompt) {
       loadPrompt(prompt);
       void commands.setTextOpsSelectedPrompt(prompt.id);
-      drawer.close();
     }
   };
 
@@ -197,30 +193,6 @@ export const TextOperationsPage: React.FC = () => {
       console.error("Failed to save prompt:", error);
     } finally {
       setIsSaving(false);
-    }
-  };
-
-  const handleDrawerSave = async () => {
-    if (!drawer.editingPromptId || !drawer.editName.trim() || !drawer.editPromptText.trim())
-      return;
-    try {
-      await commands.updateTextOpsPrompt(
-        drawer.editingPromptId,
-        drawer.editName.trim(),
-        drawer.editPromptText.trim(),
-      );
-      await refreshSettings();
-      if (loadedPrompt?.id === drawer.editingPromptId) {
-        setLoadedPrompt({
-          id: drawer.editingPromptId,
-          name: drawer.editName.trim(),
-          prompt: drawer.editPromptText.trim(),
-        });
-        setInstructionsText(drawer.editPromptText.trim());
-      }
-      drawer.close();
-    } catch (error) {
-      console.error("Failed to update prompt:", error);
     }
   };
 
@@ -344,25 +316,6 @@ export const TextOperationsPage: React.FC = () => {
                     className="w-full"
                   />
                 </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (loadedPrompt) drawer.loadPromptForEdit(loadedPrompt);
-                  }}
-                  disabled={
-                    !loadedPrompt ||
-                    isBuiltInPrompt(loadedPrompt.id, allPrompts)
-                  }
-                  className="p-1.5 rounded-md text-text/50 transition-colors hover:bg-mid-gray/10 hover:text-text disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shrink-0"
-                  title={
-                    loadedPrompt &&
-                    isBuiltInPrompt(loadedPrompt.id, allPrompts)
-                      ? t("textOps.drawer.builtInReadOnly")
-                      : t("textOps.drawer.editTooltip")
-                  }
-                >
-                  <Pencil className="h-4 w-4" />
-                </button>
               </div>
             </div>
             <Textarea
@@ -503,17 +456,6 @@ export const TextOperationsPage: React.FC = () => {
         </div>
       )}
 
-      <PromptEditDrawer
-        isOpen={drawer.isOpen}
-        close={drawer.close}
-        editName={drawer.editName}
-        setEditName={drawer.setEditName}
-        editPromptText={drawer.editPromptText}
-        setEditPromptText={drawer.setEditPromptText}
-        isDirty={drawer.isDirty}
-        editingPromptId={drawer.editingPromptId}
-        onSave={handleDrawerSave}
-      />
     </div>
   );
 };
