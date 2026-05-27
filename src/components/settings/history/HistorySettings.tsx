@@ -8,12 +8,19 @@ import React, {
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { readFile } from "@tauri-apps/plugin-fs";
 import {
+  Bookmark,
   Check,
+  ChevronDown,
+  ChevronUp,
   Copy,
+  ExternalLink,
   FolderOpen,
+  History,
   Loader2,
+  MessageSquare,
   Pencil,
   RotateCcw,
+  Search,
   Sparkles,
   Star,
   Trash2,
@@ -130,6 +137,7 @@ export const HistorySettings: React.FC = () => {
   const [entries, setEntries] = useState<HistoryEntryWithExtras[]>([]);
   const [loading, setLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   const sentinelRef = useRef<HTMLDivElement>(null);
   const entriesRef = useRef<HistoryEntryWithExtras[]>([]);
   const loadingRef = useRef(false);
@@ -397,8 +405,18 @@ export const HistorySettings: React.FC = () => {
     </div>
   ) : (
     <>
-      <div className="divide-y divide-mid-gray/20">
-        {entries.map((entry) =>
+      <div className={source === "text" ? "space-y-3" : "divide-y divide-mid-gray/20"}>
+        {entries
+          .filter((entry) => {
+            if (source !== "text" || !searchQuery.trim()) return true;
+            const q = searchQuery.toLowerCase();
+            return (
+              entry.transcription_text?.toLowerCase().includes(q) ||
+              entry.post_processed_text?.toLowerCase().includes(q) ||
+              entry.post_process_prompt?.toLowerCase().includes(q)
+            );
+          })
+          .map((entry) =>
           source === "text" ? (
             <TextHistoryEntryComponent
               key={entry.id}
@@ -461,9 +479,29 @@ export const HistorySettings: React.FC = () => {
             )}
           </div>
         </div>
-        <div className="bg-background border border-mid-gray/20 rounded-lg overflow-hidden">
-          {historyContent}
-        </div>
+        {source === "text" && (
+          <div className="flex items-center gap-2 px-1">
+            <div className="flex-1 flex items-center gap-2 px-3 py-2 rounded-md bg-mid-gray/10 border border-mid-gray/20">
+              <Search className="w-3.5 h-3.5 text-text/30 shrink-0" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={t("settings.history.searchPlaceholder")}
+                className="flex-1 bg-transparent text-sm text-text outline-none placeholder:text-text/30"
+              />
+            </div>
+          </div>
+        )}
+        {source === "text" ? (
+          <div className="space-y-3">
+            {historyContent}
+          </div>
+        ) : (
+          <div className="bg-background border border-mid-gray/20 rounded-lg overflow-hidden">
+            {historyContent}
+          </div>
+        )}
       </div>
       {source === "voice" && <PostProcessDrawer {...drawer} />}
     </div>
@@ -858,14 +896,17 @@ const TextHistoryEntryComponent: React.FC<TextHistoryEntryProps> = ({
   deleteEntry,
 }) => {
   const { t, i18n } = useTranslation();
-  const [showCopied, setShowCopied] = useState<"input" | "output" | null>(null);
+  const [showCopied, setShowCopied] = useState(false);
+  const [showInput, setShowInput] = useState(false);
+  const [showVersions, setShowVersions] = useState(false);
 
-  const handleCopy = (text: string, which: "input" | "output") => {
+  const handleCopy = () => {
+    const text = entry.post_processed_text || entry.transcription_text;
     navigator.clipboard.writeText(text).catch((error) => {
       console.error("Failed to copy to clipboard:", error);
     });
-    setShowCopied(which);
-    setTimeout(() => setShowCopied(null), 2000);
+    setShowCopied(true);
+    setTimeout(() => setShowCopied(false), 2000);
   };
 
   const handleDelete = async () => {
@@ -878,88 +919,98 @@ const TextHistoryEntryComponent: React.FC<TextHistoryEntryProps> = ({
   };
 
   const formattedDate = formatDateTime(String(entry.timestamp), i18n.language);
+  const outputText = entry.post_processed_text || entry.transcription_text;
+  const versionCount = entry.version_count ?? 0;
 
   return (
-    <div className="px-4 py-2 pb-5 flex flex-col gap-3">
-      <div className="flex justify-between items-center gap-3">
-        <p className="text-sm font-medium">{formattedDate}</p>
-        <div className="flex items-center gap-1 text-xs text-mid-gray">
-          {entry.post_process_prompt && (
-            <span className="px-2 py-0.5 bg-logo-primary/10 text-logo-primary rounded">
-              {entry.post_process_prompt}
-            </span>
-          )}
+    <div className="bg-background border border-mid-gray/20 rounded-lg overflow-hidden">
+      {/* Card header */}
+      <div className="flex items-center justify-between px-4 py-2.5 bg-mid-gray/5 border-b border-mid-gray/20">
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="text-xs text-text/50">{formattedDate}</span>
         </div>
-        <div className="flex items-center">
-          <IconButton
-            onClick={onToggleSaved}
-            active={entry.saved}
-            title={
-              entry.saved
-                ? t("settings.history.unsave")
-                : t("settings.history.save")
-            }
-          >
-            <Star
-              width={16}
-              height={16}
-              fill={entry.saved ? "currentColor" : "none"}
-            />
+        <div className="flex items-center gap-1 shrink-0">
+          <IconButton onClick={handleCopy} title={t("settings.history.copyToClipboard")}>
+            {showCopied ? <Check width={14} height={14} /> : <Copy width={14} height={14} />}
           </IconButton>
-          <IconButton
-            onClick={handleDelete}
-            title={t("settings.history.delete")}
-          >
-            <Trash2 width={16} height={16} />
+          <IconButton onClick={onToggleSaved} active={entry.saved} title={entry.saved ? t("settings.history.unsave") : t("settings.history.save")}>
+            <Bookmark width={14} height={14} fill={entry.saved ? "currentColor" : "none"} />
+          </IconButton>
+          <IconButton onClick={handleDelete} title={t("settings.history.delete")}>
+            <Trash2 width={14} height={14} />
           </IconButton>
         </div>
       </div>
 
-      <div className="space-y-1">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-medium text-mid-gray uppercase tracking-wide">
-            {t("settings.history.textInput")}
-          </span>
-          <IconButton
-            onClick={() => handleCopy(entry.transcription_text, "input")}
-            title={t("settings.history.copyToClipboard")}
-          >
-            {showCopied === "input" ? (
-              <Check width={14} height={14} />
-            ) : (
-              <Copy width={14} height={14} />
-            )}
-          </IconButton>
-        </div>
-        <p className="text-sm text-text/70 select-text cursor-text bg-mid-gray/5 rounded-md p-2 border border-mid-gray/10 whitespace-pre-wrap break-words">
-          {entry.transcription_text}
-        </p>
-      </div>
-
-      {entry.post_processed_text && (
-        <div className="space-y-1">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-mid-gray uppercase tracking-wide">
-              {t("settings.history.textOutput")}
+      {/* Card body */}
+      <div className="px-4 py-3 space-y-2.5">
+        {entry.post_process_prompt && (
+          <div className="flex items-center gap-1.5">
+            <MessageSquare className="w-3 h-3 text-text/30 shrink-0" />
+            <span className="text-xs italic text-text/50 truncate">
+              &ldquo;{entry.post_process_prompt}&rdquo;
             </span>
-            <IconButton
-              onClick={() =>
-                handleCopy(entry.post_processed_text ?? "", "output")
-              }
-              title={t("settings.history.copyToClipboard")}
-            >
-              {showCopied === "output" ? (
-                <Check width={14} height={14} />
-              ) : (
-                <Copy width={14} height={14} />
-              )}
-            </IconButton>
           </div>
-          <p className="italic text-sm text-text/90 select-text cursor-text bg-mid-gray/5 rounded-md p-2 border border-mid-gray/10 whitespace-pre-wrap break-words">
-            {entry.post_processed_text}
-          </p>
+        )}
+        <p className="text-sm text-text/90 select-text cursor-text whitespace-pre-wrap break-words line-clamp-4">
+          {outputText}
+        </p>
+
+        {/* Collapsible input */}
+        {showInput && (
+          <div className="rounded-md bg-mid-gray/5 border border-mid-gray/10 p-2.5 space-y-1.5">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-semibold text-mid-gray uppercase tracking-wide">
+                {t("settings.history.textInput")}
+              </span>
+            </div>
+            <p className="text-xs italic text-text/60 select-text cursor-text whitespace-pre-wrap break-words">
+              {entry.transcription_text}
+            </p>
+          </div>
+        )}
+
+        {/* Collapsible version history */}
+        {showVersions && versionCount > 0 && (
+          <VersionHistory entry={entry} />
+        )}
+      </div>
+
+      {/* Card footer */}
+      <div className="flex items-center justify-between px-4 py-2 border-t border-mid-gray/20">
+        <div className="flex items-center gap-3">
+          {versionCount > 0 && (
+            <button
+              type="button"
+              onClick={() => setShowVersions(!showVersions)}
+              className="flex items-center gap-1 text-logo-primary cursor-pointer"
+            >
+              <History className="w-3 h-3" />
+              <span className="text-[11px] font-medium">
+                {showVersions ? t("settings.history.hideVersions") : `${versionCount} ${t("settings.history.versions")}`}
+              </span>
+              {showVersions ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => setShowInput(!showInput)}
+            className="flex items-center gap-1 text-text/40 cursor-pointer"
+          >
+            <span className="text-[11px]">
+              {showInput ? t("settings.history.hideInput") : t("settings.history.showInput")}
+            </span>
+            {showInput ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+          </button>
         </div>
-      )}
+        <button
+          type="button"
+          className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-mid-gray/10 border border-mid-gray/20 text-text/60 hover:text-text/80 transition-colors cursor-pointer"
+        >
+          <ExternalLink className="w-3 h-3" />
+          <span className="text-[11px] font-medium">{t("settings.history.openAsTab")}</span>
+        </button>
+      </div>
     </div>
   );
 };
