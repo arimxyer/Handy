@@ -10,6 +10,7 @@ import { PresetToolbar } from "./PresetToolbar";
 import { AIPopover } from "./AIPopover";
 import { AcceptRevertBar } from "./AcceptRevertBar";
 import { DiffView } from "./DiffView";
+import { VersionHistoryPanel } from "./VersionHistoryPanel";
 import { BUILTIN_PRESET_COUNT } from "./promptUtils";
 
 export const TextEditorPage: React.FC = () => {
@@ -242,6 +243,18 @@ export const TextEditorPage: React.FC = () => {
             </div>
           )}
         </div>
+
+        {versionsOpen && (
+          <VersionHistoryPanel
+            tabId={activeTabId!}
+            historyEntryId={activeTab?.historyEntryId ?? null}
+            currentContent={activeTab?.content ?? ""}
+            onRestore={(text) => {
+              if (activeTabId) updateContent(activeTabId, text);
+            }}
+            onClose={() => setVersionsOpen(false)}
+          />
+        )}
 
         <AIPopover
           isOpen={popoverOpen}

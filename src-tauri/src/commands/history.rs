@@ -24,6 +24,19 @@ pub async fn get_history_entries(
 
 #[tauri::command]
 #[specta::specta]
+pub async fn get_history_entry(
+    history_manager: State<'_, Arc<HistoryManager>>,
+    id: i64,
+) -> Result<HistoryEntry, String> {
+    history_manager
+        .get_entry_by_id(id)
+        .await
+        .map_err(|e| e.to_string())?
+        .ok_or_else(|| "Entry not found".to_string())
+}
+
+#[tauri::command]
+#[specta::specta]
 pub async fn toggle_history_entry_saved(
     _app: AppHandle,
     history_manager: State<'_, Arc<HistoryManager>>,
