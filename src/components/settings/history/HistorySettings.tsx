@@ -42,6 +42,7 @@ import { useSettings } from "@/hooks/useSettings";
 import { useSettingsStore } from "@/stores/settingsStore";
 import { sendCompletionNotification } from "@/lib/notifications";
 import { formatDateTime } from "@/utils/dateFormat";
+import { useDocumentStore } from "@/stores/documentStore";
 import { Button } from "../../ui/Button";
 import { AudioPlayer } from "../../ui/AudioPlayer";
 import { PostProcessDrawer } from "./PostProcessDrawer";
@@ -899,6 +900,7 @@ const TextHistoryEntryComponent: React.FC<TextHistoryEntryProps> = ({
   const [showCopied, setShowCopied] = useState(false);
   const [showInput, setShowInput] = useState(false);
   const [showVersions, setShowVersions] = useState(false);
+  const { createTab } = useDocumentStore();
 
   const handleCopy = () => {
     const text = entry.post_processed_text || entry.transcription_text;
@@ -945,10 +947,10 @@ const TextHistoryEntryComponent: React.FC<TextHistoryEntryProps> = ({
       {/* Card body */}
       <div className="px-4 py-3 space-y-2.5">
         {entry.post_process_prompt && (
-          <div className="flex items-center gap-1.5">
-            <MessageSquare className="w-3 h-3 text-text/30 shrink-0" />
-            <span className="text-xs italic text-text/50 truncate">
-              &ldquo;{entry.post_process_prompt}&rdquo;
+          <div className="flex items-start gap-1.5 rounded-md bg-mid-gray/5 px-2.5 py-1.5">
+            <MessageSquare className="w-3 h-3 text-text/30 shrink-0 mt-0.5" />
+            <span className="text-xs text-text/50">
+              {entry.post_process_prompt}
             </span>
           </div>
         )}
@@ -1005,6 +1007,13 @@ const TextHistoryEntryComponent: React.FC<TextHistoryEntryProps> = ({
         </div>
         <button
           type="button"
+          onClick={async () => {
+            const text = entry.post_processed_text || entry.transcription_text;
+            const tabId = await createTab(entry.title || undefined);
+            if (tabId) {
+              useDocumentStore.getState().updateContent(tabId, text);
+            }
+          }}
           className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-mid-gray/10 border border-mid-gray/20 text-text/60 hover:text-text/80 transition-colors cursor-pointer"
         >
           <ExternalLink className="w-3 h-3" />

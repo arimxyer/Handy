@@ -889,7 +889,8 @@
       "revert": "Revert",
       "save": "Save",
       "saved": "Saved",
-      "versions": "Versions"
+      "versions": "Versions",
+      "changeModel": "Change model"
     },
     "tabs": {
       "newTab": "New tab"

@@ -8,6 +8,7 @@ interface EditorStatusBarProps {
   onVersionsClick: () => void;
   onSave: () => void;
   onCopy: () => void;
+  onModelClick: () => void;
   versionsOpen: boolean;
 }
 
@@ -16,6 +17,7 @@ export const EditorStatusBar: React.FC<EditorStatusBarProps> = ({
   onVersionsClick,
   onSave,
   onCopy,
+  onModelClick,
   versionsOpen,
 }) => {
   const { t } = useTranslation();
@@ -46,12 +48,14 @@ export const EditorStatusBar: React.FC<EditorStatusBarProps> = ({
   return (
     <div className="flex items-center justify-between w-full px-8 py-2 border-b border-mid-gray/20">
       <div className="flex items-center gap-2">
-        <span
-          className="inline-flex items-center gap-1 rounded-full bg-mid-gray/10 px-2.5 py-0.5 text-[11px] text-text/55 truncate max-w-[200px]"
-          title={modelLabel}
+        <button
+          type="button"
+          onClick={onModelClick}
+          className="inline-flex items-center gap-1 rounded-full bg-mid-gray/10 px-2.5 py-0.5 text-[11px] text-text/55 hover:text-text/70 hover:bg-mid-gray/15 transition-colors cursor-pointer"
+          title={t("textOps.editor.changeModel")}
         >
           {modelLabel}
-        </span>
+        </button>
       </div>
 
       <div className="flex items-center gap-1.5">

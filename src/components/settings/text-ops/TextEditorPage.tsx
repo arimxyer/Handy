@@ -1,8 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { commands, type LLMPrompt } from "@/bindings";
-import { Textarea } from "@/components/ui";
-// Note: Textarea component doesn't forward refs, using it without ref
 import { useSettings } from "@/hooks/useSettings";
 import { useAutosave } from "@/hooks/useAutosave";
 import { useDocumentStore } from "@/stores/documentStore";
@@ -166,6 +164,9 @@ export const TextEditorPage: React.FC = () => {
         onVersionsClick={() => setVersionsOpen((prev) => !prev)}
         onSave={handleSave}
         onCopy={handleCopy}
+        onModelClick={() => {
+          // TODO: Navigate to TextSettings section — needs section state exposed via store/context
+        }}
         versionsOpen={versionsOpen}
       />
 
@@ -178,13 +179,21 @@ export const TextEditorPage: React.FC = () => {
       />
 
       {/* Document area */}
-      <div className="relative flex-1 min-h-0">
+      <div className={`relative flex-1 min-h-0 ${activeTab?.isProcessing ? "border-t-2 border-logo-primary animate-pulse" : ""}`}>
+        {activeTab?.isProcessing && (
+          <div className="absolute top-0 left-0 right-0 flex items-center justify-center py-1.5 bg-logo-primary/5 z-10">
+            <span className="text-xs text-background-ui font-medium animate-pulse">
+              {t("textOps.processing")}
+            </span>
+          </div>
+        )}
         <div className="h-full px-8 py-6 overflow-y-auto">
-          <Textarea
+          <textarea
             value={activeTab?.content ?? ""}
             onChange={handleContentChange}
+            disabled={activeTab?.isProcessing}
             placeholder={t("textOps.editor.placeholder")}
-            className="w-full h-full min-h-[300px] border-none bg-transparent resize-none font-normal text-[15px] leading-relaxed focus:ring-0 focus:border-none"
+            className="w-full h-full border-none bg-transparent resize-none font-normal text-[15px] leading-relaxed outline-none text-text placeholder:text-text/30 disabled:opacity-50"
           />
         </div>
 

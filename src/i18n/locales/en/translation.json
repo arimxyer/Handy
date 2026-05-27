@@ -811,7 +811,8 @@
       "askAnother": "Ask another question or type a new instruction...",
       "changesApplied": "Changes applied",
       "accept": "Accept",
-      "revert": "Revert"
+      "revert": "Revert",
+      "changeModel": "Change model"
     },
     "settings": {
       "title": "Text Settings",

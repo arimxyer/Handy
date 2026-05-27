@@ -55,7 +55,7 @@ export const AIPopover: React.FC<AIPopoverProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-[min(580px,calc(100%-64px))] bg-background border border-mid-gray/40 rounded-lg shadow-lg overflow-hidden z-10">
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[min(580px,calc(100%-200px))] bg-background border border-mid-gray/40 rounded-lg shadow-lg overflow-hidden z-50">
       {/* Accept/revert bar */}
       {pendingResult && (
         <div className="flex items-center justify-between px-3 py-1.5 bg-logo-primary/5 border-b border-logo-primary/15">
