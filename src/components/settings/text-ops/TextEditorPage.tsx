@@ -4,6 +4,7 @@ import { commands, type LLMPrompt } from "@/bindings";
 import { useSettings } from "@/hooks/useSettings";
 import { useAutosave } from "@/hooks/useAutosave";
 import { useDocumentStore } from "@/stores/documentStore";
+import { useSettingsStore } from "@/stores/settingsStore";
 import { TabBar } from "./TabBar";
 import { EditorStatusBar } from "./EditorStatusBar";
 import { PresetToolbar } from "./PresetToolbar";
@@ -192,7 +193,7 @@ export const TextEditorPage: React.FC = () => {
         onSave={handleSave}
         onCopy={handleCopy}
         onModelClick={() => {
-          // TODO: Navigate to TextSettings section — needs section state exposed via store/context
+          useSettingsStore.getState().setCurrentSection("textSettings");
         }}
         versionsOpen={versionsOpen}
       />

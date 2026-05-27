@@ -40,8 +40,12 @@ function App() {
   // Track if this is a returning user who just needs to grant permissions
   // (vs a new user who needs full onboarding including model selection)
   const [isReturningUser, setIsReturningUser] = useState(false);
-  const [currentSection, setCurrentSection] =
-    useState<SidebarSection>("general");
+  const currentSection = useSettingsStore(
+    (state) => state.currentSection,
+  ) as SidebarSection;
+  const setCurrentSection = useSettingsStore(
+    (state) => state.setCurrentSection,
+  );
   const appMode = useSettingsStore((state) => state.appMode);
   const setAppMode = useSettingsStore((state) => state.setAppMode);
 

@@ -59,6 +59,9 @@ interface SettingsStore {
   appMode: "voice" | "text";
   setAppMode: (mode: "voice" | "text") => void;
 
+  currentSection: string;
+  setCurrentSection: (section: string) => void;
+
   // Internal state setters
   setSettings: (settings: Settings | null) => void;
   setDefaultSettings: (defaultSettings: Settings | null) => void;
@@ -204,6 +207,8 @@ export const useSettingsStore = create<SettingsStore>()(
     postProcessModelOptions: {},
     appMode: "voice",
     setAppMode: (appMode) => set({ appMode }),
+    currentSection: "general",
+    setCurrentSection: (currentSection) => set({ currentSection }),
 
     // Internal setters
     setSettings: (settings) => set({ settings }),
