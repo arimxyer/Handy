@@ -1,7 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ArrowRight, Check, Sparkles } from "lucide-react";
+import { ArrowRight, Check, ChevronDown, Sparkles } from "lucide-react";
 import type { LLMPrompt } from "@/bindings";
+import { useTextOpsProviderState } from "./useTextOpsProviderState";
+import { ProviderSelect } from "../PostProcessingSettingsApi/ProviderSelect";
+import { ModelSelect } from "../PostProcessingSettingsApi/ModelSelect";
 
 interface AIPopoverProps {
   isOpen: boolean;
@@ -29,7 +32,9 @@ export const AIPopover: React.FC<AIPopoverProps> = ({
 }) => {
   const { t } = useTranslation();
   const [instruction, setInstruction] = useState("");
+  const [showModelSelector, setShowModelSelector] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const providerState = useTextOpsProviderState();
 
   useEffect(() => {
     if (isOpen) {
@@ -127,6 +132,46 @@ export const AIPopover: React.FC<AIPopoverProps> = ({
           ))}
         </div>
       )}
+
+      {/* Model selector */}
+      <div className="border-t border-mid-gray/20 px-3 py-1.5">
+        <button
+          type="button"
+          onClick={() => setShowModelSelector((prev) => !prev)}
+          className="flex items-center gap-1 text-[10px] text-text/40 hover:text-text/60 transition-colors cursor-pointer"
+        >
+          <span>
+            {providerState.isAppleProvider
+              ? providerState.selectedProvider?.label
+              : providerState.model.trim()
+                ? `${providerState.selectedProvider?.label} / ${providerState.model.trim()}`
+                : providerState.selectedProvider?.label}
+          </span>
+          <ChevronDown
+            className={`w-2.5 h-2.5 transition-transform ${showModelSelector ? "rotate-180" : ""}`}
+          />
+        </button>
+        {showModelSelector && !providerState.isAppleProvider && (
+          <div className="flex items-center gap-2 mt-1.5">
+            <ProviderSelect
+              options={providerState.providerOptions}
+              value={providerState.selectedProviderId}
+              onChange={providerState.handleProviderSelect}
+            />
+            <ModelSelect
+              value={providerState.model}
+              options={providerState.modelOptions}
+              disabled={providerState.isModelUpdating}
+              isLoading={providerState.isFetchingModels}
+              placeholder={t("textOps.editor.changeModel")}
+              onSelect={providerState.handleModelSelect}
+              onCreate={providerState.handleModelCreate}
+              onBlur={() => {}}
+              className="min-w-0 flex-1"
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 };
