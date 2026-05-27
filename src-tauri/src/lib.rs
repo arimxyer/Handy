@@ -487,6 +487,8 @@ pub fn run(cli_args: CliArgs) {
             commands::text_ops::update_document_tab,
             commands::text_ops::rename_document_tab,
             commands::text_ops::close_document_tab,
+            commands::text_ops::ensure_tab_history_entry,
+            commands::text_ops::save_tab_version,
             commands::text_ops::change_text_ops_autosave_setting,
             commands::text_ops::change_text_ops_autosave_delay_setting,
             commands::text_ops::change_text_ops_confirm_tab_close_setting,

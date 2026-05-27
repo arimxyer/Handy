@@ -549,3 +549,29 @@ pub fn change_text_ops_shortcut_creates_tab_setting(
     write_settings(&app, settings);
     Ok(())
 }
+
+#[tauri::command]
+#[specta::specta]
+pub fn ensure_tab_history_entry(
+    tab_id: String,
+    initial_text: String,
+    history_manager: tauri::State<'_, std::sync::Arc<crate::managers::history::HistoryManager>>,
+) -> Result<i64, String> {
+    history_manager
+        .ensure_tab_history_entry(&tab_id, &initial_text)
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn save_tab_version(
+    tab_id: String,
+    text: String,
+    prompt: String,
+    model_name: Option<String>,
+    history_manager: tauri::State<'_, std::sync::Arc<crate::managers::history::HistoryManager>>,
+) -> Result<i64, String> {
+    history_manager
+        .save_tab_version(&tab_id, &text, &prompt, model_name.as_deref())
+        .map_err(|e| e.to_string())
+}
