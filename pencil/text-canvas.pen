@@ -454,6 +454,41 @@
                   "children": [
                     {
                       "type": "frame",
+                      "id": "VZEQm",
+                      "name": "VH Save",
+                      "fill": "#8080801A",
+                      "cornerRadius": 9999,
+                      "gap": 4,
+                      "padding": [
+                        3,
+                        10
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "kCFT5",
+                          "name": "VH Save Ic",
+                          "width": 12,
+                          "height": 12,
+                          "iconFontName": "save",
+                          "iconFontFamily": "lucide",
+                          "fill": "#0f0f0f80"
+                        },
+                        {
+                          "type": "text",
+                          "id": "M1ZY5K",
+                          "name": "VH Save Txt",
+                          "fill": "#0f0f0f80",
+                          "content": "Save",
+                          "fontFamily": "Inter",
+                          "fontSize": 11,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
                       "id": "DsRm9",
                       "name": "VH Copy Btn",
                       "fill": "#8080801A",
@@ -2347,6 +2382,41 @@
                   "children": [
                     {
                       "type": "frame",
+                      "id": "uagNn",
+                      "name": "Diff Save",
+                      "fill": "#8080801A",
+                      "cornerRadius": 9999,
+                      "gap": 4,
+                      "padding": [
+                        3,
+                        10
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "m8tsh",
+                          "name": "Diff Save Ic",
+                          "width": 12,
+                          "height": 12,
+                          "iconFontName": "save",
+                          "iconFontFamily": "lucide",
+                          "fill": "#0f0f0f80"
+                        },
+                        {
+                          "type": "text",
+                          "id": "yVMQv",
+                          "name": "Diff Save Txt",
+                          "fill": "#0f0f0f80",
+                          "content": "Save",
+                          "fontFamily": "Inter",
+                          "fontSize": 11,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
                       "id": "wGbD7",
                       "name": "Diff Copy Btn",
                       "fill": "#8080801A",
@@ -3626,6 +3696,41 @@
                   "gap": 6,
                   "alignItems": "center",
                   "children": [
+                    {
+                      "type": "frame",
+                      "id": "T3jsjx",
+                      "name": "SB Save",
+                      "fill": "#8080801A",
+                      "cornerRadius": 9999,
+                      "gap": 4,
+                      "padding": [
+                        3,
+                        10
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "Zwrqw",
+                          "name": "SB Save Ic",
+                          "width": 12,
+                          "height": 12,
+                          "iconFontName": "save",
+                          "iconFontFamily": "lucide",
+                          "fill": "#0f0f0f80"
+                        },
+                        {
+                          "type": "text",
+                          "id": "A2LzAC",
+                          "name": "SB Save Txt",
+                          "fill": "#0f0f0f80",
+                          "content": "Save",
+                          "fontFamily": "Inter",
+                          "fontSize": 11,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
                     {
                       "type": "frame",
                       "id": "MgJcm",
@@ -8812,6 +8917,1338 @@
                               "fontFamily": "Inter",
                               "fontSize": 11,
                               "fontWeight": "500"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "PJDoP",
+      "x": 7078,
+      "y": -2193,
+      "name": "Text Settings",
+      "clip": true,
+      "width": 920,
+      "height": 920,
+      "fill": "$color-background",
+      "cornerRadius": "$rounded-xl",
+      "stroke": {
+        "align": "inside",
+        "thickness": 1,
+        "fill": "#80808033"
+      },
+      "children": [
+        {
+          "type": "frame",
+          "id": "N6sj70",
+          "name": "TS Sidebar",
+          "width": 160,
+          "height": "fill_container",
+          "stroke": {
+            "align": "inside",
+            "thickness": {
+              "right": 1
+            },
+            "fill": "#80808033"
+          },
+          "layout": "vertical",
+          "gap": 8,
+          "padding": [
+            16,
+            8
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "N74hn",
+              "name": "TS Logo",
+              "fill": "$color-background-ui",
+              "content": "Handy",
+              "fontFamily": "Inter",
+              "fontSize": 18,
+              "fontWeight": "700"
+            },
+            {
+              "type": "frame",
+              "id": "OIO7m",
+              "name": "TS MT",
+              "width": "fill_container",
+              "fill": "#8080801A",
+              "cornerRadius": "$rounded-lg",
+              "gap": 4,
+              "padding": 4,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "R3oRd",
+                  "name": "TS V",
+                  "width": "fill_container",
+                  "height": 28,
+                  "cornerRadius": "$rounded-md",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "M3COxu",
+                      "name": "TS Mic",
+                      "width": 16,
+                      "height": 16,
+                      "iconFontName": "mic",
+                      "iconFontFamily": "lucide",
+                      "fill": "$color-text"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "q4D9T",
+                  "name": "TS T",
+                  "width": "fill_container",
+                  "height": 28,
+                  "fill": "#faa2caCC",
+                  "cornerRadius": "$rounded-md",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "eBUhM",
+                      "name": "TS Type",
+                      "width": 16,
+                      "height": 16,
+                      "iconFontName": "type",
+                      "iconFontFamily": "lucide",
+                      "fill": "$color-text"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Glhvs",
+              "name": "TS Nav",
+              "width": "fill_container",
+              "stroke": {
+                "align": "inside",
+                "thickness": {
+                  "top": 1
+                },
+                "fill": "#80808033"
+              },
+              "layout": "vertical",
+              "gap": 4,
+              "padding": [
+                8,
+                0,
+                0,
+                0
+              ],
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "a7Fvu8",
+                  "name": "TS Nav Text Operations",
+                  "opacity": 0.85,
+                  "width": "fill_container",
+                  "cornerRadius": "$rounded-lg",
+                  "gap": 8,
+                  "padding": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "um970",
+                      "name": "TSI Text Operations",
+                      "width": 20,
+                      "height": 20,
+                      "iconFontName": "type",
+                      "iconFontFamily": "lucide",
+                      "fill": "$color-text"
+                    },
+                    {
+                      "type": "text",
+                      "id": "H9fJc",
+                      "name": "TSL Text Operations",
+                      "fill": "$color-text",
+                      "content": "Text Operations",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "qhrw9",
+                  "name": "TS Nav Prompts",
+                  "opacity": 0.85,
+                  "width": "fill_container",
+                  "cornerRadius": "$rounded-lg",
+                  "gap": 8,
+                  "padding": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "uNE6d",
+                      "name": "TSI Prompts",
+                      "width": 20,
+                      "height": 20,
+                      "iconFontName": "book-open",
+                      "iconFontFamily": "lucide",
+                      "fill": "$color-text"
+                    },
+                    {
+                      "type": "text",
+                      "id": "MUaFw",
+                      "name": "TSL Prompts",
+                      "fill": "$color-text",
+                      "content": "Prompts",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Gb1pO",
+                  "name": "TS Nav Text Settings",
+                  "width": "fill_container",
+                  "fill": "#faa2caCC",
+                  "cornerRadius": "$rounded-lg",
+                  "gap": 8,
+                  "padding": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "Gi2ic",
+                      "name": "TSI Text Settings",
+                      "width": 20,
+                      "height": 20,
+                      "iconFontName": "settings",
+                      "iconFontFamily": "lucide",
+                      "fill": "$color-text"
+                    },
+                    {
+                      "type": "text",
+                      "id": "eLeAw",
+                      "name": "TSL Text Settings",
+                      "fill": "$color-text",
+                      "content": "Text Settings",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "ixGY9",
+                  "name": "TS Nav History",
+                  "opacity": 0.85,
+                  "width": "fill_container",
+                  "cornerRadius": "$rounded-lg",
+                  "gap": 8,
+                  "padding": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "VI1rE",
+                      "name": "TSI History",
+                      "width": 20,
+                      "height": 20,
+                      "iconFontName": "history",
+                      "iconFontFamily": "lucide",
+                      "fill": "$color-text"
+                    },
+                    {
+                      "type": "text",
+                      "id": "TpZ0a",
+                      "name": "TSL History",
+                      "fill": "$color-text",
+                      "content": "History",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "WmnM3",
+          "name": "TS Content",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "gap": 24,
+          "padding": [
+            24,
+            32
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "VSc2p",
+              "name": "S1 Provider",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 8,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "qS6Po",
+                  "name": "S1 Title",
+                  "fill": "$color-mid-gray",
+                  "content": "PROVIDER & MODEL",
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "500",
+                  "letterSpacing": 0.06
+                },
+                {
+                  "type": "frame",
+                  "id": "vCiu6",
+                  "name": "S1 Box",
+                  "width": "fill_container",
+                  "cornerRadius": "$rounded-lg",
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#80808033"
+                  },
+                  "layout": "vertical",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "oKzbv",
+                      "name": "S1 Provider Row",
+                      "width": "fill_container",
+                      "padding": [
+                        12,
+                        16
+                      ],
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "rtZup",
+                          "name": "S1 Provider Label",
+                          "fill": "$color-text",
+                          "content": "Provider",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "500"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "uw0aL",
+                          "name": "S1 Provider DD",
+                          "width": 220,
+                          "fill": "#8080801A",
+                          "cornerRadius": "$rounded-md",
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": 1,
+                            "fill": "#808080CC"
+                          },
+                          "padding": [
+                            7,
+                            12
+                          ],
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "fdDtk",
+                              "name": "S1 Prov Val",
+                              "fill": "$color-text",
+                              "content": "OpenAI",
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "icon_font",
+                              "id": "SRSBW",
+                              "name": "S1 Prov Chev",
+                              "width": 14,
+                              "height": 14,
+                              "iconFontName": "chevron-down",
+                              "iconFontFamily": "lucide",
+                              "fill": "#0f0f0f60"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "vH4Xb",
+                      "name": "S1 Model Row",
+                      "width": "fill_container",
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": {
+                          "top": 1
+                        },
+                        "fill": "#80808033"
+                      },
+                      "padding": [
+                        12,
+                        16
+                      ],
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "UVnL4",
+                          "name": "S1 Model Label",
+                          "fill": "$color-text",
+                          "content": "Model",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "500"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "eDCmf",
+                          "name": "S1 Model Right",
+                          "gap": 8,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "dPXcN",
+                              "name": "S1 Model DD",
+                              "width": 200,
+                              "fill": "#8080801A",
+                              "cornerRadius": "$rounded-md",
+                              "stroke": {
+                                "align": "inside",
+                                "thickness": 1,
+                                "fill": "#808080CC"
+                              },
+                              "padding": [
+                                7,
+                                12
+                              ],
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "GNWBw",
+                                  "name": "S1 Model Val",
+                                  "fill": "$color-text",
+                                  "content": "gpt-4o",
+                                  "fontFamily": "Inter",
+                                  "fontSize": 14,
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "icon_font",
+                                  "id": "pyzu3",
+                                  "name": "S1 Model Chev",
+                                  "width": 14,
+                                  "height": 14,
+                                  "iconFontName": "chevron-down",
+                                  "iconFontFamily": "lucide",
+                                  "fill": "#0f0f0f60"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "CczTH",
+                              "name": "S1 Refresh",
+                              "width": 36,
+                              "height": 36,
+                              "fill": "#8080801A",
+                              "cornerRadius": "$rounded-md",
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon_font",
+                                  "id": "QlQ5T",
+                                  "name": "S1 Refresh Ic",
+                                  "width": 14,
+                                  "height": 14,
+                                  "iconFontName": "refresh-cw",
+                                  "iconFontFamily": "lucide",
+                                  "fill": "#0f0f0f60"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "VnxkN",
+                      "name": "S1 API Row",
+                      "width": "fill_container",
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": {
+                          "top": 1
+                        },
+                        "fill": "#80808033"
+                      },
+                      "padding": [
+                        12,
+                        16
+                      ],
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "UIbmy",
+                          "name": "S1 API Label",
+                          "fill": "$color-text",
+                          "content": "API Key",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "500"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "OcNlL",
+                          "name": "S1 API Field",
+                          "width": 260,
+                          "fill": "#8080801A",
+                          "cornerRadius": "$rounded-md",
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": 1,
+                            "fill": "#808080CC"
+                          },
+                          "padding": [
+                            7,
+                            12
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "JGZR9",
+                              "name": "S1 API Val",
+                              "fill": "#0f0f0f60",
+                              "content": "••••••••••••••••",
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "bbbt3",
+              "name": "S2 Shortcuts",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 8,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "EkcjK",
+                  "name": "S2 Title",
+                  "fill": "$color-mid-gray",
+                  "content": "SHORTCUTS & BEHAVIOR",
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "500",
+                  "letterSpacing": 0.06
+                },
+                {
+                  "type": "frame",
+                  "id": "G2UeP2",
+                  "name": "S2 Box",
+                  "width": "fill_container",
+                  "cornerRadius": "$rounded-lg",
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#80808033"
+                  },
+                  "layout": "vertical",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "uYFOn",
+                      "name": "S2 Enable Row",
+                      "width": "fill_container",
+                      "padding": [
+                        12,
+                        16
+                      ],
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "NAI0H",
+                          "name": "S2 Enable Left",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "hYISx",
+                              "name": "S2 Enable Label",
+                              "fill": "$color-text",
+                              "content": "Enable Text Operations",
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": "500"
+                            },
+                            {
+                              "type": "text",
+                              "id": "ZMuZ6",
+                              "name": "S2 Enable Desc",
+                              "fill": "#0f0f0f60",
+                              "content": "Activate keyboard shortcut for text processing",
+                              "fontFamily": "Inter",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "QWslG",
+                          "name": "S2 Toggle On",
+                          "width": 44,
+                          "height": 24,
+                          "fill": "$color-background-ui",
+                          "cornerRadius": "$rounded-full",
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "ellipse",
+                              "id": "ROhdi",
+                              "x": 22,
+                              "y": 2,
+                              "name": "S2 Knob On",
+                              "fill": "#ffffff",
+                              "width": 20,
+                              "height": 20
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "bgcUD",
+                      "name": "S2 Shortcut Row",
+                      "width": "fill_container",
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": {
+                          "top": 1
+                        },
+                        "fill": "#80808033"
+                      },
+                      "padding": [
+                        12,
+                        16
+                      ],
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "wWHY2",
+                          "name": "S2 Shortcut Label",
+                          "fill": "$color-text",
+                          "content": "Text Operations Shortcut",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "500"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "Q7SZh",
+                          "name": "S2 SC Field",
+                          "width": 160,
+                          "fill": "#8080801A",
+                          "cornerRadius": "$rounded-md",
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": 1,
+                            "fill": "#808080CC"
+                          },
+                          "padding": [
+                            7,
+                            12
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "KRqfY",
+                              "name": "S2 SC Val",
+                              "fill": "$color-text",
+                              "content": "Ctrl + Shift + T",
+                              "fontFamily": "Inter",
+                              "fontSize": 13,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "wLtXD",
+                      "name": "S2 Pinned Row",
+                      "width": "fill_container",
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": {
+                          "top": 1
+                        },
+                        "fill": "#80808033"
+                      },
+                      "padding": [
+                        12,
+                        16
+                      ],
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "l64uu",
+                          "name": "S2 Pinned Label",
+                          "fill": "$color-text",
+                          "content": "Pinned Prompt",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "500"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "Js1mS",
+                          "name": "S2 Pinned DD",
+                          "width": 200,
+                          "fill": "#8080801A",
+                          "cornerRadius": "$rounded-md",
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": 1,
+                            "fill": "#808080CC"
+                          },
+                          "padding": [
+                            7,
+                            12
+                          ],
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "vAJc0",
+                              "name": "S2 Pinned Val",
+                              "fill": "$color-text",
+                              "content": "Fix Grammar",
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "icon_font",
+                              "id": "T8NsR",
+                              "name": "S2 Pinned Chev",
+                              "width": 14,
+                              "height": 14,
+                              "iconFontName": "chevron-down",
+                              "iconFontFamily": "lucide",
+                              "fill": "#0f0f0f60"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "HRzPM",
+                      "name": "S2 Output Row",
+                      "width": "fill_container",
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": {
+                          "top": 1
+                        },
+                        "fill": "#80808033"
+                      },
+                      "padding": [
+                        12,
+                        16
+                      ],
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Ao6nE",
+                          "name": "S2 Output Label",
+                          "fill": "$color-text",
+                          "content": "Output Behavior",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "500"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "MX0ZX",
+                          "name": "S2 Output DD",
+                          "width": 200,
+                          "fill": "#8080801A",
+                          "cornerRadius": "$rounded-md",
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": 1,
+                            "fill": "#808080CC"
+                          },
+                          "padding": [
+                            7,
+                            12
+                          ],
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "bSQab",
+                              "name": "S2 Output Val",
+                              "fill": "$color-text",
+                              "content": "Copy to Clipboard",
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "icon_font",
+                              "id": "J7zrHH",
+                              "name": "S2 Output Chev",
+                              "width": 14,
+                              "height": 14,
+                              "iconFontName": "chevron-down",
+                              "iconFontFamily": "lucide",
+                              "fill": "#0f0f0f60"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "M21oVk",
+                      "name": "S2 OpenEditor Row",
+                      "width": "fill_container",
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": {
+                          "top": 1
+                        },
+                        "fill": "#80808033"
+                      },
+                      "padding": [
+                        12,
+                        16
+                      ],
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "cKACT",
+                          "name": "S2 OE Left",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "IEUhW",
+                              "name": "S2 OE Label",
+                              "fill": "$color-text",
+                              "content": "Open in Editor",
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": "500"
+                            },
+                            {
+                              "type": "text",
+                              "id": "PiuRV",
+                              "name": "S2 OE Desc",
+                              "fill": "#0f0f0f60",
+                              "content": "Shortcut creates a tab instead of processing in background",
+                              "fontFamily": "Inter",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "W6H40",
+                          "name": "S2 OE Toggle",
+                          "width": 44,
+                          "height": 24,
+                          "fill": "$color-mid-gray-20",
+                          "cornerRadius": "$rounded-full",
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "ellipse",
+                              "id": "M7CSpt",
+                              "x": 2,
+                              "y": 2,
+                              "name": "S2 OE Knob",
+                              "fill": "#ffffff",
+                              "width": 20,
+                              "height": 20
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "hhNVB",
+                      "name": "S2 Picker Row",
+                      "width": "fill_container",
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": {
+                          "top": 1
+                        },
+                        "fill": "#80808033"
+                      },
+                      "padding": [
+                        12,
+                        16
+                      ],
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "bSCw6",
+                          "name": "S2 Picker Label",
+                          "fill": "$color-text",
+                          "content": "Prompt Picker Shortcut",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "500"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "rt6ch",
+                          "name": "S2 Picker Field",
+                          "width": 160,
+                          "fill": "#8080801A",
+                          "cornerRadius": "$rounded-md",
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": 1,
+                            "fill": "#808080CC"
+                          },
+                          "padding": [
+                            7,
+                            12
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "SpSsB",
+                              "name": "S2 Picker Val",
+                              "fill": "$color-text",
+                              "content": "Ctrl + Shift + P",
+                              "fontFamily": "Inter",
+                              "fontSize": 13,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "y8OOM",
+              "name": "S3 Autosave",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 8,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "DRKXE",
+                  "name": "S3 Title",
+                  "fill": "$color-mid-gray",
+                  "content": "AUTOSAVE",
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "500",
+                  "letterSpacing": 0.06
+                },
+                {
+                  "type": "frame",
+                  "id": "oNJff",
+                  "name": "S3 Box",
+                  "width": "fill_container",
+                  "cornerRadius": "$rounded-lg",
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#80808033"
+                  },
+                  "layout": "vertical",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "nOZqb",
+                      "name": "S3 Enable Row",
+                      "width": "fill_container",
+                      "padding": [
+                        12,
+                        16
+                      ],
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "k5Cwxx",
+                          "name": "S3 Enable Left",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "XjyZB",
+                              "name": "S3 Enable Label",
+                              "fill": "$color-text",
+                              "content": "Enable Autosave",
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": "500"
+                            },
+                            {
+                              "type": "text",
+                              "id": "TmJlA",
+                              "name": "S3 Enable Desc",
+                              "fill": "#0f0f0f60",
+                              "content": "Automatically save document changes",
+                              "fontFamily": "Inter",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "MJnF8",
+                          "name": "S3 Toggle",
+                          "width": 44,
+                          "height": 24,
+                          "fill": "$color-background-ui",
+                          "cornerRadius": "$rounded-full",
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "ellipse",
+                              "id": "qc7di",
+                              "x": 22,
+                              "y": 2,
+                              "name": "S3 Knob",
+                              "fill": "#ffffff",
+                              "width": 20,
+                              "height": 20
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "hQbqy",
+                      "name": "S3 Delay Row",
+                      "width": "fill_container",
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": {
+                          "top": 1
+                        },
+                        "fill": "#80808033"
+                      },
+                      "padding": [
+                        12,
+                        16
+                      ],
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "zcYdg",
+                          "name": "S3 Delay Label",
+                          "fill": "$color-text",
+                          "content": "Save Delay",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "500"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "NU01K",
+                          "name": "S3 Delay DD",
+                          "width": 160,
+                          "fill": "#8080801A",
+                          "cornerRadius": "$rounded-md",
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": 1,
+                            "fill": "#808080CC"
+                          },
+                          "padding": [
+                            7,
+                            12
+                          ],
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "qcTPz",
+                              "name": "S3 Delay Val",
+                              "fill": "$color-text",
+                              "content": "1 second",
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "icon_font",
+                              "id": "oEos4",
+                              "name": "S3 Delay Chev",
+                              "width": 14,
+                              "height": 14,
+                              "iconFontName": "chevron-down",
+                              "iconFontFamily": "lucide",
+                              "fill": "#0f0f0f60"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "G0XopW",
+              "name": "S4 Tabs",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 8,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "MdKaG",
+                  "name": "S4 Title",
+                  "fill": "$color-mid-gray",
+                  "content": "TAB BEHAVIOR",
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "500",
+                  "letterSpacing": 0.06
+                },
+                {
+                  "type": "frame",
+                  "id": "PIhCR",
+                  "name": "S4 Box",
+                  "width": "fill_container",
+                  "cornerRadius": "$rounded-lg",
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#80808033"
+                  },
+                  "layout": "vertical",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "EiM1g",
+                      "name": "S4 Archive Row",
+                      "width": "fill_container",
+                      "padding": [
+                        12,
+                        16
+                      ],
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "bDYAx",
+                          "name": "S4 Archive Left",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "iJms4",
+                              "name": "S4 Archive Label",
+                              "fill": "$color-text",
+                              "content": "Auto-archive on Close",
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": "500"
+                            },
+                            {
+                              "type": "text",
+                              "id": "i03du0",
+                              "name": "S4 Archive Desc",
+                              "fill": "#0f0f0f60",
+                              "content": "Save closed tabs to text history automatically",
+                              "fontFamily": "Inter",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "m1Gf0D",
+                          "name": "S4 Archive Toggle",
+                          "width": 44,
+                          "height": 24,
+                          "fill": "$color-background-ui",
+                          "cornerRadius": "$rounded-full",
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "ellipse",
+                              "id": "MWGn5",
+                              "x": 22,
+                              "y": 2,
+                              "name": "S4 Archive Knob",
+                              "fill": "#ffffff",
+                              "width": 20,
+                              "height": 20
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "YQea7",
+                      "name": "S4 Confirm Row",
+                      "width": "fill_container",
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": {
+                          "top": 1
+                        },
+                        "fill": "#80808033"
+                      },
+                      "padding": [
+                        12,
+                        16
+                      ],
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "bRIzh",
+                          "name": "S4 Confirm Left",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "j984E",
+                              "name": "S4 Confirm Label",
+                              "fill": "$color-text",
+                              "content": "Confirm Before Closing",
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": "500"
+                            },
+                            {
+                              "type": "text",
+                              "id": "P9LG6",
+                              "name": "S4 Confirm Desc",
+                              "fill": "#0f0f0f60",
+                              "content": "Show a confirmation dialog when closing a tab",
+                              "fontFamily": "Inter",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "Q2PNWn",
+                          "name": "S4 Confirm Toggle",
+                          "width": 44,
+                          "height": 24,
+                          "fill": "$color-mid-gray-20",
+                          "cornerRadius": "$rounded-full",
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "ellipse",
+                              "id": "p4dEnr",
+                              "x": 2,
+                              "y": 2,
+                              "name": "S4 Confirm Knob",
+                              "fill": "#ffffff",
+                              "width": 20,
+                              "height": 20
                             }
                           ]
                         }
