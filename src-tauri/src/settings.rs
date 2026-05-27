@@ -458,6 +458,17 @@ pub struct AppSettings {
     pub text_ops_pinned_prompt_id: Option<String>,
     #[serde(default)]
     pub text_ops_output_behavior: TextOpsOutputBehavior,
+
+    #[serde(default = "default_true")]
+    pub text_ops_autosave_enabled: bool,
+    #[serde(default = "default_autosave_delay_ms")]
+    pub text_ops_autosave_delay_ms: u64,
+    #[serde(default)]
+    pub text_ops_confirm_tab_close: bool,
+    #[serde(default = "default_true")]
+    pub text_ops_auto_archive_on_close: bool,
+    #[serde(default)]
+    pub text_ops_shortcut_creates_tab: bool,
 }
 
 fn default_model() -> String {
@@ -684,6 +695,14 @@ fn default_typing_tool() -> TypingTool {
 
 fn default_insights_entry_count() -> u32 {
     50
+}
+
+fn default_true() -> bool {
+    true
+}
+
+fn default_autosave_delay_ms() -> u64 {
+    1000
 }
 
 fn default_text_ops_provider_id() -> String {
@@ -951,6 +970,11 @@ pub fn get_default_settings() -> AppSettings {
         text_ops_selected_prompt_id: None,
         text_ops_pinned_prompt_id: None,
         text_ops_output_behavior: TextOpsOutputBehavior::default(),
+        text_ops_autosave_enabled: true,
+        text_ops_autosave_delay_ms: 1000,
+        text_ops_confirm_tab_close: false,
+        text_ops_auto_archive_on_close: true,
+        text_ops_shortcut_creates_tab: false,
     }
 }
 

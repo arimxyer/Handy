@@ -79,6 +79,7 @@ specta-typescript = "0.0.9"
 tauri-specta = { version = "=2.0.0-rc.21", features = ["derive", "typescript"] }
 tauri-plugin-dialog = "2.6"
 tiktoken-rs = "0.6"
+uuid = { version = "1.23.1", features = ["v4"] }
 
 [target.'cfg(unix)'.dependencies]
 signal-hook = "0.3"

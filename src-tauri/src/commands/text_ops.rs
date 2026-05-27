@@ -1,4 +1,4 @@
-use crate::managers::history::HistoryManager;
+use crate::managers::history::{DocumentTab, HistoryEntry, HistoryManager};
 use crate::picker::TextOpsPendingText;
 use crate::settings::{get_settings, write_settings, LLMPrompt, TextOpsOutputBehavior};
 use std::sync::Arc;
@@ -422,5 +422,130 @@ pub fn dismiss_picker(app: AppHandle) -> Result<(), String> {
             *pending = None;
         }
     }
+    Ok(())
+}
+
+// --- Document Tab Commands ---
+
+#[tauri::command]
+#[specta::specta]
+pub fn create_document_tab(
+    title: Option<String>,
+    history_manager: State<'_, Arc<HistoryManager>>,
+) -> Result<DocumentTab, String> {
+    let id = uuid::Uuid::new_v4().to_string();
+    let title = title.unwrap_or_else(|| "Untitled".to_string());
+    history_manager
+        .create_document_tab(id, title)
+        .map_err(|e| format!("Failed to create tab: {}", e))
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn get_open_tabs(
+    history_manager: State<'_, Arc<HistoryManager>>,
+) -> Result<Vec<DocumentTab>, String> {
+    history_manager
+        .get_open_tabs()
+        .map_err(|e| format!("Failed to get tabs: {}", e))
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn get_document_tab(
+    id: String,
+    history_manager: State<'_, Arc<HistoryManager>>,
+) -> Result<Option<DocumentTab>, String> {
+    history_manager
+        .get_document_tab(&id)
+        .map_err(|e| format!("Failed to get tab: {}", e))
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn update_document_tab(
+    id: String,
+    content: String,
+    history_manager: State<'_, Arc<HistoryManager>>,
+) -> Result<(), String> {
+    history_manager
+        .update_document_tab(&id, &content)
+        .map_err(|e| format!("Failed to update tab: {}", e))
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn rename_document_tab(
+    id: String,
+    title: String,
+    history_manager: State<'_, Arc<HistoryManager>>,
+) -> Result<(), String> {
+    history_manager
+        .rename_document_tab(&id, &title)
+        .map_err(|e| format!("Failed to rename tab: {}", e))
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn close_document_tab(
+    id: String,
+    archive: bool,
+    history_manager: State<'_, Arc<HistoryManager>>,
+) -> Result<Option<HistoryEntry>, String> {
+    history_manager
+        .close_document_tab(&id, archive)
+        .map_err(|e| format!("Failed to close tab: {}", e))
+}
+
+// --- New Settings Commands ---
+
+#[tauri::command]
+#[specta::specta]
+pub fn change_text_ops_autosave_setting(enabled: bool, app: AppHandle) -> Result<(), String> {
+    let mut settings = get_settings(&app);
+    settings.text_ops_autosave_enabled = enabled;
+    write_settings(&app, settings);
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn change_text_ops_autosave_delay_setting(delay_ms: u64, app: AppHandle) -> Result<(), String> {
+    let mut settings = get_settings(&app);
+    settings.text_ops_autosave_delay_ms = delay_ms;
+    write_settings(&app, settings);
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn change_text_ops_confirm_tab_close_setting(
+    enabled: bool,
+    app: AppHandle,
+) -> Result<(), String> {
+    let mut settings = get_settings(&app);
+    settings.text_ops_confirm_tab_close = enabled;
+    write_settings(&app, settings);
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn change_text_ops_auto_archive_setting(enabled: bool, app: AppHandle) -> Result<(), String> {
+    let mut settings = get_settings(&app);
+    settings.text_ops_auto_archive_on_close = enabled;
+    write_settings(&app, settings);
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn change_text_ops_shortcut_creates_tab_setting(
+    enabled: bool,
+    app: AppHandle,
+) -> Result<(), String> {
+    let mut settings = get_settings(&app);
+    settings.text_ops_shortcut_creates_tab = enabled;
+    write_settings(&app, settings);
     Ok(())
 }

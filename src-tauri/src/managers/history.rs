@@ -47,6 +47,16 @@ static MIGRATIONS: &[M] = &[
     M::up("ALTER TABLE transcription_versions ADD COLUMN model_name TEXT;"),
     M::up("ALTER TABLE transcription_versions ADD COLUMN target TEXT NOT NULL DEFAULT 'post_processed';"),
     M::up("ALTER TABLE transcription_history ADD COLUMN source TEXT NOT NULL DEFAULT 'voice';"),
+    M::up(
+        "CREATE TABLE IF NOT EXISTS document_tabs (
+            id TEXT PRIMARY KEY,
+            title TEXT NOT NULL,
+            content TEXT NOT NULL DEFAULT '',
+            created_at INTEGER NOT NULL,
+            updated_at INTEGER NOT NULL,
+            is_archived INTEGER NOT NULL DEFAULT 0
+        );",
+    ),
 ];
 
 #[derive(Clone, Debug, Serialize, Deserialize, Type)]
@@ -79,6 +89,15 @@ pub struct HistoryEntry {
     pub post_process_requested: bool,
     pub version_count: i64,
     pub source: String,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize, Type)]
+pub struct DocumentTab {
+    pub id: String,
+    pub title: String,
+    pub content: String,
+    pub created_at: i64,
+    pub updated_at: i64,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, Type)]
@@ -995,6 +1014,105 @@ impl HistoryManager {
         } else {
             format!("Recording {}", timestamp)
         }
+    }
+
+    // --- Document Tab CRUD ---
+
+    pub fn create_document_tab(&self, id: String, title: String) -> Result<DocumentTab> {
+        let conn = self.get_connection()?;
+        let now = Utc::now().timestamp();
+        conn.execute(
+            "INSERT INTO document_tabs (id, title, content, created_at, updated_at) VALUES (?1, ?2, '', ?3, ?3)",
+            params![id, title, now],
+        )?;
+        Ok(DocumentTab {
+            id,
+            title,
+            content: String::new(),
+            created_at: now,
+            updated_at: now,
+        })
+    }
+
+    pub fn get_open_tabs(&self) -> Result<Vec<DocumentTab>> {
+        let conn = self.get_connection()?;
+        let mut stmt = conn.prepare(
+            "SELECT id, title, content, created_at, updated_at FROM document_tabs WHERE is_archived = 0 ORDER BY created_at ASC",
+        )?;
+        let tabs = stmt.query_map([], |row| {
+            Ok(DocumentTab {
+                id: row.get("id")?,
+                title: row.get("title")?,
+                content: row.get("content")?,
+                created_at: row.get("created_at")?,
+                updated_at: row.get("updated_at")?,
+            })
+        })?.collect::<rusqlite::Result<Vec<_>>>()?;
+        Ok(tabs)
+    }
+
+    pub fn get_document_tab(&self, id: &str) -> Result<Option<DocumentTab>> {
+        let conn = self.get_connection()?;
+        let tab = conn.query_row(
+            "SELECT id, title, content, created_at, updated_at FROM document_tabs WHERE id = ?1 AND is_archived = 0",
+            params![id],
+            |row| {
+                Ok(DocumentTab {
+                    id: row.get("id")?,
+                    title: row.get("title")?,
+                    content: row.get("content")?,
+                    created_at: row.get("created_at")?,
+                    updated_at: row.get("updated_at")?,
+                })
+            },
+        ).optional()?;
+        Ok(tab)
+    }
+
+    pub fn update_document_tab(&self, id: &str, content: &str) -> Result<()> {
+        let conn = self.get_connection()?;
+        let now = Utc::now().timestamp();
+        conn.execute(
+            "UPDATE document_tabs SET content = ?1, updated_at = ?2 WHERE id = ?3 AND is_archived = 0",
+            params![content, now, id],
+        )?;
+        Ok(())
+    }
+
+    pub fn rename_document_tab(&self, id: &str, title: &str) -> Result<()> {
+        let conn = self.get_connection()?;
+        conn.execute(
+            "UPDATE document_tabs SET title = ?1 WHERE id = ?2 AND is_archived = 0",
+            params![title, id],
+        )?;
+        Ok(())
+    }
+
+    pub fn close_document_tab(&self, id: &str, archive: bool) -> Result<Option<HistoryEntry>> {
+        if archive {
+            let tab = self.get_document_tab(id)?;
+            if let Some(tab) = tab {
+                if !tab.content.is_empty() {
+                    let entry = self.save_text_operation(
+                        tab.content,
+                        String::new(),
+                        tab.title,
+                    )?;
+
+                    let conn = self.get_connection()?;
+                    conn.execute(
+                        "UPDATE document_tabs SET is_archived = 1 WHERE id = ?1",
+                        params![id],
+                    )?;
+
+                    return Ok(Some(entry));
+                }
+            }
+        }
+
+        let conn = self.get_connection()?;
+        conn.execute("DELETE FROM document_tabs WHERE id = ?1", params![id])?;
+        Ok(None)
     }
 }
 

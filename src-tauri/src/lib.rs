@@ -481,6 +481,17 @@ pub fn run(cli_args: CliArgs) {
             commands::text_ops::change_text_ops_output_behavior,
             commands::text_ops::execute_picker_prompt,
             commands::text_ops::dismiss_picker,
+            commands::text_ops::create_document_tab,
+            commands::text_ops::get_open_tabs,
+            commands::text_ops::get_document_tab,
+            commands::text_ops::update_document_tab,
+            commands::text_ops::rename_document_tab,
+            commands::text_ops::close_document_tab,
+            commands::text_ops::change_text_ops_autosave_setting,
+            commands::text_ops::change_text_ops_autosave_delay_setting,
+            commands::text_ops::change_text_ops_confirm_tab_close_setting,
+            commands::text_ops::change_text_ops_auto_archive_setting,
+            commands::text_ops::change_text_ops_shortcut_creates_tab_setting,
             helpers::clamshell::is_laptop,
         ])
         .events(collect_events![managers::history::HistoryUpdatePayload,]);
