@@ -753,6 +753,14 @@ async getHistoryEntries(source: string | null, cursor: number | null, limit: num
     else return { status: "error", error: e  as any };
 }
 },
+async getHistoryEntry(id: number) : Promise<Result<HistoryEntry, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_history_entry", { id }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
 async toggleHistoryEntrySaved(id: number) : Promise<Result<HistoryEntry, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("toggle_history_entry_saved", { id }) };
@@ -1080,6 +1088,22 @@ async closeDocumentTab(id: string, archive: boolean) : Promise<Result<HistoryEnt
     else return { status: "error", error: e  as any };
 }
 },
+async ensureTabHistoryEntry(tabId: string, initialText: string) : Promise<Result<number, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("ensure_tab_history_entry", { tabId, initialText }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async saveTabVersion(tabId: string, text: string, prompt: string, modelName: string | null) : Promise<Result<number, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("save_tab_version", { tabId, text, prompt, modelName }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
 async changeTextOpsAutosaveSetting(enabled: boolean) : Promise<Result<null, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("change_text_ops_autosave_setting", { enabled }) };
@@ -1156,7 +1180,7 @@ export type AvailableAccelerators = { whisper: string[]; ort: string[]; gpu_devi
 export type BindingResponse = { success: boolean; binding: ShortcutBinding | null; error: string | null }
 export type ClipboardHandling = "dont_modify" | "copy_to_clipboard"
 export type CustomSounds = { start: boolean; stop: boolean }
-export type DocumentTab = { id: string; title: string; content: string; created_at: number; updated_at: number }
+export type DocumentTab = { id: string; title: string; content: string; created_at: number; updated_at: number; history_entry_id: number | null }
 export type EngineType = "Whisper" | "Parakeet" | "Moonshine" | "MoonshineStreaming" | "SenseVoice" | "GigaAM" | "Canary" | "Cohere"
 export type GpuDeviceOption = { id: number; name: string; total_vram_mb: number }
 export type HistoryEntry = { id: number; file_name: string; timestamp: number; saved: boolean; title: string; transcription_text: string; post_processed_text: string | null; post_process_prompt: string | null; post_process_requested: boolean; version_count: number; source: string }

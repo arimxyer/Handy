@@ -233,7 +233,7 @@ export const TextEditorPage: React.FC = () => {
               </div>
             </>
           ) : (
-            <div className="flex-1 px-8 py-6 overflow-y-auto">
+            <div className="flex-1 min-h-0 px-8 py-6">
               <textarea
                 value={activeTab?.content ?? ""}
                 onChange={handleContentChange}

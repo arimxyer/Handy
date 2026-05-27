@@ -313,11 +313,20 @@ function App() {
         />
         {/* Scrollable content area + drawer portal */}
         <div className="flex-1 flex min-h-0 overflow-hidden">
-          <div className="flex-1 min-w-0 min-h-0 overflow-y-auto overflow-x-hidden">
-            <div className="flex flex-col items-center p-4 gap-4">
-              <AccessibilityPermissions />
-              {renderSettingsContent(currentSection)}
-            </div>
+          <div className={`flex-1 min-w-0 min-h-0 overflow-x-hidden ${
+            currentSection === "textOperations" ? "overflow-hidden flex flex-col" : "overflow-y-auto"
+          }`}>
+            {currentSection === "textOperations" ? (
+              <>
+                <AccessibilityPermissions />
+                {renderSettingsContent(currentSection)}
+              </>
+            ) : (
+              <div className="flex flex-col items-center p-4 gap-4">
+                <AccessibilityPermissions />
+                {renderSettingsContent(currentSection)}
+              </div>
+            )}
           </div>
           <div
             id="drawer-portal"
