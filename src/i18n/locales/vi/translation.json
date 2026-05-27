@@ -511,7 +511,13 @@
         "addModelAdd": "Add",
         "primary": "Primary",
         "selectPrompt": "Select a prompt..."
-      }
+      },
+      "hideInput": "Hide input",
+      "hideVersions": "Hide versions",
+      "openAsTab": "Open as tab",
+      "searchPlaceholder": "Search history...",
+      "showInput": "Show input",
+      "versions": "versions"
     },
     "debug": {
       "title": "Gỡ lỗi",
@@ -792,7 +798,24 @@
       "outputCopyToClipboard": "Copy to Clipboard",
       "outputReplaceSelection": "Replace Selection",
       "pickerShortcut": "Prompt Picker Shortcut",
-      "pickerShortcutDescription": "Opens a popup to choose which prompt to apply to selected text"
+      "pickerShortcutDescription": "Opens a popup to choose which prompt to apply to selected text",
+      "autoArchive": "Auto-archive on Close",
+      "autoArchiveDescription": "Save closed tabs to text history automatically",
+      "autosaveDelay": "Save Delay",
+      "autosaveDelay1000": "1 second",
+      "autosaveDelay2000": "2 seconds",
+      "autosaveDelay500": "500ms",
+      "autosaveDelay5000": "5 seconds",
+      "autosaveDelayDescription": "How long to wait after you stop typing before saving",
+      "autosaveEnable": "Enable Autosave",
+      "autosaveEnableDescription": "Automatically save document changes",
+      "autosaveTitle": "Autosave",
+      "confirmClose": "Confirm Before Closing",
+      "confirmCloseDescription": "Show a confirmation dialog when closing a tab",
+      "openInEditor": "Open in Editor",
+      "openInEditorDescription": "Shortcut creates a tab instead of processing in background",
+      "providerModel": "Provider & Model",
+      "tabBehaviorTitle": "Tab Behavior"
     },
     "picker": {
       "title": "Choose Prompt",
@@ -830,7 +853,13 @@
       "builtInGroup": "Built-in",
       "customGroup": "My Prompts",
       "libraryTitle": "Prompt Library",
-      "libraryDescription": "Create and manage your custom prompts"
+      "libraryDescription": "Create and manage your custom prompts",
+      "builtInBadge": "Built-in",
+      "clickToConfirm": "Click to confirm",
+      "editPrompt": "Edit",
+      "editing": "Editing",
+      "newPrompt": "New Prompt",
+      "savePrompt": "Save"
     },
     "inputLabel": "Text",
     "instructionsLabel": "Instructions",
@@ -846,6 +875,24 @@
       "title": "Edit Prompt",
       "editTooltip": "Edit this prompt",
       "builtInReadOnly": "Built-in prompts cannot be edited. Use Save to create a copy."
+    },
+    "editor": {
+      "accept": "Accept",
+      "ai": "AI",
+      "askAnother": "Ask another question or type a new instruction...",
+      "changesApplied": "Changes applied",
+      "copied": "Copied",
+      "copy": "Copy",
+      "describeWhatToDo": "Describe what to do with this text...",
+      "loading": "Loading...",
+      "placeholder": "Paste or type your text here...",
+      "revert": "Revert",
+      "save": "Save",
+      "saved": "Saved",
+      "versions": "Versions"
+    },
+    "tabs": {
+      "newTab": "New tab"
     }
   },
   "notifications": {
