@@ -15,6 +15,7 @@ interface DocumentTabState {
   pendingResult: PendingResult | null;
   isProcessing: boolean;
   isDirty: boolean;
+  historyEntryId: number | null;
 }
 
 interface DocumentStore {
@@ -36,8 +37,9 @@ interface DocumentStore {
     modelLabel: string,
     instruction: string,
   ) => void;
-  acceptResult: (id: string) => void;
-  revertResult: (id: string) => void;
+  acceptResult: (id: string) => Promise<void>;
+  revertResult: (id: string) => Promise<void>;
+  autoCheckpoint: (id: string) => Promise<void>;
 }
 
 function documentTabFromBackend(tab: DocumentTab): DocumentTabState {
@@ -48,6 +50,7 @@ function documentTabFromBackend(tab: DocumentTab): DocumentTabState {
     pendingResult: null,
     isProcessing: false,
     isDirty: false,
+    historyEntryId: tab.history_entry_id ?? null,
   };
 }
 
@@ -72,6 +75,29 @@ export const useDocumentStore = create<DocumentStore>()((set, get) => ({
         activeTabId: tabOrder[0] ?? null,
         isInitialized: true,
       });
+
+      for (const tab of result.data) {
+        if (tab.history_entry_id == null || !tab.content.trim()) continue;
+        try {
+          const versionsResult = await commands.getTranscriptionVersions(
+            tab.history_entry_id,
+          );
+          if (versionsResult.status !== "ok" || versionsResult.data.length === 0)
+            continue;
+          const latest =
+            versionsResult.data[versionsResult.data.length - 1];
+          if (latest.text !== tab.content && tab.updated_at > latest.timestamp) {
+            await commands.saveTabVersion(
+              tab.id,
+              tab.content,
+              "Recovered",
+              "Recovered",
+            );
+          }
+        } catch {
+          // Best-effort crash recovery
+        }
+      }
     }
   },
 
@@ -176,29 +202,80 @@ export const useDocumentStore = create<DocumentStore>()((set, get) => ({
     });
   },
 
-  acceptResult: (id) => {
+  autoCheckpoint: async (id) => {
+    const tab = get().tabs[id];
+    if (!tab?.historyEntryId) return;
+    try {
+      const result = await commands.getTranscriptionVersions(
+        tab.historyEntryId,
+      );
+      if (result.status !== "ok" || result.data.length === 0) return;
+      const latest = result.data[result.data.length - 1];
+      if (latest.text !== tab.content) {
+        await commands.saveTabVersion(
+          id,
+          tab.content,
+          "Auto-checkpoint",
+          "Auto-checkpoint",
+        );
+      }
+    } catch {
+      // Best-effort — don't block the operation
+    }
+  },
+
+  acceptResult: async (id) => {
+    const tab = get().tabs[id];
+    if (!tab?.pendingResult) return;
+
+    await get().autoCheckpoint(id);
+
+    let historyEntryId = tab.historyEntryId;
+    try {
+      const entryResult = await commands.ensureTabHistoryEntry(
+        id,
+        tab.pendingResult.originalText,
+      );
+      if (entryResult.status === "ok") {
+        historyEntryId = entryResult.data;
+        await commands.saveTabVersion(
+          id,
+          tab.pendingResult.text,
+          tab.pendingResult.instruction,
+          tab.pendingResult.modelLabel,
+        );
+      }
+    } catch {
+      // Still clear pending even if version save fails
+    }
+
     set((state) => {
-      const tab = state.tabs[id];
-      if (!tab) return state;
+      const t = state.tabs[id];
+      if (!t) return state;
       return {
         tabs: {
           ...state.tabs,
-          [id]: { ...tab, pendingResult: null },
+          [id]: { ...t, pendingResult: null, historyEntryId },
         },
       };
     });
   },
 
-  revertResult: (id) => {
+  revertResult: async (id) => {
+    const tab = get().tabs[id];
+    if (!tab?.pendingResult) return;
+
+    await get().autoCheckpoint(id);
+
     set((state) => {
-      const tab = state.tabs[id];
-      if (!tab?.pendingResult) return state;
+      const t = state.tabs[id];
+      if (!t?.pendingResult) return state;
       return {
         tabs: {
           ...state.tabs,
           [id]: {
-            ...tab,
-            content: tab.pendingResult.originalText,
+            ...t,
+            content: t.pendingResult.originalText,
             pendingResult: null,
           },
         },

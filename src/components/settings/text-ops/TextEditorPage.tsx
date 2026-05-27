@@ -121,23 +121,47 @@ export const TextEditorPage: React.FC = () => {
     [activeTab, activeTabId, setProcessing, applyAIResult],
   );
 
-  const handleAccept = useCallback(() => {
+  const handleAccept = useCallback(async () => {
     if (activeTabId) {
-      acceptResult(activeTabId);
+      await acceptResult(activeTabId);
       setPopoverOpen(false);
     }
   }, [activeTabId, acceptResult]);
 
-  const handleRevert = useCallback(() => {
+  const handleRevert = useCallback(async () => {
     if (activeTabId) {
-      revertResult(activeTabId);
+      await revertResult(activeTabId);
       setPopoverOpen(false);
     }
   }, [activeTabId, revertResult]);
 
-  const handleSave = useCallback(() => {
-    if (activeTabId && activeTab) {
-      commands.updateDocumentTab(activeTabId, activeTab.content);
+  const handleSave = useCallback(async () => {
+    if (!activeTabId || !activeTab) return;
+    await commands.updateDocumentTab(activeTabId, activeTab.content);
+    const entryResult = await commands.ensureTabHistoryEntry(
+      activeTabId,
+      activeTab.content,
+    );
+    if (entryResult.status === "ok") {
+      await commands.saveTabVersion(
+        activeTabId,
+        activeTab.content,
+        "Manual save",
+        "Manual save",
+      );
+      useDocumentStore.setState((state) => {
+        const tab = state.tabs[activeTabId];
+        if (!tab) return state;
+        return {
+          tabs: {
+            ...state.tabs,
+            [activeTabId]: {
+              ...tab,
+              historyEntryId: entryResult.data,
+            },
+          },
+        };
+      });
     }
   }, [activeTabId, activeTab]);
 
