@@ -890,7 +890,11 @@
       "save": "Save",
       "saved": "Saved",
       "versions": "Versions",
-      "changeModel": "Change model"
+      "changeModel": "Change model",
+      "reviewChanges": "Review changes",
+      "words": "words",
+      "versionHistory": "Version History",
+      "noVersions": "No versions yet. Accept an AI change to create your first version."
     },
     "tabs": {
       "newTab": "New tab"

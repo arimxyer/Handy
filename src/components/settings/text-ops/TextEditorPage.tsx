@@ -8,6 +8,8 @@ import { TabBar } from "./TabBar";
 import { EditorStatusBar } from "./EditorStatusBar";
 import { PresetToolbar } from "./PresetToolbar";
 import { AIPopover } from "./AIPopover";
+import { AcceptRevertBar } from "./AcceptRevertBar";
+import { DiffView } from "./DiffView";
 import { BUILTIN_PRESET_COUNT } from "./promptUtils";
 
 export const TextEditorPage: React.FC = () => {
@@ -203,22 +205,42 @@ export const TextEditorPage: React.FC = () => {
       />
 
       {/* Document area */}
-      <div className={`relative flex-1 min-h-0 ${activeTab?.isProcessing ? "border-t-2 border-logo-primary animate-pulse" : ""}`}>
-        {activeTab?.isProcessing && (
-          <div className="absolute top-0 left-0 right-0 flex items-center justify-center py-1.5 bg-logo-primary/5 z-10">
-            <span className="text-xs text-background-ui font-medium animate-pulse">
-              {t("textOps.processing")}
-            </span>
-          </div>
-        )}
-        <div className="h-full px-8 py-6 overflow-y-auto">
-          <textarea
-            value={activeTab?.content ?? ""}
-            onChange={handleContentChange}
-            disabled={activeTab?.isProcessing}
-            placeholder={t("textOps.editor.placeholder")}
-            className="w-full h-full border-none bg-transparent resize-none font-normal text-[15px] leading-relaxed outline-none text-text placeholder:text-text/30 disabled:opacity-50"
-          />
+      <div className={`relative flex-1 min-h-0 flex ${activeTab?.isProcessing ? "border-t-2 border-logo-primary animate-pulse" : ""}`}>
+        <div className="flex-1 min-w-0 flex flex-col">
+          {activeTab?.isProcessing && (
+            <div className="flex items-center justify-center py-1.5 bg-logo-primary/5">
+              <span className="text-xs text-background-ui font-medium animate-pulse">
+                {t("textOps.processing")}
+              </span>
+            </div>
+          )}
+
+          {activeTab?.pendingResult && !activeTab.isProcessing ? (
+            <>
+              <AcceptRevertBar
+                originalText={activeTab.pendingResult.originalText}
+                modifiedText={activeTab.content}
+                onAccept={handleAccept}
+                onRevert={handleRevert}
+              />
+              <div className="flex-1 px-8 py-6 overflow-y-auto">
+                <DiffView
+                  originalText={activeTab.pendingResult.originalText}
+                  modifiedText={activeTab.content}
+                />
+              </div>
+            </>
+          ) : (
+            <div className="flex-1 px-8 py-6 overflow-y-auto">
+              <textarea
+                value={activeTab?.content ?? ""}
+                onChange={handleContentChange}
+                disabled={activeTab?.isProcessing}
+                placeholder={t("textOps.editor.placeholder")}
+                className="w-full h-full border-none bg-transparent resize-none font-normal text-[15px] leading-relaxed outline-none text-text placeholder:text-text/30 disabled:opacity-50"
+              />
+            </div>
+          )}
         </div>
 
         <AIPopover
