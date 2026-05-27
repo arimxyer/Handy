@@ -180,6 +180,16 @@ const settingUpdaters: {
     commands.setTextOpsPinnedPrompt(value as string),
   text_ops_output_behavior: (value) =>
     commands.changeTextOpsOutputBehavior(value as string),
+  text_ops_autosave_enabled: (value) =>
+    commands.changeTextOpsAutosaveSetting(value as boolean),
+  text_ops_autosave_delay_ms: (value) =>
+    commands.changeTextOpsAutosaveDelaySetting(value as number),
+  text_ops_confirm_tab_close: (value) =>
+    commands.changeTextOpsConfirmTabCloseSetting(value as boolean),
+  text_ops_auto_archive_on_close: (value) =>
+    commands.changeTextOpsAutoArchiveSetting(value as boolean),
+  text_ops_shortcut_creates_tab: (value) =>
+    commands.changeTextOpsShortcutCreatesTabSetting(value as boolean),
 };
 
 export const useSettingsStore = create<SettingsStore>()(
