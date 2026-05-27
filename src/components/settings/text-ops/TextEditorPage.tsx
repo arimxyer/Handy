@@ -208,7 +208,7 @@ export const TextEditorPage: React.FC = () => {
 
       {/* Document area */}
       <div className={`relative flex-1 min-h-0 flex ${activeTab?.isProcessing ? "border-t-2 border-logo-primary animate-pulse" : ""}`}>
-        <div className="flex-1 min-w-0 flex flex-col">
+        <div className="flex-1 min-w-0 min-h-0 flex flex-col">
           {activeTab?.isProcessing && (
             <div className="flex items-center justify-center py-1.5 bg-logo-primary/5">
               <span className="text-xs text-background-ui font-medium animate-pulse">
