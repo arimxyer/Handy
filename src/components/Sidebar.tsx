@@ -22,7 +22,7 @@ import {
   DebugSettings,
   PostProcessingSettings,
   ModelsSettings,
-  TextOperationsPage,
+  TextEditorPage,
   TextSettingsPage,
   PromptsPage,
 } from "./settings";
@@ -101,7 +101,7 @@ export const SECTIONS_CONFIG = {
   textOperations: {
     labelKey: "sidebar.textOperations",
     icon: Type,
-    component: TextOperationsPage,
+    component: TextEditorPage,
     enabled: () => true,
     mode: "text",
   },

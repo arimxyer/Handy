@@ -10,7 +10,7 @@ export { ModelsSettings } from "./models/ModelsSettings";
 
 // Text mode placeholder components (Phase 3 will replace these)
 export { TextSettingsPlaceholder } from "./TextPlaceholders";
-export { TextOperationsPage } from "./text-ops/TextOperationsPage";
+export { TextEditorPage } from "./text-ops/TextEditorPage";
 export { TextSettingsPage } from "./text-ops/TextSettingsPage";
 export { PromptsPage } from "./text-ops/PromptsPage";
 
