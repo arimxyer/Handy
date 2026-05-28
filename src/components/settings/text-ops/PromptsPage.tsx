@@ -2,11 +2,10 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { commands } from "@/bindings";
-import { Textarea } from "@/components/ui";
 import { Button } from "../../ui/Button";
-import { Input } from "../../ui/Input";
 import { useSettings } from "../../../hooks/useSettings";
 import { BUILTIN_PRESET_COUNT } from "./promptUtils";
+import { PromptEditor } from "./PromptEditor";
 
 export const PromptsPage: React.FC = () => {
   const { t } = useTranslation();
@@ -159,63 +158,16 @@ export const PromptsPage: React.FC = () => {
           </h3>
         </div>
         <div className="bg-background border border-mid-gray/20 rounded-lg overflow-hidden">
-          {/* Inline create form */}
           {isCreating && (
-            <div className="border-l-[3px] border-logo-primary bg-logo-primary/5 px-4 py-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
-                  <Plus className="w-3.5 h-3.5 text-background-ui" />
-                  <span className="text-xs font-semibold text-background-ui">
-                    {t("textOps.prompts.newPrompt")}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={cancelEdit}
-                    className="text-xs font-medium text-text/80 cursor-pointer"
-                  >
-                    {t("textOps.prompts.cancel")}
-                  </button>
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    onClick={handleSave}
-                    disabled={!draftName.trim() || !draftText.trim()}
-                  >
-                    {t("textOps.prompts.createPrompt")}
-                  </Button>
-                </div>
-              </div>
-              <div className="space-y-1">
-                <label className="text-[11px] font-semibold text-text/60">
-                  {t("textOps.prompts.promptLabel")}
-                </label>
-                <Input
-                  type="text"
-                  value={draftName}
-                  onChange={(e) => setDraftName(e.target.value)}
-                  placeholder={t("textOps.prompts.promptLabelPlaceholder")}
-                  variant="compact"
-                  autoFocus
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-[11px] font-semibold text-text/60">
-                  {t("textOps.prompts.promptInstructions")}
-                </label>
-                <Textarea
-                  value={draftText}
-                  onChange={(e) => setDraftText(e.target.value)}
-                  placeholder={t(
-                    "textOps.prompts.promptInstructionsPlaceholder",
-                  )}
-                />
-                <p className="text-[10px] text-text/40">
-                  {t("textOps.prompts.promptTip")}
-                </p>
-              </div>
-            </div>
+            <PromptEditor
+              mode="create"
+              name={draftName}
+              onNameChange={setDraftName}
+              text={draftText}
+              onTextChange={setDraftText}
+              onCancel={cancelEdit}
+              onSave={handleSave}
+            />
           )}
 
           {customPrompts.length === 0 && !isCreating ? (
@@ -230,67 +182,16 @@ export const PromptsPage: React.FC = () => {
 
                 if (isEditing) {
                   return (
-                    <div
+                    <PromptEditor
                       key={prompt.id}
-                      className="border-l-[3px] border-logo-primary bg-logo-primary/5 px-4 py-4 space-y-3"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1.5">
-                          <Pencil className="w-3.5 h-3.5 text-background-ui" />
-                          <span className="text-xs font-semibold text-background-ui">
-                            {t("textOps.prompts.editing")}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={cancelEdit}
-                            className="text-xs font-medium text-text/80 cursor-pointer"
-                          >
-                            {t("textOps.prompts.cancel")}
-                          </button>
-                          <Button
-                            variant="primary"
-                            size="sm"
-                            onClick={handleSave}
-                            disabled={
-                              !draftName.trim() || !draftText.trim()
-                            }
-                          >
-                            {t("textOps.prompts.savePrompt")}
-                          </Button>
-                        </div>
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-[11px] font-semibold text-text/60">
-                          {t("textOps.prompts.promptLabel")}
-                        </label>
-                        <Input
-                          type="text"
-                          value={draftName}
-                          onChange={(e) => setDraftName(e.target.value)}
-                          placeholder={t(
-                            "textOps.prompts.promptLabelPlaceholder",
-                          )}
-                          variant="compact"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-[11px] font-semibold text-text/60">
-                          {t("textOps.prompts.promptInstructions")}
-                        </label>
-                        <Textarea
-                          value={draftText}
-                          onChange={(e) => setDraftText(e.target.value)}
-                          placeholder={t(
-                            "textOps.prompts.promptInstructionsPlaceholder",
-                          )}
-                        />
-                        <p className="text-[10px] text-text/40">
-                          {t("textOps.prompts.promptTip")}
-                        </p>
-                      </div>
-                    </div>
+                      mode="edit"
+                      name={draftName}
+                      onNameChange={setDraftName}
+                      text={draftText}
+                      onTextChange={setDraftText}
+                      onCancel={cancelEdit}
+                      onSave={handleSave}
+                    />
                   );
                 }
 
