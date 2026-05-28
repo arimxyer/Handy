@@ -517,7 +517,8 @@
       "openAsTab": "Open as tab",
       "searchPlaceholder": "Search history...",
       "showInput": "Show input",
-      "versions": "versions"
+      "versions": "versions",
+      "rename": "Rename"
     },
     "debug": {
       "title": "デバッグ",
@@ -815,7 +816,14 @@
       "openInEditor": "Open in Editor",
       "openInEditorDescription": "Shortcut creates a tab instead of processing in background",
       "providerModel": "Provider & Model",
-      "tabBehaviorTitle": "Tab Behavior"
+      "tabBehaviorTitle": "Tab Behavior",
+      "aiPosition": "AI Popover Position",
+      "aiPositionBottomCenter": "Bottom center",
+      "aiPositionBottomLeft": "Bottom left",
+      "aiPositionBottomRight": "Bottom right",
+      "aiPositionTopCenter": "Top center",
+      "autoLabel": "Auto-label tabs with AI",
+      "autoLabelDescription": "Automatically generate tab titles using the configured text ops model when content is added"
     },
     "picker": {
       "title": "Choose Prompt",
@@ -894,7 +902,16 @@
       "reviewChanges": "Review changes",
       "words": "words",
       "versionHistory": "Version History",
-      "noVersions": "No versions yet. Accept an AI change to create your first version."
+      "noVersions": "No versions yet. Accept an AI change to create your first version.",
+      "diffUnified": "Unified",
+      "diffSplit": "Split",
+      "compare": "Compare",
+      "exitCompare": "Comparing",
+      "comparingVersion": "Comparing with {{label}}",
+      "restoreThisVersion": "Restore this",
+      "cancelPreview": "Cancel",
+      "moreSettings": "More settings...",
+      "morePresets": "More"
     },
     "tabs": {
       "newTab": "New tab"
