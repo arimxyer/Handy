@@ -547,6 +547,14 @@ const VoiceHistoryEntryComponent: React.FC<VoiceHistoryEntryProps> = ({
   const [showOriginal, setShowOriginal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState("");
+  const [pendingDelete, setPendingDelete] = useState(false);
+  const deleteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (deleteTimerRef.current) clearTimeout(deleteTimerRef.current);
+    };
+  }, []);
 
   const hasTranscription = entry.transcription_text.trim().length > 0;
   const hasEnhancedText = entry.post_processed_text != null;
@@ -576,6 +584,17 @@ const VoiceHistoryEntryComponent: React.FC<VoiceHistoryEntryProps> = ({
   };
 
   const handleDeleteEntry = async () => {
+    if (!pendingDelete) {
+      setPendingDelete(true);
+      if (deleteTimerRef.current) clearTimeout(deleteTimerRef.current);
+      deleteTimerRef.current = setTimeout(() => setPendingDelete(false), 3000);
+      return;
+    }
+    if (deleteTimerRef.current) {
+      clearTimeout(deleteTimerRef.current);
+      deleteTimerRef.current = null;
+    }
+    setPendingDelete(false);
     try {
       await deleteAudio(entry.id);
     } catch (error) {
@@ -818,13 +837,30 @@ const VoiceHistoryEntryComponent: React.FC<VoiceHistoryEntryProps> = ({
                 }
               />
             </IconButton>
-            <IconButton
+            <button
+              type="button"
               onClick={handleDeleteEntry}
               disabled={isEditing || retrying}
-              title={t("settings.history.delete")}
+              className={`p-1.5 rounded-md flex items-center justify-center transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed ${
+                pendingDelete
+                  ? "bg-red-500/10 text-red-500"
+                  : "text-text/50 hover:text-logo-primary"
+              }`}
+              title={
+                pendingDelete
+                  ? t("textOps.prompts.clickToConfirm")
+                  : t("settings.history.delete")
+              }
             >
-              <Trash2 width={16} height={16} />
-            </IconButton>
+              {pendingDelete ? (
+                <span className="flex items-center gap-1 text-[11px] font-medium px-0.5">
+                  <Trash2 width={14} height={14} />
+                  {t("textOps.prompts.clickToConfirm")}
+                </span>
+              ) : (
+                <Trash2 width={16} height={16} />
+              )}
+            </button>
           </div>
         </div>
       </div>
@@ -902,12 +938,20 @@ const TextHistoryEntryComponent: React.FC<TextHistoryEntryProps> = ({
   const [showVersions, setShowVersions] = useState(false);
   const [isRenaming, setIsRenaming] = useState(false);
   const [renameValue, setRenameValue] = useState("");
+  const [pendingDelete, setPendingDelete] = useState(false);
   const renameInputRef = useRef<HTMLInputElement>(null);
+  const deleteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { createTab } = useDocumentStore();
 
   useEffect(() => {
     if (isRenaming) renameInputRef.current?.focus();
   }, [isRenaming]);
+
+  useEffect(() => {
+    return () => {
+      if (deleteTimerRef.current) clearTimeout(deleteTimerRef.current);
+    };
+  }, []);
 
   const handleCopy = () => {
     const text = entry.post_processed_text || entry.transcription_text;
@@ -919,6 +963,17 @@ const TextHistoryEntryComponent: React.FC<TextHistoryEntryProps> = ({
   };
 
   const handleDelete = async () => {
+    if (!pendingDelete) {
+      setPendingDelete(true);
+      if (deleteTimerRef.current) clearTimeout(deleteTimerRef.current);
+      deleteTimerRef.current = setTimeout(() => setPendingDelete(false), 3000);
+      return;
+    }
+    if (deleteTimerRef.current) {
+      clearTimeout(deleteTimerRef.current);
+      deleteTimerRef.current = null;
+    }
+    setPendingDelete(false);
     try {
       await deleteEntry(entry.id);
     } catch (error) {
@@ -985,9 +1040,29 @@ const TextHistoryEntryComponent: React.FC<TextHistoryEntryProps> = ({
           <IconButton onClick={onToggleSaved} active={entry.saved} title={entry.saved ? t("settings.history.unsave") : t("settings.history.save")}>
             <Bookmark width={14} height={14} fill={entry.saved ? "currentColor" : "none"} />
           </IconButton>
-          <IconButton onClick={handleDelete} title={t("settings.history.delete")}>
-            <Trash2 width={14} height={14} />
-          </IconButton>
+          <button
+            type="button"
+            onClick={handleDelete}
+            className={`p-1.5 rounded-md flex items-center justify-center transition-colors cursor-pointer ${
+              pendingDelete
+                ? "bg-red-500/10 text-red-500"
+                : "text-text/50 hover:text-logo-primary"
+            }`}
+            title={
+              pendingDelete
+                ? t("textOps.prompts.clickToConfirm")
+                : t("settings.history.delete")
+            }
+          >
+            {pendingDelete ? (
+              <span className="flex items-center gap-1 text-[11px] font-medium px-0.5">
+                <Trash2 width={12} height={12} />
+                {t("textOps.prompts.clickToConfirm")}
+              </span>
+            ) : (
+              <Trash2 width={14} height={14} />
+            )}
+          </button>
         </div>
       </div>
 
