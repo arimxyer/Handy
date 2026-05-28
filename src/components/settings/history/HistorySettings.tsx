@@ -983,9 +983,27 @@ const TextHistoryEntryComponent: React.FC<TextHistoryEntryProps> = ({
   };
 
   const finishRenaming = useCallback(async () => {
-    if (renameValue.trim() && renameValue.trim() !== entry.title) {
+    const newTitle = renameValue.trim();
+    if (newTitle && newTitle !== entry.title) {
       try {
-        await commands.renameHistoryEntry(entry.id, renameValue.trim());
+        await commands.renameHistoryEntry(entry.id, newTitle);
+        const tabs = useDocumentStore.getState().tabs;
+        const linkedTabId = Object.keys(tabs).find(
+          (id) => tabs[id]?.historyEntryId === entry.id,
+        );
+        if (linkedTabId) {
+          await commands.renameDocumentTab(linkedTabId, newTitle);
+          useDocumentStore.setState((state) => {
+            const tab = state.tabs[linkedTabId];
+            if (!tab) return state;
+            return {
+              tabs: {
+                ...state.tabs,
+                [linkedTabId]: { ...tab, title: newTitle },
+              },
+            };
+          });
+        }
       } catch (error) {
         console.error("Failed to rename entry:", error);
       }

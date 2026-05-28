@@ -174,6 +174,14 @@ export const useDocumentStore = create<DocumentStore>()((set, get) => ({
 
   renameTab: async (id, title) => {
     await commands.renameDocumentTab(id, title);
+    const linkedEntryId = get().tabs[id]?.historyEntryId ?? null;
+    if (linkedEntryId != null) {
+      try {
+        await commands.renameHistoryEntry(linkedEntryId, title);
+      } catch (e) {
+        console.error("Failed to sync title to history entry:", e);
+      }
+    }
     set((state) => {
       const tab = state.tabs[id];
       if (!tab) return state;
