@@ -14,18 +14,22 @@ import { ShortcutInput } from "../ShortcutInput";
 import { useTextOpsProviderState } from "./useTextOpsProviderState";
 import { useSettings } from "../../../hooks/useSettings";
 import { Alert } from "../../ui/Alert";
-import type { TextOpsOutputBehavior } from "@/bindings";
+import type { TextOpsAiPosition, TextOpsOutputBehavior } from "@/bindings";
+import { commands } from "@/bindings";
 
 export const TextSettingsPage: React.FC = () => {
   const { t } = useTranslation();
   const state = useTextOpsProviderState();
-  const { getSetting, updateSetting, isUpdating } = useSettings();
+  const { getSetting, updateSetting, isUpdating, refreshSettings } =
+    useSettings();
 
   const textOpsEnabled = getSetting("text_ops_enabled") || false;
   const prompts = getSetting("text_ops_prompts") || [];
   const pinnedPromptId = getSetting("text_ops_pinned_prompt_id") ?? null;
   const outputBehavior =
     (getSetting("text_ops_output_behavior") as string) || "copy_to_clipboard";
+  const aiPosition =
+    (getSetting("text_ops_ai_position") as string) || "bottom_center";
   const autosaveEnabled = getSetting("text_ops_autosave_enabled") ?? true;
   const autosaveDelay = getSetting("text_ops_autosave_delay_ms") ?? 1000;
   const confirmTabClose = getSetting("text_ops_confirm_tab_close") ?? false;
@@ -41,6 +45,25 @@ export const TextSettingsPage: React.FC = () => {
     {
       value: "replace_selection",
       label: t("textOps.settings.outputReplaceSelection"),
+    },
+  ];
+
+  const aiPositionOptions = [
+    {
+      value: "bottom_center",
+      label: t("textOps.settings.aiPositionBottomCenter"),
+    },
+    {
+      value: "bottom_left",
+      label: t("textOps.settings.aiPositionBottomLeft"),
+    },
+    {
+      value: "bottom_right",
+      label: t("textOps.settings.aiPositionBottomRight"),
+    },
+    {
+      value: "top_center",
+      label: t("textOps.settings.aiPositionTopCenter"),
     },
   ];
 
@@ -228,6 +251,26 @@ export const TextSettingsPage: React.FC = () => {
                 className="flex-1"
               />
             </SettingContainer>
+            <SettingContainer
+              title={t("textOps.settings.aiPosition")}
+              description=""
+              layout="horizontal"
+              grouped={true}
+            >
+              <Dropdown
+                selectedValue={aiPosition}
+                options={aiPositionOptions}
+                onSelect={async (value) => {
+                  if (value) {
+                    await commands.changeTextOpsAiPositionSetting(
+                      value as TextOpsAiPosition,
+                    );
+                    refreshSettings();
+                  }
+                }}
+                className="flex-1"
+              />
+            </SettingContainer>
             <ToggleSwitch
               checked={shortcutCreatesTab}
               onChange={(enabled) =>
@@ -300,6 +343,17 @@ export const TextSettingsPage: React.FC = () => {
           isUpdating={isUpdating("text_ops_confirm_tab_close")}
           label={t("textOps.settings.confirmClose")}
           description={t("textOps.settings.confirmCloseDescription")}
+          descriptionMode="tooltip"
+          grouped={true}
+        />
+        <ToggleSwitch
+          checked={(getSetting("text_ops_auto_label_enabled") as boolean) ?? false}
+          onChange={(enabled) =>
+            updateSetting("text_ops_auto_label_enabled", enabled)
+          }
+          isUpdating={isUpdating("text_ops_auto_label_enabled")}
+          label={t("textOps.settings.autoLabel")}
+          description={t("textOps.settings.autoLabelDescription")}
           descriptionMode="tooltip"
           grouped={true}
         />

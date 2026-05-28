@@ -900,7 +900,14 @@ const TextHistoryEntryComponent: React.FC<TextHistoryEntryProps> = ({
   const [showCopied, setShowCopied] = useState(false);
   const [showInput, setShowInput] = useState(false);
   const [showVersions, setShowVersions] = useState(false);
+  const [isRenaming, setIsRenaming] = useState(false);
+  const [renameValue, setRenameValue] = useState("");
+  const renameInputRef = useRef<HTMLInputElement>(null);
   const { createTab } = useDocumentStore();
+
+  useEffect(() => {
+    if (isRenaming) renameInputRef.current?.focus();
+  }, [isRenaming]);
 
   const handleCopy = () => {
     const text = entry.post_processed_text || entry.transcription_text;
@@ -920,6 +927,17 @@ const TextHistoryEntryComponent: React.FC<TextHistoryEntryProps> = ({
     }
   };
 
+  const finishRenaming = useCallback(async () => {
+    if (renameValue.trim() && renameValue.trim() !== entry.title) {
+      try {
+        await commands.renameHistoryEntry(entry.id, renameValue.trim());
+      } catch (error) {
+        console.error("Failed to rename entry:", error);
+      }
+    }
+    setIsRenaming(false);
+  }, [entry.id, entry.title, renameValue]);
+
   const formattedDate = formatDateTime(String(entry.timestamp), i18n.language);
   const outputText = entry.post_processed_text || entry.transcription_text;
   const versionCount = entry.version_count ?? 0;
@@ -929,7 +947,36 @@ const TextHistoryEntryComponent: React.FC<TextHistoryEntryProps> = ({
       {/* Card header */}
       <div className="flex items-center justify-between px-4 py-2.5 bg-mid-gray/5 border-b border-mid-gray/20">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="text-xs text-text/50">{formattedDate}</span>
+          {isRenaming ? (
+            <input
+              ref={renameInputRef}
+              value={renameValue}
+              onChange={(e) => setRenameValue(e.target.value)}
+              onBlur={finishRenaming}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") finishRenaming();
+                if (e.key === "Escape") setIsRenaming(false);
+                e.stopPropagation();
+              }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-transparent border-b border-logo-primary text-xs text-text outline-none w-[200px]"
+            />
+          ) : (
+            <>
+              <span className="text-xs text-text/50">{formattedDate}</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsRenaming(true);
+                  setRenameValue(entry.title);
+                }}
+                className="text-text/30 hover:text-text/60 transition-colors cursor-pointer"
+                title={t("settings.history.rename")}
+              >
+                <Pencil className="w-3 h-3" />
+              </button>
+            </>
+          )}
         </div>
         <div className="flex items-center gap-1 shrink-0">
           <IconButton onClick={handleCopy} title={t("settings.history.copyToClipboard")}>
@@ -1012,6 +1059,16 @@ const TextHistoryEntryComponent: React.FC<TextHistoryEntryProps> = ({
             const tabId = await createTab(entry.title || undefined);
             if (tabId) {
               useDocumentStore.getState().updateContent(tabId, text);
+              await commands.linkTabToHistoryEntry(tabId, entry.id);
+              useDocumentStore.setState((state) => {
+                const tab = state.tabs[tabId];
+                if (!tab) return state;
+                return {
+                  tabs: { ...state.tabs, [tabId]: { ...tab, historyEntryId: entry.id } },
+                };
+              });
+              useSettingsStore.getState().setAppMode("text");
+              useSettingsStore.getState().setCurrentSection("textOperations");
             }
           }}
           className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-mid-gray/10 border border-mid-gray/20 text-text/60 hover:text-text/80 transition-colors cursor-pointer"

@@ -8,6 +8,7 @@ import {
   RotateCcw,
   Loader2,
   Pencil,
+  GitCompare,
 } from "lucide-react";
 import { commands, type TranscriptionVersion } from "@/bindings";
 import { formatDateTime } from "@/utils/dateFormat";
@@ -18,6 +19,8 @@ interface VersionHistoryPanelProps {
   historyEntryId: number | null;
   currentContent: string;
   onRestore: (text: string) => void;
+  onPreview: (preview: { text: string; label: string } | null) => void;
+  previewText: string | null;
   onClose: () => void;
 }
 
@@ -25,6 +28,8 @@ export const VersionHistoryPanel: React.FC<VersionHistoryPanelProps> = ({
   historyEntryId,
   currentContent,
   onRestore,
+  onPreview,
+  previewText,
   onClose,
 }) => {
   const { t, i18n } = useTranslation();
@@ -88,11 +93,13 @@ export const VersionHistoryPanel: React.FC<VersionHistoryPanelProps> = ({
                     version={version}
                     entryId={historyEntryId}
                     isActive={isActive}
+                    isPreviewing={previewText === version.text}
                     language={i18n.language}
                     onRestore={(text) => {
                       onRestore(text);
                       fetchVersions();
                     }}
+                    onPreview={onPreview}
                   />
                 </div>
               );
@@ -103,12 +110,14 @@ export const VersionHistoryPanel: React.FC<VersionHistoryPanelProps> = ({
                 <OriginalCard
                   text={originalText}
                   isActive={originalText === currentContent}
+                  isPreviewing={previewText === originalText}
                   entryId={historyEntryId}
                   language={i18n.language}
                   onRestore={(text) => {
                     onRestore(text);
                     fetchVersions();
                   }}
+                  onPreview={onPreview}
                 />
               </>
             )}
@@ -185,16 +194,20 @@ interface VersionCardProps {
   version: TranscriptionVersion;
   entryId: number;
   isActive: boolean;
+  isPreviewing: boolean;
   language: string;
   onRestore: (text: string) => void;
+  onPreview: (preview: { text: string; label: string } | null) => void;
 }
 
 const VersionCard: React.FC<VersionCardProps> = ({
   version,
   entryId,
   isActive,
+  isPreviewing,
   language,
   onRestore,
+  onPreview,
 }) => {
   const { t } = useTranslation();
   const formattedTime = formatDateTime(String(version.timestamp), language);
@@ -247,12 +260,24 @@ const VersionCard: React.FC<VersionCardProps> = ({
             {t("settings.history.activeVersion")}
           </span>
         ) : (
-          <RestoreButton
-            entryId={entryId}
-            versionId={version.id}
-            text={version.text}
-            onRestore={onRestore}
-          />
+          <div className="flex items-center gap-1 shrink-0">
+            <PreviewButton
+              isPreviewing={isPreviewing}
+              onClick={() => {
+                if (isPreviewing) {
+                  onPreview(null);
+                } else {
+                  onPreview({ text: version.text, label: formattedTime });
+                }
+              }}
+            />
+            <RestoreButton
+              entryId={entryId}
+              versionId={version.id}
+              text={version.text}
+              onRestore={onRestore}
+            />
+          </div>
         )}
       </div>
       <p
@@ -280,16 +305,20 @@ const VersionCard: React.FC<VersionCardProps> = ({
 interface OriginalCardProps {
   text: string;
   isActive: boolean;
+  isPreviewing: boolean;
   entryId: number;
   language: string;
   onRestore: (text: string) => void;
+  onPreview: (preview: { text: string; label: string } | null) => void;
 }
 
 const OriginalCard: React.FC<OriginalCardProps> = ({
   text,
   isActive,
+  isPreviewing,
   entryId,
   onRestore,
+  onPreview,
 }) => {
   const { t } = useTranslation();
 
@@ -324,12 +353,27 @@ const OriginalCard: React.FC<OriginalCardProps> = ({
             {t("settings.history.activeVersion")}
           </span>
         ) : (
-          <RestoreButton
-            entryId={entryId}
-            versionId={null}
-            text={text}
-            onRestore={onRestore}
-          />
+          <div className="flex items-center gap-1 shrink-0">
+            <PreviewButton
+              isPreviewing={isPreviewing}
+              onClick={() => {
+                if (isPreviewing) {
+                  onPreview(null);
+                } else {
+                  onPreview({
+                    text,
+                    label: t("settings.history.originalVersion"),
+                  });
+                }
+              }}
+            />
+            <RestoreButton
+              entryId={entryId}
+              versionId={null}
+              text={text}
+              onRestore={onRestore}
+            />
+          </div>
         )}
       </div>
       <p
@@ -338,6 +382,40 @@ const OriginalCard: React.FC<OriginalCardProps> = ({
         <ExpandableText text={text} limit={200} />
       </p>
     </div>
+  );
+};
+
+interface PreviewButtonProps {
+  isPreviewing: boolean;
+  onClick: () => void;
+}
+
+const PreviewButton: React.FC<PreviewButtonProps> = ({
+  isPreviewing,
+  onClick,
+}) => {
+  const { t } = useTranslation();
+  return (
+    <button
+      onClick={onClick}
+      className={`flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded border transition-colors cursor-pointer shrink-0 ${
+        isPreviewing
+          ? "border-logo-primary text-logo-primary bg-logo-primary/10"
+          : "border-text/20 text-text/50 hover:text-logo-primary hover:border-logo-primary"
+      }`}
+      title={
+        isPreviewing
+          ? t("textOps.editor.exitCompare")
+          : t("textOps.editor.compare")
+      }
+    >
+      <GitCompare className="w-2.5 h-2.5" />
+      <span>
+        {isPreviewing
+          ? t("textOps.editor.exitCompare")
+          : t("textOps.editor.compare")}
+      </span>
+    </button>
   );
 };
 

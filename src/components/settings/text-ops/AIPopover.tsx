@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ArrowRight, Check, ChevronDown, Sparkles } from "lucide-react";
 import type { LLMPrompt } from "@/bindings";
+import { useSettings } from "@/hooks/useSettings";
 import { useTextOpsProviderState } from "./useTextOpsProviderState";
 import { ProviderSelect } from "../PostProcessingSettingsApi/ProviderSelect";
 import { ModelSelect } from "../PostProcessingSettingsApi/ModelSelect";
@@ -18,7 +19,14 @@ interface AIPopoverProps {
   } | null;
   recentPresets: LLMPrompt[];
   onPresetClick: (prompt: LLMPrompt) => void;
+  documentAreaRef?: React.RefObject<HTMLDivElement | null>;
 }
+
+const POSITION_CLASSES: Record<string, string> = {
+  bottom_center: "fixed bottom-6 left-1/2 -translate-x-1/2",
+  bottom_left: "fixed bottom-6 left-[176px]",
+  bottom_right: "fixed bottom-6 right-6",
+};
 
 export const AIPopover: React.FC<AIPopoverProps> = ({
   isOpen,
@@ -29,12 +37,23 @@ export const AIPopover: React.FC<AIPopoverProps> = ({
   pendingResult,
   recentPresets,
   onPresetClick,
+  documentAreaRef,
 }) => {
   const { t } = useTranslation();
   const [instruction, setInstruction] = useState("");
   const [showModelSelector, setShowModelSelector] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const providerState = useTextOpsProviderState();
+  const { getSetting } = useSettings();
+
+  const aiPosition = (getSetting("text_ops_ai_position") as string) ?? "bottom_center";
+  let positionClass = POSITION_CLASSES[aiPosition] ?? POSITION_CLASSES.bottom_center;
+  let topStyle: number | undefined;
+  if (aiPosition === "top_center" && documentAreaRef?.current) {
+    const rect = documentAreaRef.current.getBoundingClientRect();
+    topStyle = rect.top + 8;
+    positionClass = "fixed left-1/2 -translate-x-1/2";
+  }
 
   useEffect(() => {
     if (isOpen) {
@@ -60,7 +79,10 @@ export const AIPopover: React.FC<AIPopoverProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[min(580px,calc(100%-200px))] bg-background border border-mid-gray/40 rounded-lg shadow-lg overflow-hidden z-50">
+    <div
+      className={`${positionClass} w-[min(580px,calc(100%-200px))] bg-background border border-mid-gray/40 rounded-lg shadow-lg overflow-hidden z-50`}
+      style={topStyle !== undefined ? { top: topStyle } : undefined}
+    >
       {/* Accept/revert bar */}
       {pendingResult && (
         <div className="flex items-center justify-between px-3 py-1.5 bg-logo-primary/5 border-b border-logo-primary/15">

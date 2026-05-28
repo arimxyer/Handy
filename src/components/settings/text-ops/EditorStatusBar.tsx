@@ -10,6 +10,7 @@ interface EditorStatusBarProps {
   onCopy: () => void;
   onModelClick: () => void;
   versionsOpen: boolean;
+  badgeRef?: React.Ref<HTMLButtonElement>;
 }
 
 export const EditorStatusBar: React.FC<EditorStatusBarProps> = ({
@@ -19,6 +20,7 @@ export const EditorStatusBar: React.FC<EditorStatusBarProps> = ({
   onCopy,
   onModelClick,
   versionsOpen,
+  badgeRef,
 }) => {
   const { t } = useTranslation();
   const providerState = useTextOpsProviderState();
@@ -49,6 +51,7 @@ export const EditorStatusBar: React.FC<EditorStatusBarProps> = ({
     <div className="flex items-center justify-between w-full px-8 py-2 border-b border-mid-gray/20">
       <div className="flex items-center gap-2">
         <button
+          ref={badgeRef}
           type="button"
           onClick={onModelClick}
           className="inline-flex items-center gap-1 rounded-full bg-mid-gray/10 px-2.5 py-0.5 text-[11px] text-text/55 hover:text-text/70 hover:bg-mid-gray/15 transition-colors cursor-pointer"

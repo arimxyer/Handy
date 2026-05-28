@@ -466,6 +466,7 @@
       "hideVersions": "Hide versions",
       "versions": "versions",
       "openAsTab": "Open as tab",
+      "rename": "Rename",
       "copyOriginal": "Copy original transcription",
       "copyEnhanced": "Copy enhanced transcription",
       "postProcess": "Enhance transcription",
@@ -814,9 +815,17 @@
       "revert": "Revert",
       "changeModel": "Change model",
       "reviewChanges": "Review changes",
+      "diffUnified": "Unified",
+      "diffSplit": "Split",
+      "compare": "Compare",
+      "exitCompare": "Comparing",
+      "comparingVersion": "Comparing with {{label}}",
+      "restoreThisVersion": "Restore this",
+      "cancelPreview": "Cancel",
       "words": "words",
       "versionHistory": "Version History",
-      "noVersions": "No versions yet. Accept an AI change to create your first version."
+      "noVersions": "No versions yet. Accept an AI change to create your first version.",
+      "moreSettings": "More settings..."
     },
     "settings": {
       "title": "Text Settings",
@@ -848,7 +857,14 @@
       "autoArchive": "Auto-archive on Close",
       "autoArchiveDescription": "Save closed tabs to text history automatically",
       "confirmClose": "Confirm Before Closing",
-      "confirmCloseDescription": "Show a confirmation dialog when closing a tab"
+      "confirmCloseDescription": "Show a confirmation dialog when closing a tab",
+      "aiPosition": "AI Popover Position",
+      "aiPositionBottomCenter": "Bottom center",
+      "aiPositionBottomLeft": "Bottom left",
+      "aiPositionBottomRight": "Bottom right",
+      "aiPositionTopCenter": "Top center",
+      "autoLabel": "Auto-label tabs with AI",
+      "autoLabelDescription": "Automatically generate tab titles using the configured text ops model when content is added"
     },
     "picker": {
       "title": "Choose Prompt",

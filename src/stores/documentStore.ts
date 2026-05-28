@@ -8,6 +8,11 @@ interface PendingResult {
   instruction: string;
 }
 
+interface PreviewVersion {
+  text: string;
+  label: string;
+}
+
 interface DocumentTabState {
   id: string;
   title: string;
@@ -16,6 +21,8 @@ interface DocumentTabState {
   isProcessing: boolean;
   isDirty: boolean;
   historyEntryId: number | null;
+  autoLabeled: boolean;
+  previewVersion: PreviewVersion | null;
 }
 
 interface DocumentStore {
@@ -40,6 +47,7 @@ interface DocumentStore {
   acceptResult: (id: string) => Promise<void>;
   revertResult: (id: string) => Promise<void>;
   autoCheckpoint: (id: string) => Promise<void>;
+  setPreviewVersion: (id: string, preview: PreviewVersion | null) => void;
 }
 
 function documentTabFromBackend(tab: DocumentTab): DocumentTabState {
@@ -51,6 +59,8 @@ function documentTabFromBackend(tab: DocumentTab): DocumentTabState {
     isProcessing: false,
     isDirty: false,
     historyEntryId: tab.history_entry_id ?? null,
+    autoLabeled: tab.auto_labeled ?? false,
+    previewVersion: null,
   };
 }
 
@@ -102,7 +112,10 @@ export const useDocumentStore = create<DocumentStore>()((set, get) => ({
   },
 
   createTab: async (title) => {
-    const result = await commands.createDocumentTab(title ?? null);
+    const effectiveTitle = title ?? new Intl.DateTimeFormat(navigator.language, {
+      month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+    }).format(new Date());
+    const result = await commands.createDocumentTab(effectiveTitle);
     if (result.status !== "ok") return null;
 
     const tab = documentTabFromBackend(result.data);
@@ -198,6 +211,16 @@ export const useDocumentStore = create<DocumentStore>()((set, get) => ({
             isDirty: true,
           },
         },
+      };
+    });
+  },
+
+  setPreviewVersion: (id, preview) => {
+    set((state) => {
+      const tab = state.tabs[id];
+      if (!tab) return state;
+      return {
+        tabs: { ...state.tabs, [id]: { ...tab, previewVersion: preview } },
       };
     });
   },

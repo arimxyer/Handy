@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Plus, X } from "lucide-react";
+import { commands } from "@/bindings";
 import { useDocumentStore } from "@/stores/documentStore";
 
 export const TabBar: React.FC = () => {
@@ -20,9 +21,17 @@ export const TabBar: React.FC = () => {
     setEditTitle(currentTitle);
   }, []);
 
-  const finishEditing = useCallback(() => {
+  const finishEditing = useCallback(async () => {
     if (editingTabId && editTitle.trim()) {
-      renameTab(editingTabId, editTitle.trim());
+      await renameTab(editingTabId, editTitle.trim());
+      useDocumentStore.setState((state) => {
+        const tab = state.tabs[editingTabId];
+        if (!tab || tab.autoLabeled) return state;
+        return {
+          tabs: { ...state.tabs, [editingTabId]: { ...tab, autoLabeled: true } },
+        };
+      });
+      commands.markTabAutoLabeled(editingTabId).catch(() => {});
     }
     setEditingTabId(null);
     setEditTitle("");
