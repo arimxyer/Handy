@@ -1139,7 +1139,14 @@ const TextHistoryEntryComponent: React.FC<TextHistoryEntryProps> = ({
                 const tab = state.tabs[tabId];
                 if (!tab) return state;
                 return {
-                  tabs: { ...state.tabs, [tabId]: { ...tab, historyEntryId: entry.id } },
+                  tabs: {
+                    ...state.tabs,
+                    [tabId]: {
+                      ...tab,
+                      historyEntryId: entry.id,
+                      autoLabeled: true,
+                    },
+                  },
                 };
               });
               useSettingsStore.getState().setAppMode("text");

@@ -1127,7 +1127,7 @@ impl HistoryManager {
     pub fn link_tab_to_history_entry(&self, tab_id: &str, entry_id: i64) -> Result<()> {
         let conn = self.get_connection()?;
         conn.execute(
-            "UPDATE document_tabs SET history_entry_id = ?1 WHERE id = ?2",
+            "UPDATE document_tabs SET history_entry_id = ?1, auto_labeled = 1 WHERE id = ?2",
             params![entry_id, tab_id],
         )?;
         Ok(())
