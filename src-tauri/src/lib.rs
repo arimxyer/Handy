@@ -461,6 +461,7 @@ pub fn run(cli_args: CliArgs) {
             commands::history::get_transcription_versions,
             commands::history::restore_version,
             commands::history::update_history_entry_text,
+            commands::history::rename_history_entry,
             commands::insights::analyze_speech_patterns,
             commands::insights::estimate_insights_tokens,
             commands::insights::change_insights_provider_id,
@@ -495,6 +496,11 @@ pub fn run(cli_args: CliArgs) {
             commands::text_ops::change_text_ops_confirm_tab_close_setting,
             commands::text_ops::change_text_ops_auto_archive_setting,
             commands::text_ops::change_text_ops_shortcut_creates_tab_setting,
+            commands::text_ops::change_text_ops_ai_position_setting,
+            commands::text_ops::change_text_ops_auto_label_setting,
+            commands::text_ops::generate_tab_label,
+            commands::text_ops::mark_tab_auto_labeled,
+            commands::text_ops::link_tab_to_history_entry,
             helpers::clamshell::is_laptop,
         ])
         .events(collect_events![managers::history::HistoryUpdatePayload,]);

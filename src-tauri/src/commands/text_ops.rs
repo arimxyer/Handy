@@ -552,6 +552,27 @@ pub fn change_text_ops_shortcut_creates_tab_setting(
 
 #[tauri::command]
 #[specta::specta]
+pub fn change_text_ops_ai_position_setting(
+    position: crate::settings::TextOpsAiPosition,
+    app: AppHandle,
+) -> Result<(), String> {
+    let mut settings = get_settings(&app);
+    settings.text_ops_ai_position = position;
+    write_settings(&app, settings);
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn change_text_ops_auto_label_setting(enabled: bool, app: AppHandle) -> Result<(), String> {
+    let mut settings = get_settings(&app);
+    settings.text_ops_auto_label_enabled = enabled;
+    write_settings(&app, settings);
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
 pub fn ensure_tab_history_entry(
     tab_id: String,
     initial_text: String,
@@ -573,5 +594,74 @@ pub fn save_tab_version(
 ) -> Result<i64, String> {
     history_manager
         .save_tab_version(&tab_id, &text, &prompt, model_name.as_deref())
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub async fn generate_tab_label(text: String, app: AppHandle) -> Result<String, String> {
+    let settings = get_settings(&app);
+
+    let provider = settings
+        .active_text_ops_provider()
+        .ok_or_else(|| "No active text ops provider configured".to_string())?
+        .clone();
+
+    let model = settings
+        .text_ops_models
+        .get(&provider.id)
+        .cloned()
+        .unwrap_or_default();
+
+    if model.is_empty() {
+        return Err("No model selected for text operations provider".to_string());
+    }
+
+    let api_key = settings
+        .post_process_api_keys
+        .get(&provider.id)
+        .cloned()
+        .unwrap_or_default();
+
+    let truncated = if text.len() > 500 { &text[..500] } else { &text };
+
+    let system_prompt = "Generate a concise 2-5 word title for this text. Return ONLY the title, no quotes or punctuation.".to_string();
+
+    let result = crate::llm_client::send_chat_completion_with_schema(
+        &provider,
+        api_key,
+        &model,
+        truncated.to_string(),
+        Some(system_prompt),
+        None,
+        Some("none".to_string()),
+        None,
+    )
+    .await
+    .map_err(|e| e)?;
+
+    result.ok_or_else(|| "No content returned from provider".to_string())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn mark_tab_auto_labeled(
+    id: String,
+    history_manager: tauri::State<'_, std::sync::Arc<crate::managers::history::HistoryManager>>,
+) -> Result<(), String> {
+    history_manager
+        .mark_tab_auto_labeled(&id)
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn link_tab_to_history_entry(
+    tab_id: String,
+    entry_id: i64,
+    history_manager: tauri::State<'_, std::sync::Arc<crate::managers::history::HistoryManager>>,
+) -> Result<(), String> {
+    history_manager
+        .link_tab_to_history_entry(&tab_id, entry_id)
         .map_err(|e| e.to_string())
 }

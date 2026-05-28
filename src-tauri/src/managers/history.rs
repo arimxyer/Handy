@@ -58,6 +58,7 @@ static MIGRATIONS: &[M] = &[
         );",
     ),
     M::up("ALTER TABLE document_tabs ADD COLUMN history_entry_id INTEGER;"),
+    M::up("ALTER TABLE document_tabs ADD COLUMN auto_labeled INTEGER NOT NULL DEFAULT 0;"),
 ];
 
 #[derive(Clone, Debug, Serialize, Deserialize, Type)]
@@ -100,6 +101,7 @@ pub struct DocumentTab {
     pub created_at: i64,
     pub updated_at: i64,
     pub history_entry_id: Option<i64>,
+    pub auto_labeled: bool,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, Type)]
@@ -922,6 +924,32 @@ impl HistoryManager {
         Ok(entry)
     }
 
+    pub fn rename_history_entry(&self, id: i64, title: &str) -> Result<HistoryEntry> {
+        let conn = self.get_connection()?;
+
+        let affected = conn.execute(
+            "UPDATE transcription_history SET title = ?1 WHERE id = ?2",
+            params![title, id],
+        )?;
+
+        if affected == 0 {
+            return Err(anyhow::anyhow!("History entry {} not found", id));
+        }
+
+        let entry = Self::get_entry_by_id_with_conn(&conn, id)?
+            .ok_or_else(|| anyhow::anyhow!("History entry {} not found after rename", id))?;
+
+        if let Err(e) = (HistoryUpdatePayload::Updated {
+            entry: entry.clone(),
+        })
+        .emit(&self.app_handle)
+        {
+            error!("Failed to emit history update event: {}", e);
+        }
+
+        Ok(entry)
+    }
+
     /// Restore a previous version or the original transcription.
     /// If `version_id` is Some, restores that version's text and prompt.
     /// If `version_id` is None, restores the original (sets post_processed_text to NULL).
@@ -1034,13 +1062,14 @@ impl HistoryManager {
             created_at: now,
             updated_at: now,
             history_entry_id: None,
+            auto_labeled: false,
         })
     }
 
     pub fn get_open_tabs(&self) -> Result<Vec<DocumentTab>> {
         let conn = self.get_connection()?;
         let mut stmt = conn.prepare(
-            "SELECT id, title, content, created_at, updated_at, history_entry_id FROM document_tabs WHERE is_archived = 0 ORDER BY created_at ASC",
+            "SELECT id, title, content, created_at, updated_at, history_entry_id, auto_labeled FROM document_tabs WHERE is_archived = 0 ORDER BY created_at ASC",
         )?;
         let tabs = stmt.query_map([], |row| {
             Ok(DocumentTab {
@@ -1050,6 +1079,7 @@ impl HistoryManager {
                 created_at: row.get("created_at")?,
                 updated_at: row.get("updated_at")?,
                 history_entry_id: row.get("history_entry_id")?,
+                auto_labeled: row.get::<_, i32>("auto_labeled").unwrap_or(0) != 0,
             })
         })?.collect::<rusqlite::Result<Vec<_>>>()?;
         Ok(tabs)
@@ -1058,7 +1088,7 @@ impl HistoryManager {
     pub fn get_document_tab(&self, id: &str) -> Result<Option<DocumentTab>> {
         let conn = self.get_connection()?;
         let tab = conn.query_row(
-            "SELECT id, title, content, created_at, updated_at, history_entry_id FROM document_tabs WHERE id = ?1 AND is_archived = 0",
+            "SELECT id, title, content, created_at, updated_at, history_entry_id, auto_labeled FROM document_tabs WHERE id = ?1 AND is_archived = 0",
             params![id],
             |row| {
                 Ok(DocumentTab {
@@ -1068,6 +1098,7 @@ impl HistoryManager {
                     created_at: row.get("created_at")?,
                     updated_at: row.get("updated_at")?,
                     history_entry_id: row.get("history_entry_id")?,
+                    auto_labeled: row.get::<_, i32>("auto_labeled").unwrap_or(0) != 0,
                 })
             },
         ).optional()?;
@@ -1089,6 +1120,24 @@ impl HistoryManager {
         conn.execute(
             "UPDATE document_tabs SET title = ?1 WHERE id = ?2 AND is_archived = 0",
             params![title, id],
+        )?;
+        Ok(())
+    }
+
+    pub fn link_tab_to_history_entry(&self, tab_id: &str, entry_id: i64) -> Result<()> {
+        let conn = self.get_connection()?;
+        conn.execute(
+            "UPDATE document_tabs SET history_entry_id = ?1 WHERE id = ?2",
+            params![entry_id, tab_id],
+        )?;
+        Ok(())
+    }
+
+    pub fn mark_tab_auto_labeled(&self, id: &str) -> Result<()> {
+        let conn = self.get_connection()?;
+        conn.execute(
+            "UPDATE document_tabs SET auto_labeled = 1 WHERE id = ?1",
+            params![id],
         )?;
         Ok(())
     }

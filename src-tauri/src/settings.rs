@@ -155,6 +155,16 @@ pub enum TextOpsOutputBehavior {
     ReplaceSelection,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, Default, PartialEq, Eq, Type)]
+#[serde(rename_all = "snake_case")]
+pub enum TextOpsAiPosition {
+    #[default]
+    BottomCenter,
+    BottomLeft,
+    BottomRight,
+    TopCenter,
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Type, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum AutoSubmitKey {
@@ -469,6 +479,10 @@ pub struct AppSettings {
     pub text_ops_auto_archive_on_close: bool,
     #[serde(default)]
     pub text_ops_shortcut_creates_tab: bool,
+    #[serde(default)]
+    pub text_ops_ai_position: TextOpsAiPosition,
+    #[serde(default)]
+    pub text_ops_auto_label_enabled: bool,
 }
 
 fn default_model() -> String {
@@ -975,6 +989,8 @@ pub fn get_default_settings() -> AppSettings {
         text_ops_confirm_tab_close: false,
         text_ops_auto_archive_on_close: true,
         text_ops_shortcut_creates_tab: false,
+        text_ops_ai_position: TextOpsAiPosition::default(),
+        text_ops_auto_label_enabled: false,
     }
 }
 

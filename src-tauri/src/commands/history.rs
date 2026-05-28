@@ -358,6 +358,18 @@ pub async fn get_transcription_versions(
 
 #[tauri::command]
 #[specta::specta]
+pub async fn rename_history_entry(
+    history_manager: State<'_, Arc<HistoryManager>>,
+    id: i64,
+    title: String,
+) -> Result<HistoryEntry, String> {
+    history_manager
+        .rename_history_entry(id, &title)
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+#[specta::specta]
 pub async fn update_history_entry_text(
     _app: AppHandle,
     history_manager: State<'_, Arc<HistoryManager>>,
