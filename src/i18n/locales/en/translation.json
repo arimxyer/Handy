@@ -825,7 +825,8 @@
       "words": "words",
       "versionHistory": "Version History",
       "noVersions": "No versions yet. Accept an AI change to create your first version.",
-      "moreSettings": "More settings..."
+      "moreSettings": "More settings...",
+      "morePresets": "More"
     },
     "settings": {
       "title": "Text Settings",
