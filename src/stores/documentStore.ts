@@ -11,6 +11,8 @@ interface PendingResult {
 interface PreviewVersion {
   text: string;
   label: string;
+  versionId: number | null;
+  entryId: number;
 }
 
 interface DocumentTabState {

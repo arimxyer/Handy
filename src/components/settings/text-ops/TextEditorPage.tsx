@@ -295,7 +295,16 @@ export const TextEditorPage: React.FC = () => {
                 modifiedText={activeTab.previewVersion.text}
                 onAccept={async () => {
                   if (!activeTabId || !activeTab.previewVersion) return;
-                  updateContent(activeTabId, activeTab.previewVersion.text);
+                  const preview = activeTab.previewVersion;
+                  try {
+                    await commands.restoreVersion(
+                      preview.entryId,
+                      preview.versionId,
+                    );
+                  } catch (e) {
+                    console.error("Failed to restore version:", e);
+                  }
+                  updateContent(activeTabId, preview.text);
                   setPreviewVersion(activeTabId, null);
                 }}
                 onRevert={() => {

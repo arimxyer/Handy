@@ -14,12 +14,19 @@ import { commands, type TranscriptionVersion } from "@/bindings";
 import { formatDateTime } from "@/utils/dateFormat";
 import { toast } from "sonner";
 
+interface PreviewPayload {
+  text: string;
+  label: string;
+  versionId: number | null;
+  entryId: number;
+}
+
 interface VersionHistoryPanelProps {
   tabId: string;
   historyEntryId: number | null;
   currentContent: string;
   onRestore: (text: string) => void;
-  onPreview: (preview: { text: string; label: string } | null) => void;
+  onPreview: (preview: PreviewPayload | null) => void;
   previewText: string | null;
   onClose: () => void;
 }
@@ -197,7 +204,7 @@ interface VersionCardProps {
   isPreviewing: boolean;
   language: string;
   onRestore: (text: string) => void;
-  onPreview: (preview: { text: string; label: string } | null) => void;
+  onPreview: (preview: PreviewPayload | null) => void;
 }
 
 const VersionCard: React.FC<VersionCardProps> = ({
@@ -267,7 +274,12 @@ const VersionCard: React.FC<VersionCardProps> = ({
                 if (isPreviewing) {
                   onPreview(null);
                 } else {
-                  onPreview({ text: version.text, label: formattedTime });
+                  onPreview({
+                    text: version.text,
+                    label: formattedTime,
+                    versionId: version.id,
+                    entryId,
+                  });
                 }
               }}
             />
@@ -309,7 +321,7 @@ interface OriginalCardProps {
   entryId: number;
   language: string;
   onRestore: (text: string) => void;
-  onPreview: (preview: { text: string; label: string } | null) => void;
+  onPreview: (preview: PreviewPayload | null) => void;
 }
 
 const OriginalCard: React.FC<OriginalCardProps> = ({
@@ -363,6 +375,8 @@ const OriginalCard: React.FC<OriginalCardProps> = ({
                   onPreview({
                     text,
                     label: t("settings.history.originalVersion"),
+                    versionId: null,
+                    entryId,
                   });
                 }
               }}
