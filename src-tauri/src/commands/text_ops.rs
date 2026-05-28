@@ -23,6 +23,7 @@ pub async fn process_text(
         text,
         prompt.prompt.clone(),
         prompt.name.clone(),
+        false,
         app,
         history_manager.inner().as_ref(),
     )
@@ -35,6 +36,7 @@ pub async fn process_text_with_prompt(
     text: String,
     prompt: String,
     prompt_name: Option<String>,
+    skip_history_save: Option<bool>,
     app: AppHandle,
     history_manager: State<'_, Arc<HistoryManager>>,
 ) -> Result<String, String> {
@@ -47,6 +49,7 @@ pub async fn process_text_with_prompt(
         text,
         prompt,
         prompt_name,
+        skip_history_save.unwrap_or(false),
         app,
         history_manager.inner().as_ref(),
     )
@@ -57,6 +60,7 @@ async fn process_text_with_prompt_impl(
     text: String,
     prompt: String,
     prompt_name: String,
+    skip_history_save: bool,
     app: AppHandle,
     history_manager: &HistoryManager,
 ) -> Result<String, String> {
@@ -119,9 +123,12 @@ async fn process_text_with_prompt_impl(
         "No content returned from provider".to_string()
     })?;
 
-    // Save to history
-    if let Err(e) = history_manager.save_text_operation(text, result_text.clone(), prompt_name) {
-        log::error!("Failed to save text operation to history: {}", e);
+    if !skip_history_save {
+        if let Err(e) =
+            history_manager.save_text_operation(text, result_text.clone(), prompt_name)
+        {
+            log::error!("Failed to save text operation to history: {}", e);
+        }
     }
 
     Ok(result_text)

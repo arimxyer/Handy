@@ -136,6 +136,7 @@ export const TextEditorPage: React.FC = () => {
           activeTab.content,
           prompt.prompt,
           prompt.name,
+          true,
         );
         if (result.status === "ok") {
           applyAIResult(activeTabId, result.data, prompt.name, prompt.prompt);
@@ -156,6 +157,7 @@ export const TextEditorPage: React.FC = () => {
           activeTab.content,
           instruction,
           null,
+          true,
         );
         if (result.status === "ok") {
           applyAIResult(activeTabId, result.data, "AI", instruction);

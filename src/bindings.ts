@@ -945,9 +945,9 @@ async processText(text: string, promptId: string) : Promise<Result<string, strin
     else return { status: "error", error: e  as any };
 }
 },
-async processTextWithPrompt(text: string, prompt: string, promptName: string | null) : Promise<Result<string, string>> {
+async processTextWithPrompt(text: string, prompt: string, promptName: string | null, skipHistorySave: boolean | null) : Promise<Result<string, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("process_text_with_prompt", { text, prompt, promptName }) };
+    return { status: "ok", data: await TAURI_INVOKE("process_text_with_prompt", { text, prompt, promptName, skipHistorySave }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
