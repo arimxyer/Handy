@@ -137,6 +137,7 @@ export const TextOperationsPage: React.FC = () => {
         inputText,
         instructionsText,
         promptName,
+        null,
       );
       if (result.status === "ok") {
         setResultText(result.data);
