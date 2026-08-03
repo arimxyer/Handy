@@ -1313,19 +1313,19 @@ bindings?: Partial<{ [key in string]: ShortcutBinding }>; push_to_talk?: boolean
  * upgrading from before this key existed are blanked by the migration so they
  * see the current release's notes — see `apply_settings_migrations`.
  */
-whats_new_last_seen_version?: string; selected_model?: string; onboarding_completed?: boolean; always_on_microphone?: boolean; selected_microphone?: string | null; clamshell_microphone?: string | null; selected_output_device?: string | null; translate_to_english?: boolean; selected_language?: string; overlay_position?: OverlayPosition; debug_mode?: boolean; log_level?: LogLevel; custom_words?: string[]; model_unload_timeout?: ModelUnloadTimeout; word_correction_threshold?: number; history_limit?: number; recording_retention_period?: RecordingRetentionPeriod; paste_method?: PasteMethod; clipboard_handling?: ClipboardHandling; auto_submit?: boolean; auto_submit_key?: AutoSubmitKey; post_process_enabled?: boolean; post_process_provider_id?: string; post_process_providers?: PostProcessProvider[]; post_process_api_keys?: SecretMap; post_process_models?: Partial<{ [key in string]: string }>; post_process_prompts?: LLMPrompt[]; post_process_selected_prompt_id?: string | null; mute_while_recording?: boolean; append_trailing_space?: boolean; app_language?: string; theme?: Theme; experimental_enabled?: boolean; lazy_stream_close?: boolean; keyboard_implementation?: KeyboardImplementation; show_tray_icon?: boolean; paste_delay_ms?: number; paste_delay_after_ms?: number; 
+whats_new_last_seen_version?: string; selected_model?: string; onboarding_completed?: boolean; always_on_microphone?: boolean; selected_microphone?: string | null; clamshell_microphone?: string | null; selected_output_device?: string | null; translate_to_english?: boolean; selected_language?: string; overlay_position?: OverlayPosition; debug_mode?: boolean; log_level?: LogLevel; custom_words?: string[]; model_unload_timeout?: ModelUnloadTimeout; word_correction_threshold?: number; history_limit?: number; recording_retention_period?: RecordingRetentionPeriod; paste_method?: PasteMethod; clipboard_handling?: ClipboardHandling; auto_submit?: boolean; auto_submit_key?: AutoSubmitKey; post_process_enabled?: boolean; post_process_provider_id?: string; post_process_providers?: PostProcessProvider[]; post_process_api_keys?: SecretMap; post_process_models?: Partial<{ [key in string]: string }>; post_process_prompts?: LLMPrompt[]; post_process_selected_prompt_id?: string | null; mute_while_recording?: boolean; append_trailing_space?: boolean; app_language?: string; theme?: Theme; experimental_enabled?: boolean; lazy_stream_close?: boolean; history_post_process_enabled?: boolean; history_post_process_auto_copy?: boolean; completion_notifications_enabled?: boolean; keyboard_implementation?: KeyboardImplementation; show_tray_icon?: boolean; paste_delay_ms?: number; paste_delay_after_ms?: number; 
 /**
  * Debug-gated ("beta") receipt-sequenced paste: restore the clipboard only
  * after the target app actually reads the transcript, instead of after a
  * fixed delay. See `paste_tx`. macOS and Windows only.
  */
-reliable_paste?: boolean; typing_tool?: TypingTool; external_script_path?: string | null; custom_filler_words?: string[] | null; transcribe_accelerator?: TranscribeAcceleratorSetting; ort_accelerator?: OrtAcceleratorSetting; transcribe_gpu_device?: number; extra_recording_buffer_ms?: number; vad_enabled?: boolean; 
+reliable_paste?: boolean; typing_tool?: TypingTool; external_script_path?: string | null; custom_filler_words?: string[] | null; transcribe_accelerator?: TranscribeAcceleratorSetting; ort_accelerator?: OrtAcceleratorSetting; transcribe_gpu_device?: number; extra_recording_buffer_ms?: number; insights_provider_id?: string; insights_api_keys?: Partial<{ [key in string]: string }>; insights_models?: Partial<{ [key in string]: string }>; insights_entry_count?: number; insights_use_all_history?: boolean; insights_history?: InsightsResult[]; text_ops_enabled?: boolean; text_ops_provider_id?: string; text_ops_models?: Partial<{ [key in string]: string }>; text_ops_prompts?: LLMPrompt[]; text_ops_selected_prompt_id?: string | null; text_ops_pinned_prompt_id?: string | null; text_ops_output_behavior?: TextOpsOutputBehavior; text_ops_autosave_enabled?: boolean; text_ops_autosave_delay_ms?: number; text_ops_confirm_tab_close?: boolean; text_ops_auto_archive_on_close?: boolean; text_ops_shortcut_creates_tab?: boolean; text_ops_ai_position?: TextOpsAiPosition; text_ops_auto_label_enabled?: boolean; vad_enabled?: boolean; 
 /**
  * Which recording overlay to show: None / Minimal / Live. Streaming mode is
  * not gated on this — that follows model capability. Migrated from the old
  * `overlay_position` (position `none` → style `None`).
  */
-overlay_style?: OverlayStyle; history_post_process_enabled?: boolean; history_post_process_auto_copy?: boolean; completion_notifications_enabled?: boolean; insights_provider_id?: string; insights_api_keys?: Partial<{ [key in string]: string }>; insights_models?: Partial<{ [key in string]: string }>; insights_entry_count?: number; insights_use_all_history?: boolean; insights_history?: InsightsResult[]; text_ops_enabled?: boolean; text_ops_provider_id?: string; text_ops_models?: Partial<{ [key in string]: string }>; text_ops_prompts?: LLMPrompt[]; text_ops_selected_prompt_id?: string | null; text_ops_pinned_prompt_id?: string | null; text_ops_output_behavior?: TextOpsOutputBehavior; text_ops_autosave_enabled?: boolean; text_ops_autosave_delay_ms?: number; text_ops_confirm_tab_close?: boolean; text_ops_auto_archive_on_close?: boolean; text_ops_shortcut_creates_tab?: boolean; text_ops_ai_position?: TextOpsAiPosition; text_ops_auto_label_enabled?: boolean }
+overlay_style?: OverlayStyle }
 export type AudioDevice = { index: string; name: string; is_default: boolean }
 export type AutoSubmitKey = "enter" | "ctrl_enter" | "cmd_enter"
 export type AvailableAccelerators = { transcribe: string[]; ort: string[]; gpu_devices: GpuDeviceOption[] }
@@ -1438,9 +1438,6 @@ uncovered_bindings: string[];
 recorder_blocked: boolean }
 export type ShortcutBinding = { id: string; name: string; description: string; default_binding: string; current_binding: string }
 export type SoundTheme = "marimba" | "pop" | "custom"
-export type TextOpsAiPosition = "bottom_center" | "bottom_left" | "bottom_right" | "top_center"
-export type TextOpsOutputBehavior = "copy_to_clipboard" | "replace_selection"
-export type TranscriptionVersion = { id: number; history_entry_id: number; text: string; prompt: string | null; model_name: string | null; target: string; timestamp: number }
 /**
  * Phase of the streaming overlay card, emitted to drive its UI state.
  */
@@ -1473,12 +1470,15 @@ export type StreamTextEvent = { committed: string; tentative: string }
  * Semantic kind of "working" phase, used to localize the spinner label.
  */
 export type StreamWorkKind = "transcribing" | "polishing"
+export type TextOpsAiPosition = "bottom_center" | "bottom_left" | "bottom_right" | "top_center"
+export type TextOpsOutputBehavior = "copy_to_clipboard" | "replace_selection"
 /**
  * UI appearance mode. `System` follows the OS `prefers-color-scheme`; `Light`
  * and `Dark` force one of the two palettes Handy already ships.
  */
 export type Theme = "system" | "light" | "dark"
 export type TranscribeAcceleratorSetting = "auto" | "cpu" | "gpu"
+export type TranscriptionVersion = { id: number; history_entry_id: number; text: string; prompt: string | null; model_name: string | null; target: string; timestamp: number }
 export type TypingTool = "auto" | "wtype" | "kwtype" | "dotool" | "ydotool" | "xdotool"
 export type WindowsMicrophonePermissionStatus = { supported: boolean; overall_access: PermissionAccess; device_access: PermissionAccess; app_access: PermissionAccess; desktop_app_access: PermissionAccess }
 
