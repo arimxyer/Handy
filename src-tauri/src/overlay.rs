@@ -74,6 +74,48 @@ const OVERLAY_BOTTOM_OFFSET: f64 = 15.0;
 const OVERLAY_BOTTOM_OFFSET: f64 = 40.0;
 
 #[cfg(target_os = "linux")]
+/// Whether the overlay surface is driven by gtk-layer-shell. Set once at window
+/// creation; read on every show to pick the layer-shell geometry path over the
+/// regular set_position one.
+#[cfg(target_os = "linux")]
+static LAYER_SHELL_ACTIVE: AtomicBool = AtomicBool::new(false);
+
+#[cfg(target_os = "linux")]
+pub fn layer_shell_active() -> bool {
+    LAYER_SHELL_ACTIVE.load(Ordering::Relaxed)
+}
+
+/// Size and offset a layer-shell surface.
+///
+/// A layer surface anchored to a single edge takes its size from the GTK
+/// window's size *request*, not from a resize: `gtk_window.resize()` (what
+/// Tauri's `set_size` ends up calling) is silently ignored, so without this the
+/// surface is committed at 0x0 and the compositor has nothing to show — the
+/// overlay renders correctly into a surface that never reaches the screen.
+///
+/// The edge margin replaces the y-offset that `calculate_overlay_position`
+/// applies on the regular-window path; Wayland gives a client no say over its
+/// own position, so the anchor plus margin is the only way to place it.
+#[cfg(target_os = "linux")]
+fn apply_layer_shell_geometry(
+    overlay_window: &tauri::webview::WebviewWindow,
+    width: f64,
+    height: f64,
+) {
+    if let Ok(gtk_window) = overlay_window.gtk_window() {
+        use gtk::prelude::*;
+
+        gtk_window.set_size_request(width as i32, height as i32);
+
+        let settings = settings::get_settings(overlay_window.app_handle());
+        let (edge, margin) = match settings.overlay_position {
+            OverlayPosition::Top => (Edge::Top, OVERLAY_TOP_OFFSET),
+            OverlayPosition::Bottom => (Edge::Bottom, OVERLAY_BOTTOM_OFFSET),
+        };
+        gtk_window.set_layer_shell_margin(edge, margin as i32);
+    }
+}
+
 fn update_gtk_layer_shell_anchors(overlay_window: &tauri::webview::WebviewWindow) {
     let window_clone = overlay_window.clone();
     let _ = overlay_window.run_on_main_thread(move || {
@@ -129,9 +171,12 @@ fn init_gtk_layer_shell(overlay_window: &tauri::webview::WebviewWindow) -> bool 
         gtk_window.set_layer(Layer::Overlay);
         gtk_window.set_keyboard_mode(KeyboardMode::None);
         gtk_window.set_exclusive_zone(0);
+        gtk_window.set_namespace("handy-overlay");
 
         update_gtk_layer_shell_anchors(overlay_window);
+        apply_layer_shell_geometry(overlay_window, OVERLAY_WIDTH, OVERLAY_HEIGHT);
 
+        LAYER_SHELL_ACTIVE.store(true, Ordering::Relaxed);
         return true;
     }
     false
@@ -490,21 +535,35 @@ fn show_overlay_state_on_main(app_handle: &AppHandle, state: &str) {
         let size_started = std::time::Instant::now();
         #[cfg(not(target_os = "windows"))]
         let _ = overlay_window.set_size(tauri::Size::Logical(tauri::LogicalSize { width, height }));
+        #[cfg(target_os = "linux")]
+        if layer_shell_active() {
+            // Tauri's set_size can't resize a layer surface; the size request can.
+            apply_layer_shell_geometry(&overlay_window, width, height);
+        }
         #[cfg(target_os = "windows")]
         WINDOWS_OVERLAY_IS_STREAMING.store(state == "streaming", Ordering::Relaxed);
         let size_elapsed = size_started.elapsed();
 
         let pos_started = std::time::Instant::now();
+        // A layer surface is placed by its anchor + margin, so skip the move
+        // entirely — Wayland ignores it, and on Linux the position lookup also
+        // costs a GDK monitor/cursor query we don't need.
+        #[cfg(target_os = "linux")]
+        let skip_position = layer_shell_active();
+        #[cfg(not(target_os = "linux"))]
+        let skip_position = false;
+
         #[cfg(not(target_os = "windows"))]
-        let set_pos_elapsed =
-            if let Some((x, y)) = calculate_overlay_position(app_handle, width, height) {
-                let set_pos_started = std::time::Instant::now();
-                let _ = overlay_window
-                    .set_position(tauri::Position::Logical(tauri::LogicalPosition { x, y }));
-                set_pos_started.elapsed()
-            } else {
-                std::time::Duration::ZERO
-            };
+        let set_pos_elapsed = if skip_position {
+            std::time::Duration::ZERO
+        } else if let Some((x, y)) = calculate_overlay_position(app_handle, width, height) {
+            let set_pos_started = std::time::Instant::now();
+            let _ = overlay_window
+                .set_position(tauri::Position::Logical(tauri::LogicalPosition { x, y }));
+            set_pos_started.elapsed()
+        } else {
+            std::time::Duration::ZERO
+        };
         #[cfg(target_os = "windows")]
         let set_pos_elapsed = {
             let set_pos_started = std::time::Instant::now();
