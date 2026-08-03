@@ -6,10 +6,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Current Fork State
 
-- `insiders` is merged through upstream `v0.8.3` at `f6eeed0` (`chore: upgrade insiders to Handy v0.8.3`).
-- The local Linux install was upgraded from this commit and the real profile database migrated from `user_version=8` to `9` on 2026-05-25.
-- A pre-upgrade rollback backup is retained at `/home/arimayer/backups/handy-upgrade-20260525-122035` with the old app data and old `/usr/bin/handy` + `/usr/lib/Handy`.
+- `insiders` is merged through upstream `v0.9.4` (merge `6414551` on `merge/upstream-v0.9.4`, 2026-08-02). `insiders-version.json` reads `0.9.4-insiders.1`.
+- Upstream added **no** history migrations between v0.8.3 and v0.9.4, so the fork's migrations 5–12 append after upstream's 1–4 and the live profile stayed at `user_version=12` across the upgrade — no conversion, no data touched.
+- The 0.9.4 upgrade rewrote settings in place: `whisper_accelerator`/`whisper_gpu_device` were renamed to `transcribe_*`, 11 keys were added (`settings_schema_version`, `overlay_style`, `theme`, `vad_enabled`, …), and the stale bare model id `turbo` was cleared and auto-replaced (`model.rs:1494`) because upstream 0.9.x moved to a 67-entry catalog of HuggingFace-style ids.
+- Rollback backups: `/home/arimayer/backups/handy-premerge-20260802` (settings + history.db) and `/home/arimayer/backups/handy-insiders-0.8.3-insiders.1` (the previous binary). `/usr/lib/Handy` now holds 0.9.4's runtime libs, so a real rollback needs `handy-upgrade-20260525-171132/Handy/` restored alongside the old binary.
 - Do not delete or reset `~/.local/share/com.pais.handy/history.db` without explicit user confirmation; transcription history and recordings are user data.
+
+**Streaming / Live overlay:** the Live overlay only appears when `overlay_style == Live` **and** a stream is actually running, and streaming requires `LoadedEngine::TranscribeCpp` — a catalog GGUF model with `capabilities.streaming: true` (8 of the 67 qualify). Legacy `.bin`/ONNX models, including `parakeet-tdt-0.6b-v3-int8` and even the GGUF `parakeet-tdt-0.6b-v3`, never stream, and the overlay silently falls back to the compact pill.
+
+**Lockfile:** resolve `src-tauri/Cargo.lock` conflicts by taking upstream's file verbatim and letting cargo add the fork's crates on top — never `cargo generate-lockfile`, which drifted 231 of 727 crates off upstream's tested set and broke the Tauri npm/crate version pairings.
 
 ## Development Commands
 
@@ -153,7 +158,9 @@ After rebuilding, only the binary needs re-copying: `sudo cp src-tauri/target/re
 
 **Database migration mismatch:** If Handy panics at startup with `DatabaseTooFarAhead`, it means a newer build wrote migrations to `~/.local/share/com.pais.handy/history.db` that the current binary doesn't recognize. Fix by rebuilding/installing from the branch with newer migrations, or restore the profile from backup together with the older binary. Do not delete the DB unless the user explicitly accepts losing transcription history.
 
-**whisper-rs Vulkan bindings:** Do not reintroduce `.cargo/config.toml` with `WHISPER_DONT_GENERATE_BINDINGS=1`. With upstream `v0.8.3` / `whisper-rs 0.16`, Linux Vulkan builds need regenerated bindings for the `ggml_backend_vk_*` symbols.
+**Vulkan build dependency:** since v0.9.x, inference goes through `transcribe-cpp-sys` (cmake + GGML), not `whisper-rs`. Its Vulkan backend needs `spirv-headers` installed, or the build script dies with `Could not find a package configuration file provided by "SPIRV-Headers"`. It is not pulled in by `vulkan-headers`.
+
+**Overlay on Wayland:** the recording overlay is a gtk-layer-shell surface, and a layer surface takes its size from the GTK window's size _request_ — `set_size` (i.e. `gtk_window.resize()`) is silently ignored, committing a 0x0 surface that renders but never appears. See `apply_layer_shell_geometry()` in `overlay.rs`; placement is anchor + margin, never `set_position`. `HANDY_NO_GTK_LAYER_SHELL=1` forces the regular-window path for A/B testing (the overlay then lands centre-screen, since Wayland ignores client positioning).
 
 ### Wayland/KDE Clipboard Tools
 
