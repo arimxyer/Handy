@@ -137,7 +137,6 @@ pub enum ModelUnloadTimeout {
     Never,
     Immediately,
     Min2,
-    #[default]
     Min5,
     Min10,
     Min15,

@@ -1163,18 +1163,6 @@ impl ShortcutAction for TextOpsAction {
         let app_clone = app.clone();
         let prompt_name = prompt.name.clone();
         let system_prompt = prompt.prompt.replace("${output}", "").trim().to_string();
-        let (reasoning_effort, reasoning) = match provider.id.as_str() {
-            "custom" => (Some("none".to_string()), None),
-            "openrouter" => (
-                None,
-                Some(crate::llm_client::ReasoningConfig {
-                    effort: Some("none".to_string()),
-                    exclude: Some(true),
-                }),
-            ),
-            _ => (None, None),
-        };
-
         // Copy selected text first (Ctrl+C), then read clipboard and process
         // This runs on a background thread so we can sleep without blocking
         std::thread::spawn(move || {
@@ -1203,8 +1191,7 @@ impl ShortcutAction for TextOpsAction {
                     clipboard_text.clone(),
                     Some(system_prompt),
                     None,
-                    reasoning_effort,
-                    reasoning,
+                    true,
                 )
                 .await;
 

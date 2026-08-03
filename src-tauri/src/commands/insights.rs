@@ -263,18 +263,6 @@ pub async fn analyze_speech_patterns(
         let system_prompt = build_structured_system_prompt();
         let user_content = build_structured_user_content(&texts);
         let json_schema = build_insights_json_schema();
-        let (reasoning_effort, reasoning) = match provider_ref.id.as_str() {
-            "custom" => (Some("none".to_string()), None),
-            "openrouter" => (
-                None,
-                Some(crate::llm_client::ReasoningConfig {
-                    effort: Some("none".to_string()),
-                    exclude: Some(true),
-                }),
-            ),
-            _ => (None, None),
-        };
-
         match crate::llm_client::send_chat_completion_with_schema(
             provider_ref,
             api_key,
@@ -282,8 +270,7 @@ pub async fn analyze_speech_patterns(
             user_content,
             Some(system_prompt),
             Some(json_schema),
-            reasoning_effort,
-            reasoning,
+            true,
         )
         .await
         {

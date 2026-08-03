@@ -88,18 +88,6 @@ async fn process_text_with_prompt_impl(
         .unwrap_or_default();
 
     let system_prompt = prompt.replace("${output}", "").trim().to_string();
-    let (reasoning_effort, reasoning) = match provider.id.as_str() {
-        "custom" => (Some("none".to_string()), None),
-        "openrouter" => (
-            None,
-            Some(crate::llm_client::ReasoningConfig {
-                effort: Some("none".to_string()),
-                exclude: Some(true),
-            }),
-        ),
-        _ => (None, None),
-    };
-
     let result = crate::llm_client::send_chat_completion_with_schema(
         &provider,
         api_key,
@@ -107,8 +95,7 @@ async fn process_text_with_prompt_impl(
         text.clone(),
         Some(system_prompt),
         None,
-        reasoning_effort,
-        reasoning,
+        true,
     )
     .await
     .map_err(|e| {
@@ -329,18 +316,6 @@ pub async fn execute_picker_prompt(
 
     let prompt_name = prompt.name.clone();
     let system_prompt = prompt.prompt.replace("${output}", "").trim().to_string();
-    let (reasoning_effort, reasoning) = match provider.id.as_str() {
-        "custom" => (Some("none".to_string()), None),
-        "openrouter" => (
-            None,
-            Some(crate::llm_client::ReasoningConfig {
-                effort: Some("none".to_string()),
-                exclude: Some(true),
-            }),
-        ),
-        _ => (None, None),
-    };
-
     // Show processing overlay
     crate::overlay::show_text_processing_overlay(&app);
     crate::tray::change_tray_icon(&app, crate::tray::TrayIconState::Transcribing);
@@ -352,8 +327,7 @@ pub async fn execute_picker_prompt(
         text.clone(),
         Some(system_prompt),
         None,
-        reasoning_effort,
-        reasoning,
+        true,
     )
     .await?;
 
@@ -644,8 +618,7 @@ pub async fn generate_tab_label(text: String, app: AppHandle) -> Result<String, 
         truncated.to_string(),
         Some(system_prompt),
         None,
-        Some("none".to_string()),
-        None,
+        true,
     )
     .await
     .map_err(|e| e)?;
