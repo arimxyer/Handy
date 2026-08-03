@@ -1071,17 +1071,19 @@ impl HistoryManager {
         let mut stmt = conn.prepare(
             "SELECT id, title, content, created_at, updated_at, history_entry_id, auto_labeled FROM document_tabs WHERE is_archived = 0 ORDER BY created_at ASC",
         )?;
-        let tabs = stmt.query_map([], |row| {
-            Ok(DocumentTab {
-                id: row.get("id")?,
-                title: row.get("title")?,
-                content: row.get("content")?,
-                created_at: row.get("created_at")?,
-                updated_at: row.get("updated_at")?,
-                history_entry_id: row.get("history_entry_id")?,
-                auto_labeled: row.get::<_, i32>("auto_labeled").unwrap_or(0) != 0,
-            })
-        })?.collect::<rusqlite::Result<Vec<_>>>()?;
+        let tabs = stmt
+            .query_map([], |row| {
+                Ok(DocumentTab {
+                    id: row.get("id")?,
+                    title: row.get("title")?,
+                    content: row.get("content")?,
+                    created_at: row.get("created_at")?,
+                    updated_at: row.get("updated_at")?,
+                    history_entry_id: row.get("history_entry_id")?,
+                    auto_labeled: row.get::<_, i32>("auto_labeled").unwrap_or(0) != 0,
+                })
+            })?
+            .collect::<rusqlite::Result<Vec<_>>>()?;
         Ok(tabs)
     }
 
@@ -1145,11 +1147,14 @@ impl HistoryManager {
     pub fn ensure_tab_history_entry(&self, tab_id: &str, initial_text: &str) -> Result<i64> {
         let mut conn = self.get_connection()?;
 
-        let existing: Option<i64> = conn.query_row(
-            "SELECT history_entry_id FROM document_tabs WHERE id = ?1 AND is_archived = 0",
-            params![tab_id],
-            |row| row.get(0),
-        ).optional()?.flatten();
+        let existing: Option<i64> = conn
+            .query_row(
+                "SELECT history_entry_id FROM document_tabs WHERE id = ?1 AND is_archived = 0",
+                params![tab_id],
+                |row| row.get(0),
+            )
+            .optional()?
+            .flatten();
 
         if let Some(entry_id) = existing {
             return Ok(entry_id);
@@ -1192,11 +1197,14 @@ impl HistoryManager {
     ) -> Result<i64> {
         let conn = self.get_connection()?;
 
-        let history_entry_id: Option<i64> = conn.query_row(
-            "SELECT history_entry_id FROM document_tabs WHERE id = ?1 AND is_archived = 0",
-            params![tab_id],
-            |row| row.get(0),
-        ).optional()?.flatten();
+        let history_entry_id: Option<i64> = conn
+            .query_row(
+                "SELECT history_entry_id FROM document_tabs WHERE id = ?1 AND is_archived = 0",
+                params![tab_id],
+                |row| row.get(0),
+            )
+            .optional()?
+            .flatten();
 
         let entry_id = history_entry_id
             .ok_or_else(|| anyhow::anyhow!("Tab {} has no linked history entry", tab_id))?;
@@ -1227,11 +1235,7 @@ impl HistoryManager {
                         return Ok(entry);
                     }
 
-                    let entry = self.save_text_operation(
-                        tab.content,
-                        String::new(),
-                        tab.title,
-                    )?;
+                    let entry = self.save_text_operation(tab.content, String::new(), tab.title)?;
 
                     let conn = self.get_connection()?;
                     conn.execute(
@@ -1776,33 +1780,41 @@ mod tests {
         let file_name = "tab-tab-1";
 
         let tx_conn = &conn;
-        tx_conn.execute(
-            "INSERT INTO transcription_history (
+        tx_conn
+            .execute(
+                "INSERT INTO transcription_history (
                 file_name, timestamp, saved, title, transcription_text,
                 post_processed_text, post_process_prompt, post_process_requested, source
             ) VALUES (?1, ?2, 0, ?3, ?4, NULL, NULL, 0, 'text')",
-            params![file_name, timestamp, "My Tab", "hello world"],
-        ).expect("insert history entry");
+                params![file_name, timestamp, "My Tab", "hello world"],
+            )
+            .expect("insert history entry");
 
         let entry_id = tx_conn.last_insert_rowid();
-        tx_conn.execute(
-            "UPDATE document_tabs SET history_entry_id = ?1 WHERE id = ?2",
-            params![entry_id, "tab-1"],
-        ).expect("link tab to entry");
+        tx_conn
+            .execute(
+                "UPDATE document_tabs SET history_entry_id = ?1 WHERE id = ?2",
+                params![entry_id, "tab-1"],
+            )
+            .expect("link tab to entry");
 
-        let linked_id: Option<i64> = conn.query_row(
-            "SELECT history_entry_id FROM document_tabs WHERE id = 'tab-1'",
-            [],
-            |row| row.get(0),
-        ).expect("read linked id");
+        let linked_id: Option<i64> = conn
+            .query_row(
+                "SELECT history_entry_id FROM document_tabs WHERE id = 'tab-1'",
+                [],
+                |row| row.get(0),
+            )
+            .expect("read linked id");
 
         assert_eq!(linked_id, Some(entry_id));
 
-        let source: String = conn.query_row(
-            "SELECT source FROM transcription_history WHERE id = ?1",
-            params![entry_id],
-            |row| row.get(0),
-        ).expect("read source");
+        let source: String = conn
+            .query_row(
+                "SELECT source FROM transcription_history WHERE id = ?1",
+                params![entry_id],
+                |row| row.get(0),
+            )
+            .expect("read source");
         assert_eq!(source, "text");
     }
 
@@ -1817,27 +1829,33 @@ mod tests {
                 post_process_requested, source
             ) VALUES ('tab-tab-2', 100, 0, 'Tab Two', 'some text', 0, 'text')",
             [],
-        ).expect("insert entry");
+        )
+        .expect("insert entry");
         let entry_id = conn.last_insert_rowid();
 
         conn.execute(
             "UPDATE document_tabs SET history_entry_id = ?1 WHERE id = 'tab-2'",
             params![entry_id],
-        ).expect("link");
+        )
+        .expect("link");
 
-        let existing: Option<i64> = conn.query_row(
-            "SELECT history_entry_id FROM document_tabs WHERE id = 'tab-2'",
-            [],
-            |row| row.get::<_, Option<i64>>(0),
-        ).expect("read");
+        let existing: Option<i64> = conn
+            .query_row(
+                "SELECT history_entry_id FROM document_tabs WHERE id = 'tab-2'",
+                [],
+                |row| row.get::<_, Option<i64>>(0),
+            )
+            .expect("read");
 
         assert_eq!(existing, Some(entry_id));
 
-        let entry_count: i64 = conn.query_row(
-            "SELECT COUNT(*) FROM transcription_history WHERE source = 'text'",
-            [],
-            |row| row.get(0),
-        ).expect("count");
+        let entry_count: i64 = conn
+            .query_row(
+                "SELECT COUNT(*) FROM transcription_history WHERE source = 'text'",
+                [],
+                |row| row.get(0),
+            )
+            .expect("count");
         assert_eq!(entry_count, 1);
     }
 
@@ -1852,13 +1870,15 @@ mod tests {
                 post_process_requested, source
             ) VALUES ('tab-tab-3', 100, 0, 'Tab Three', 'original', 0, 'text')",
             [],
-        ).expect("insert entry");
+        )
+        .expect("insert entry");
         let entry_id = conn.last_insert_rowid();
 
         conn.execute(
             "UPDATE document_tabs SET history_entry_id = ?1 WHERE id = 'tab-3'",
             params![entry_id],
-        ).expect("link");
+        )
+        .expect("link");
 
         let tx = conn.transaction().expect("begin tx");
         tx.execute(
@@ -1871,18 +1891,22 @@ mod tests {
         ).expect("update entry");
         tx.commit().expect("commit");
 
-        let version_count: i64 = conn.query_row(
-            "SELECT COUNT(*) FROM transcription_versions WHERE history_entry_id = ?1",
-            params![entry_id],
-            |row| row.get(0),
-        ).expect("count versions");
+        let version_count: i64 = conn
+            .query_row(
+                "SELECT COUNT(*) FROM transcription_versions WHERE history_entry_id = ?1",
+                params![entry_id],
+                |row| row.get(0),
+            )
+            .expect("count versions");
         assert_eq!(version_count, 1);
 
-        let post_processed: Option<String> = conn.query_row(
-            "SELECT post_processed_text FROM transcription_history WHERE id = ?1",
-            params![entry_id],
-            |row| row.get(0),
-        ).expect("read post_processed");
+        let post_processed: Option<String> = conn
+            .query_row(
+                "SELECT post_processed_text FROM transcription_history WHERE id = ?1",
+                params![entry_id],
+                |row| row.get(0),
+            )
+            .expect("read post_processed");
         assert_eq!(post_processed.as_deref(), Some("enhanced text"));
     }
 
@@ -1897,35 +1921,43 @@ mod tests {
                 post_process_requested, source
             ) VALUES ('tab-tab-4', 100, 0, 'Tab Four', 'initial content', 0, 'text')",
             [],
-        ).expect("insert entry");
+        )
+        .expect("insert entry");
         let entry_id = conn.last_insert_rowid();
 
         conn.execute(
             "UPDATE document_tabs SET history_entry_id = ?1 WHERE id = 'tab-4'",
             params![entry_id],
-        ).expect("link");
+        )
+        .expect("link");
 
         conn.execute(
             "UPDATE transcription_history SET transcription_text = ?1 WHERE id = ?2",
             params!["my content", entry_id],
-        ).expect("update entry text");
+        )
+        .expect("update entry text");
         conn.execute(
             "UPDATE document_tabs SET is_archived = 1 WHERE id = 'tab-4'",
             [],
-        ).expect("archive tab");
+        )
+        .expect("archive tab");
 
-        let total_entries: i64 = conn.query_row(
-            "SELECT COUNT(*) FROM transcription_history WHERE source = 'text'",
-            [],
-            |row| row.get(0),
-        ).expect("count entries");
+        let total_entries: i64 = conn
+            .query_row(
+                "SELECT COUNT(*) FROM transcription_history WHERE source = 'text'",
+                [],
+                |row| row.get(0),
+            )
+            .expect("count entries");
         assert_eq!(total_entries, 1);
 
-        let updated_text: String = conn.query_row(
-            "SELECT transcription_text FROM transcription_history WHERE id = ?1",
-            params![entry_id],
-            |row| row.get(0),
-        ).expect("read updated text");
+        let updated_text: String = conn
+            .query_row(
+                "SELECT transcription_text FROM transcription_history WHERE id = ?1",
+                params![entry_id],
+                |row| row.get(0),
+            )
+            .expect("read updated text");
         assert_eq!(updated_text, "my content");
     }
 }

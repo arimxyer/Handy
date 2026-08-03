@@ -124,8 +124,7 @@ async fn process_text_with_prompt_impl(
     })?;
 
     if !skip_history_save {
-        if let Err(e) =
-            history_manager.save_text_operation(text, result_text.clone(), prompt_name)
+        if let Err(e) = history_manager.save_text_operation(text, result_text.clone(), prompt_name)
         {
             log::error!("Failed to save text operation to history: {}", e);
         }
@@ -630,7 +629,11 @@ pub async fn generate_tab_label(text: String, app: AppHandle) -> Result<String, 
         .cloned()
         .unwrap_or_default();
 
-    let truncated = if text.len() > 500 { &text[..500] } else { &text };
+    let truncated = if text.len() > 500 {
+        &text[..500]
+    } else {
+        &text
+    };
 
     let system_prompt = "Generate a concise 2-5 word title for this text. Return ONLY the title, no quotes or punctuation.".to_string();
 

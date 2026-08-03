@@ -44,7 +44,7 @@ import { sendCompletionNotification } from "@/lib/notifications";
 import { formatDateTime } from "@/utils/dateFormat";
 import { useDocumentStore } from "@/stores/documentStore";
 import { Button } from "../../ui/Button";
-import { AudioPlayer } from "../../ui/AudioPlayer";
+import { AudioPlayer, AudioPlayerGroup } from "../../ui/AudioPlayer";
 import { PostProcessDrawer } from "./PostProcessDrawer";
 import { VersionHistory } from "./VersionHistory";
 
@@ -406,45 +406,53 @@ export const HistorySettings: React.FC = () => {
     </div>
   ) : (
     <>
-      <div className={source === "text" ? "space-y-3" : "divide-y divide-mid-gray/20"}>
-        {entries
-          .filter((entry) => {
-            if (source !== "text" || !searchQuery.trim()) return true;
-            const q = searchQuery.toLowerCase();
-            return (
-              entry.transcription_text?.toLowerCase().includes(q) ||
-              entry.post_processed_text?.toLowerCase().includes(q) ||
-              entry.post_process_prompt?.toLowerCase().includes(q)
-            );
-          })
-          .map((entry) =>
-          source === "text" ? (
-            <TextHistoryEntryComponent
-              key={entry.id}
-              entry={entry}
-              onToggleSaved={() => toggleSaved(entry.id)}
-              deleteEntry={deleteHistoryEntry}
-            />
-          ) : (
-            <VoiceHistoryEntryComponent
-              key={entry.id}
-              entry={entry}
-              onToggleSaved={() => toggleSaved(entry.id)}
-              getAudioUrl={getAudioUrl}
-              deleteAudio={deleteHistoryEntry}
-              retryTranscription={retryHistoryEntry}
-              replaceEntry={replaceEntry}
-              showPostProcess={historyPostProcessEnabled}
-              postProcessConfigured={postProcessConfigured}
-              drawerOverrides={resolvedDrawerOverrides}
-              compareEnabled={drawer.compareEnabled}
-              compareModels={drawer.compareModels}
-              autoCopyEnhanced={historyPostProcessAutoCopy}
-              completionNotificationsEnabled={completionNotificationsEnabled}
-            />
-          ),
-        )}
-      </div>
+      <AudioPlayerGroup>
+        <div
+          className={
+            source === "text" ? "space-y-3" : "divide-y divide-mid-gray/20"
+          }
+        >
+          {entries
+            .filter((entry) => {
+              if (source !== "text" || !searchQuery.trim()) return true;
+              const q = searchQuery.toLowerCase();
+              return (
+                entry.transcription_text?.toLowerCase().includes(q) ||
+                entry.post_processed_text?.toLowerCase().includes(q) ||
+                entry.post_process_prompt?.toLowerCase().includes(q)
+              );
+            })
+            .map((entry) =>
+              source === "text" ? (
+                <TextHistoryEntryComponent
+                  key={entry.id}
+                  entry={entry}
+                  onToggleSaved={() => toggleSaved(entry.id)}
+                  deleteEntry={deleteHistoryEntry}
+                />
+              ) : (
+                <VoiceHistoryEntryComponent
+                  key={entry.id}
+                  entry={entry}
+                  onToggleSaved={() => toggleSaved(entry.id)}
+                  getAudioUrl={getAudioUrl}
+                  deleteAudio={deleteHistoryEntry}
+                  retryTranscription={retryHistoryEntry}
+                  replaceEntry={replaceEntry}
+                  showPostProcess={historyPostProcessEnabled}
+                  postProcessConfigured={postProcessConfigured}
+                  drawerOverrides={resolvedDrawerOverrides}
+                  compareEnabled={drawer.compareEnabled}
+                  compareModels={drawer.compareModels}
+                  autoCopyEnhanced={historyPostProcessAutoCopy}
+                  completionNotificationsEnabled={
+                    completionNotificationsEnabled
+                  }
+                />
+              ),
+            )}
+        </div>
+      </AudioPlayerGroup>
       <div ref={sentinelRef} className="h-1" />
     </>
   );
@@ -495,9 +503,7 @@ export const HistorySettings: React.FC = () => {
           </div>
         )}
         {source === "text" ? (
-          <div className="space-y-3">
-            {historyContent}
-          </div>
+          <div className="space-y-3">{historyContent}</div>
         ) : (
           <div className="bg-background border border-mid-gray/20 rounded-lg overflow-hidden">
             {historyContent}
@@ -1052,11 +1058,30 @@ const TextHistoryEntryComponent: React.FC<TextHistoryEntryProps> = ({
           )}
         </div>
         <div className="flex items-center gap-1 shrink-0">
-          <IconButton onClick={handleCopy} title={t("settings.history.copyToClipboard")}>
-            {showCopied ? <Check width={14} height={14} /> : <Copy width={14} height={14} />}
+          <IconButton
+            onClick={handleCopy}
+            title={t("settings.history.copyToClipboard")}
+          >
+            {showCopied ? (
+              <Check width={14} height={14} />
+            ) : (
+              <Copy width={14} height={14} />
+            )}
           </IconButton>
-          <IconButton onClick={onToggleSaved} active={entry.saved} title={entry.saved ? t("settings.history.unsave") : t("settings.history.save")}>
-            <Bookmark width={14} height={14} fill={entry.saved ? "currentColor" : "none"} />
+          <IconButton
+            onClick={onToggleSaved}
+            active={entry.saved}
+            title={
+              entry.saved
+                ? t("settings.history.unsave")
+                : t("settings.history.save")
+            }
+          >
+            <Bookmark
+              width={14}
+              height={14}
+              fill={entry.saved ? "currentColor" : "none"}
+            />
           </IconButton>
           <button
             type="button"
@@ -1113,9 +1138,7 @@ const TextHistoryEntryComponent: React.FC<TextHistoryEntryProps> = ({
         )}
 
         {/* Collapsible version history */}
-        {showVersions && versionCount > 0 && (
-          <VersionHistory entry={entry} />
-        )}
+        {showVersions && versionCount > 0 && <VersionHistory entry={entry} />}
       </div>
 
       {/* Card footer */}
@@ -1129,9 +1152,15 @@ const TextHistoryEntryComponent: React.FC<TextHistoryEntryProps> = ({
             >
               <History className="w-3 h-3" />
               <span className="text-[11px] font-medium">
-                {showVersions ? t("settings.history.hideVersions") : `${versionCount} ${t("settings.history.versions")}`}
+                {showVersions
+                  ? t("settings.history.hideVersions")
+                  : `${versionCount} ${t("settings.history.versions")}`}
               </span>
-              {showVersions ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+              {showVersions ? (
+                <ChevronUp className="w-3 h-3" />
+              ) : (
+                <ChevronDown className="w-3 h-3" />
+              )}
             </button>
           )}
           <button
@@ -1140,9 +1169,15 @@ const TextHistoryEntryComponent: React.FC<TextHistoryEntryProps> = ({
             className="flex items-center gap-1 text-text/40 cursor-pointer"
           >
             <span className="text-[11px]">
-              {showInput ? t("settings.history.hideInput") : t("settings.history.showInput")}
+              {showInput
+                ? t("settings.history.hideInput")
+                : t("settings.history.showInput")}
             </span>
-            {showInput ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+            {showInput ? (
+              <ChevronUp className="w-3 h-3" />
+            ) : (
+              <ChevronDown className="w-3 h-3" />
+            )}
           </button>
         </div>
         <button
@@ -1174,7 +1209,9 @@ const TextHistoryEntryComponent: React.FC<TextHistoryEntryProps> = ({
           className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-mid-gray/10 border border-mid-gray/20 text-text/60 hover:text-text/80 transition-colors cursor-pointer"
         >
           <ExternalLink className="w-3 h-3" />
-          <span className="text-[11px] font-medium">{t("settings.history.openAsTab")}</span>
+          <span className="text-[11px] font-medium">
+            {t("settings.history.openAsTab")}
+          </span>
         </button>
       </div>
     </div>

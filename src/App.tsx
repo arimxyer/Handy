@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, type ReactNode } from "react";
 import { toast, Toaster } from "sonner";
 import { useTranslation } from "react-i18next";
 import { listen } from "@tauri-apps/api/event";
@@ -10,6 +10,7 @@ import {
 import { ModelStateEvent, RecordingErrorEvent } from "./lib/types/events";
 import "./App.css";
 import AccessibilityPermissions from "./components/AccessibilityPermissions";
+import SecureInputWarning from "./components/SecureInputWarning";
 import Footer from "./components/footer";
 import Onboarding, { AccessibilityOnboarding } from "./components/onboarding";
 import {
@@ -18,6 +19,7 @@ import {
   AppMode,
   SECTIONS_CONFIG,
 } from "./components/Sidebar";
+import { WhatsNewGate } from "./components/whats-new";
 import { useSettings } from "./hooks/useSettings";
 import { useSettingsStore } from "./stores/settingsStore";
 import { commands, events, type HistoryUpdatePayload } from "@/bindings";
@@ -154,6 +156,19 @@ function App() {
     };
   }, [t]);
 
+  // Listen for transcription failures and show a toast.
+  // The payload is the backend error message (also logged to handy.log).
+  useEffect(() => {
+    const unlisten = listen<string>("transcription-error", (event) => {
+      toast.error(t("errors.transcriptionFailedTitle"), {
+        description: event.payload,
+      });
+    });
+    return () => {
+      unlisten.then((fn) => fn());
+    };
+  }, [t]);
+
   // Listen for model loading failures and show a toast
   useEffect(() => {
     const unlisten = listen<ModelStateEvent>("model-state-changed", (event) => {
@@ -206,12 +221,13 @@ function App() {
 
   const checkOnboardingStatus = async () => {
     try {
-      // Check if they have any models available
-      const result = await commands.hasAnyModelsAvailable();
-      const hasModels = result.status === "ok" && result.data;
+      const settingsResult = await commands.getAppSettings();
+      const hasCompletedOnboarding =
+        settingsResult.status === "ok" &&
+        settingsResult.data.onboarding_completed === true;
       const currentPlatform = platform();
 
-      if (hasModels) {
+      if (hasCompletedOnboarding) {
         // Returning user - check if they need to grant permissions first
         setIsReturningUser(true);
 
@@ -273,70 +289,98 @@ function App() {
     setOnboardingStep("done");
   };
 
+  // Rendered once around every step below (including onboarding) so
+  // toast.error() calls surface to the user. sonner renders via a portal, so
+  // its position in the tree doesn't affect layout. Without this, errors during
+  // onboarding (e.g. a model download failing because blob.handy.computer is
+  // unreachable) are silently swallowed and the wizard just appears to "blink".
+  const toaster = (
+    <Toaster
+      theme="system"
+      toastOptions={{
+        unstyled: true,
+        classNames: {
+          toast:
+            "bg-background border border-mid-gray/20 rounded-lg shadow-lg px-4 py-3 flex items-center gap-3 text-sm",
+          title: "font-medium",
+          description: "text-mid-gray",
+          actionButton:
+            "px-2 py-1 text-xs font-medium rounded-lg border bg-mid-gray/10 border-mid-gray/20 hover:bg-background-ui/30 hover:border-logo-primary cursor-pointer whitespace-nowrap",
+        },
+      }}
+    />
+  );
+
   // Still checking onboarding status
   if (onboardingStep === null) {
     return null;
   }
 
+  // Select the content for the current step. The Toaster is rendered once, in a
+  // stable wrapper around this node, so crossing between onboarding steps and
+  // the main app never remounts it (which would drop any in-flight toast).
+  let content: ReactNode;
   if (onboardingStep === "accessibility") {
-    return <AccessibilityOnboarding onComplete={handleAccessibilityComplete} />;
-  }
-
-  if (onboardingStep === "model") {
-    return <Onboarding onModelSelected={handleModelSelected} />;
+    content = (
+      <AccessibilityOnboarding onComplete={handleAccessibilityComplete} />
+    );
+  } else if (onboardingStep === "model") {
+    content = <Onboarding onModelSelected={handleModelSelected} />;
+  } else {
+    content = (
+      <div
+        dir={direction}
+        className="h-screen flex flex-col select-none cursor-default"
+      >
+        <WhatsNewGate />
+        {/* Main content area that takes remaining space */}
+        <div className="flex-1 flex min-h-0 overflow-hidden">
+          <Sidebar
+            activeSection={currentSection}
+            onSectionChange={setCurrentSection}
+            appMode={appMode}
+            onModeChange={handleModeChange}
+          />
+          {/* Scrollable content area + drawer portal */}
+          <div className="flex-1 flex min-h-0 overflow-hidden">
+            <div
+              className={`flex-1 min-w-0 min-h-0 overflow-x-hidden ${
+                currentSection === "textOperations"
+                  ? "overflow-hidden flex flex-col"
+                  : "overflow-y-auto"
+              }`}
+            >
+              {currentSection === "textOperations" ? (
+                <>
+                  <AccessibilityPermissions />
+                  <SecureInputWarning />
+                  {renderSettingsContent(currentSection)}
+                </>
+              ) : (
+                <div className="flex flex-col items-center p-4 gap-4">
+                  <AccessibilityPermissions />
+                  <SecureInputWarning />
+                  {renderSettingsContent(currentSection)}
+                </div>
+              )}
+            </div>
+            <div
+              id="drawer-portal"
+              className="relative self-stretch min-h-0 w-80 flex-shrink-0 overflow-hidden [&:empty]:w-0"
+            />
+          </div>
+        </div>
+        {/* Fixed footer at bottom */}
+        <Footer />
+      </div>
+    );
   }
 
   return (
-    <div
-      dir={direction}
-      className="h-screen flex flex-col select-none cursor-default"
-    >
-      <Toaster
-        theme="system"
-        toastOptions={{
-          unstyled: true,
-          classNames: {
-            toast:
-              "bg-background border border-mid-gray/20 rounded-lg shadow-lg px-4 py-3 flex items-center gap-3 text-sm",
-            title: "font-medium",
-            description: "text-mid-gray",
-          },
-        }}
-      />
-      {/* Main content area that takes remaining space */}
-      <div className="flex-1 flex min-h-0 overflow-hidden">
-        <Sidebar
-          activeSection={currentSection}
-          onSectionChange={setCurrentSection}
-          appMode={appMode}
-          onModeChange={handleModeChange}
-        />
-        {/* Scrollable content area + drawer portal */}
-        <div className="flex-1 flex min-h-0 overflow-hidden">
-          <div className={`flex-1 min-w-0 min-h-0 overflow-x-hidden ${
-            currentSection === "textOperations" ? "overflow-hidden flex flex-col" : "overflow-y-auto"
-          }`}>
-            {currentSection === "textOperations" ? (
-              <>
-                <AccessibilityPermissions />
-                {renderSettingsContent(currentSection)}
-              </>
-            ) : (
-              <div className="flex flex-col items-center p-4 gap-4">
-                <AccessibilityPermissions />
-                {renderSettingsContent(currentSection)}
-              </div>
-            )}
-          </div>
-          <div
-            id="drawer-portal"
-            className="relative self-stretch min-h-0 w-80 flex-shrink-0 overflow-hidden [&:empty]:w-0"
-          />
-        </div>
-      </div>
-      {/* Fixed footer at bottom */}
-      <Footer />
-    </div>
+    <>
+      {toaster}
+      {content}
+    </>
   );
 }
 

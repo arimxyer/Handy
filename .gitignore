@@ -50,3 +50,6 @@ patches/
 
 # Mise local overrides
 mise.local.toml
+
+# Python bytecode (scripts/)
+__pycache__/

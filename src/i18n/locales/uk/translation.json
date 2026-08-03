@@ -6,7 +6,8 @@
     "unloadModel": "Вивантажити модель",
     "model": "Модель",
     "quit": "Вийти",
-    "cancel": "Скасувати"
+    "cancel": "Скасувати",
+    "secureInputWarning": "⚠ Комбінації клавіш заблоковано Secure Input"
   },
   "sidebar": {
     "general": "Загальні",
@@ -25,11 +26,12 @@
   },
   "onboarding": {
     "subtitle": "Для початку оберіть модель транскрипції",
+    "existingModelsTitle": "Сумісні моделі",
+    "downloadModelsTitle": "Доступні для завантаження",
+    "showAllModels": "Показати всі моделі ({{total}})",
+    "showFewerModels": "Показати менше моделей",
     "recommended": "Рекомендовано",
-    "download": "Завантажити",
-    "downloading": "Завантаження...",
     "customModelDescription": "Офіційно не підтримується",
-    "downloadFailed": "Завантаження не вдалося. Будь ласка, спробуйте ще раз.",
     "modelCard": {
       "accuracy": "точність",
       "speed": "швидкість"
@@ -101,6 +103,7 @@
       }
     },
     "errors": {
+      "selectModel": "Не вдалося вибрати модель",
       "loadModels": "Не вдалося завантажити доступні моделі",
       "downloadModel": "Не вдалося завантажити модель: {{error}}"
     },
@@ -123,10 +126,14 @@
         "checkFailed": "Не вдалося перевірити дозволи. Будь ласка, спробуйте ще раз.",
         "requestFailed": "Не вдалося запросити дозвіл. Будь ласка, спробуйте ще раз."
       }
-    }
+    },
+    "download": "Завантажити",
+    "downloading": "Завантаження...",
+    "downloadFailed": "Завантаження не вдалося. Будь ласка, спробуйте ще раз."
   },
   "modelSelector": {
     "custom": "Користувацька",
+    "streaming": "Потокове",
     "active": "Активна",
     "noModelsAvailable": "Немає доступних моделей",
     "verifying": "Перевірка {{modelName}}...",
@@ -147,14 +154,17 @@
     "downloadSpeed": "{{speed}} MB/s",
     "capabilities": {
       "languageSelection": "Підтримує кілька мов введення",
-      "multiLanguage": "Багатомовна",
+      "languageCount": "{{total}} мов",
       "translation": "Може перекладати на англійську",
       "translate": "Перекласти на англійську",
       "singleLanguage": "Підтримує лише цю мову",
-      "languageOnly": "Лише {{language}}"
+      "languageOnly": "Лише {{language}}",
+      "streaming": "Показує транскрипцію в реальному часі під час мовлення",
+      "multiLanguage": "Багатомовна"
     },
     "cancel": "Скасувати",
-    "cancelDownload": "Скасувати завантаження"
+    "cancelDownload": "Скасувати завантаження",
+    "legacy": "Застаріле"
   },
   "settings": {
     "modelSettings": {
@@ -201,10 +211,10 @@
       "language": {
         "title": "Мова",
         "description": "Оберіть мову для розпізнавання мовлення. Режим «Авто» визначить мову автоматично, а вибір конкретної мови може покращити точність.",
-        "descriptionUnsupported": "Модель Parakeet автоматично визначає мову. Ручний вибір не потрібен.",
         "searchPlaceholder": "Пошук мов...",
         "noResults": "Мов не знайдено",
-        "auto": "Авто"
+        "auto": "Авто",
+        "descriptionUnsupported": "Модель Parakeet автоматично визначає мову. Ручний вибір не потрібен."
       },
       "pushToTalk": {
         "label": "Утримувати для запису (Push To Talk)",
@@ -214,20 +224,25 @@
     "models": {
       "title": "Моделі транскрипції",
       "description": "Виберіть модель транскрипції або завантажте додаткові моделі. Різні моделі пропонують різні рівні точності та швидкості.",
-      "downloaded": "Завантажено",
-      "available": "Доступні для завантаження",
       "deleteConfirm": "Ви впевнені, що хочете видалити {{modelName}}? Вам потрібно буде завантажити її знову, щоб використовувати.",
       "deleteActiveConfirm": "{{modelName}} — ваша активна модель. Видалення зупинить транскрипцію, доки ви не оберете нову модель. Ви впевнені?",
       "deleteTitle": "Видалити модель",
       "filters": {
+        "allLanguages": "Усі мови",
         "all": "Усі",
         "multiLanguage": "Багатомовні",
-        "translation": "Переклад",
-        "allLanguages": "Усі мови"
+        "translation": "Переклад"
       },
       "noModelsMatch": "Жодна модель не відповідає цьому фільтру.",
       "yourModels": "Завантажені моделі",
-      "availableModels": "Доступні для завантаження"
+      "availableModels": "Доступні для завантаження",
+      "searchPlaceholder": "Пошук моделей за назвою…",
+      "rescan": {
+        "label": "Пересканувати",
+        "tooltip": "Пересканувати моделі, додані до папки моделей або кешу Hugging Face поза межами Handy"
+      },
+      "downloaded": "Завантажено",
+      "available": "Доступні для завантаження"
     },
     "sound": {
       "title": "Звук",
@@ -253,7 +268,6 @@
       }
     },
     "advanced": {
-      "title": "Розширені",
       "groups": {
         "app": "Додаток",
         "output": "Вивід",
@@ -270,7 +284,7 @@
         "description": "Залишає потік мікрофона відкритим протягом 30 секунд після зупинки запису, зменшуючи затримку при послідовних транскрипціях. Може погіршити якість звуку Bluetooth."
       },
       "acceleration": {
-        "whisper": {
+        "transcribe": {
           "title": "Прискорення Whisper",
           "description": "Апаратне прискорення для моделей Whisper. Автоматичний режим використовує GPU за наявності (Metal на macOS, Vulkan на Windows/Linux)."
         },
@@ -279,9 +293,13 @@
           "description": "Апаратне прискорення для моделей ONNX (Parakeet, Canary, Moonshine тощо). DirectML на Windows є експериментальним. Моделі можуть не виконувати транскрипцію."
         },
         "gpuDevice": {
+          "auto": "Авто",
           "title": "Пристрій GPU",
-          "description": "Виберіть GPU для інференсу Whisper. Автоматично обирає виділений GPU.",
-          "auto": "Авто"
+          "description": "Виберіть GPU для інференсу Whisper. Автоматично обирає виділений GPU."
+        },
+        "whisper": {
+          "title": "Прискорення Whisper",
+          "description": "Апаратне прискорення для моделей Whisper. Автоматичний режим використовує GPU за наявності (Metal на macOS, Vulkan на Windows/Linux)."
         }
       },
       "startHidden": {
@@ -297,6 +315,23 @@
         "description": "Відображати значок Handy у системному треї."
       },
       "overlay": {
+        "style": {
+          "title": "Накладка",
+          "description": "Виберіть накладку під час запису: «Немає» приховує її, «Мінімальна» показує компактний індикатор, «У реальному часі» показує транскрипцію під час мовлення (лише моделі з підтримкою потокової обробки — шукайте позначку «Потокове» у списку моделей). У Linux рекомендовано «Немає».",
+          "options": {
+            "none": "Немає",
+            "minimal": "Мінімальна",
+            "live": "У реальному часі"
+          }
+        },
+        "position": {
+          "title": "Позиція оверлею",
+          "description": "Показувати візуальний оверлей під час запису та транскрипції. На Linux рекомендовано «Немає»",
+          "options": {
+            "bottom": "Внизу",
+            "top": "Вгорі"
+          }
+        },
         "title": "Позиція оверлею",
         "description": "Показувати візуальний оверлей під час запису та транскрипції. На Linux рекомендовано «Немає»",
         "options": {
@@ -366,12 +401,17 @@
       },
       "customWords": {
         "title": "Власні слова",
-        "description": "Додайте слова, які часто неправильно розпізнаються під час транскрипції. Система автоматично виправлятиме схожі за звучанням слова відповідно до вашого списку.",
+        "description": "Допоможіть підтримуваним моделям розпізнавати імена та спеціалізовані терміни. Нечітке виправлення наразі обмежене словами, що містять літери A–Z і цифри.",
         "placeholder": "Додати слово",
         "add": "Додати",
         "remove": "Видалити {{word}}",
         "duplicate": "\"{{word}}\" вже існує"
       },
+      "voiceActivityDetection": {
+        "title": "Виявлення голосової активності",
+        "description": "Відфільтровує тишу із записів. Моделі з підтримкою потокової обробки використовують довший «хвіст» VAD; вимкнення VAD записує необроблений звук."
+      },
+      "title": "Розширені",
       "historyPostProcessAutoCopy": {
         "label": "Copy Enhanced History Output",
         "description": "Automatically copy the enhanced text to your clipboard after a History transcription is enhanced."
@@ -382,7 +422,6 @@
       }
     },
     "postProcessing": {
-      "title": "Постобробка",
       "hotkey": {
         "title": "Гаряча клавіша"
       },
@@ -393,10 +432,10 @@
           "description": "Оберіть OpenAI-сумісного провайдера"
         },
         "appleIntelligence": {
+          "unavailable": "Apple Intelligence недоступний на цьому пристрої. Потрібен Mac з Apple Silicon під управлінням macOS Tahoe (26.0) або новіше з увімкненим Apple Intelligence в Системних налаштуваннях.",
           "title": "Apple Intelligence",
           "description": "Працює повністю на пристрої. API-ключ або доступ до мережі не потрібні.",
-          "requirements": "Потрібен Mac з Apple Silicon під управлінням macOS Tahoe (26.0) або новіше. Apple Intelligence має бути увімкнений у Системних налаштуваннях.",
-          "unavailable": "Apple Intelligence недоступний на цьому пристрої. Потрібен Mac з Apple Silicon під управлінням macOS Tahoe (26.0) або новіше з увімкненим Apple Intelligence в Системних налаштуваннях."
+          "requirements": "Потрібен Mac з Apple Silicon під управлінням macOS Tahoe (26.0) або новіше. Apple Intelligence має бути увімкнений у Системних налаштуваннях."
         },
         "baseUrl": {
           "title": "Базова URL-адреса",
@@ -410,13 +449,13 @@
         },
         "model": {
           "title": "Модель",
-          "descriptionApple": "Вкажіть необов'язковий числовий ліміт токенів або залиште стандартний пресет на пристрої.",
           "descriptionCustom": "Вкажіть ідентифікатор моделі, який очікує ваш ендпоінт.",
           "descriptionDefault": "Оберіть модель, надану обраним провайдером",
-          "placeholderApple": "Apple Intelligence",
           "placeholderWithOptions": "Шукайте або оберіть модель",
           "placeholderNoOptions": "Введіть назву моделі",
-          "refreshModels": "Оновити моделі"
+          "refreshModels": "Оновити моделі",
+          "descriptionApple": "Вкажіть необов'язковий числовий ліміт токенів або залиште стандартний пресет на пристрої.",
+          "placeholderApple": "Apple Intelligence"
         }
       },
       "prompts": {
@@ -439,7 +478,8 @@
         "cancel": "Скасувати",
         "selectToEdit": "Оберіть промпт вище для перегляду та редагування його деталей.",
         "createFirst": "Натисніть «Створити новий промпт» вище, щоб створити ваш перший промпт постобробки."
-      }
+      },
+      "title": "Постобробка"
     },
     "history": {
       "title": "Історія",
@@ -530,6 +570,17 @@
         "title": "Рівень логування",
         "description": "Встановіть детальність логування"
       },
+      "liveLogs": {
+        "title": "Логи в реальному часі",
+        "description": "Перегляд логів застосунку в реальному часі для діагностики проблем без відкриття файлу логів. Показуються лише логи, створені поки ця панель відкрита; враховує налаштування «Рівень логування» вище.",
+        "live": "У реальному часі",
+        "paused": "Призупинено",
+        "pause": "Призупинити",
+        "resume": "Відновити",
+        "copied": "Скопійовано",
+        "lineCount": "Рядків: {{count}}",
+        "empty": "Очікування логів… Записи з'являтимуться тут, щойно застосунок їх створюватиме."
+      },
       "updateChecks": {
         "label": "Перевірка оновлень",
         "description": "Автоматично перевіряти наявність нових версій Handy"
@@ -588,12 +639,47 @@
         "settings": "Налаштування:"
       },
       "pasteDelay": {
-        "title": "Затримка вставки",
-        "description": "Затримка перед надсиланням натискання клавіші вставки (у мілісекундах). Збільшіть, якщо вставляється неправильний текст."
+        "title": "Затримка вставки (до)",
+        "description": "Затримка (у мілісекундах) після копіювання тексту, перед надсиланням натискання клавіші вставки. Збільшіть, якщо нічого не вставляється."
+      },
+      "pasteDelayAfter": {
+        "title": "Затримка вставки (після)",
+        "description": "Затримка (у мілісекундах) після натискання клавіші вставки, перед відновленням попереднього буфера обміну. Збільшіть, якщо замість транскрипції вставляється старий вміст буфера обміну."
+      },
+      "reliablePaste": {
+        "title": "Надійна вставка (Beta)",
+        "description": "Відновлювати буфер обміну лише після того, як цільова програма справді прочитає транскрипцію, а не через фіксовану затримку. Призначено для усунення вставки старого вмісту буфера обміну під навантаженням на систему. Потрібен метод вставки через буфер обміну; лише macOS і Windows."
       },
       "recordingBuffer": {
         "title": "Додатковий буфер запису",
         "description": "Додатковий час (у мілісекундах) для продовження запису після відпускання клавіші, щоб захопити завершальний звук. 0 = без додаткового буфера."
+      },
+      "keyboardDiagnostic": {
+        "title": "Діагностика клавіатури",
+        "description": "Перевіряє, чи доходять події клавіатури до Handy. Записується лише кількість подій — ніколи те, які клавіші ви натискаєте.",
+        "run": "Запустити 10-секундну діагностику",
+        "running": "Прослуховування… натисніть свою комбінацію кілька разів (наприклад, Option+Space)",
+        "secureInputLabel": "Secure Input",
+        "enabled": "увімкнено",
+        "disabled": "вимкнено",
+        "holder": "утримує {{name}} (pid {{pid}})",
+        "holderUnknown": "видимого власника не знайдено",
+        "keyDown": "Натискання клавіші",
+        "keyUp": "Відпускання клавіші",
+        "flagsChanged": "Модифікатори",
+        "mouse": "Миша",
+        "verdictBlocked": "Secure Input блокує події клавіш — комбінації зі звичайною клавішею не працюватимуть, доки це не буде усунуто.",
+        "verdictSuspicious": "Події модифікаторів надходять, а події клавіш — ні: щось пригнічує клавіші, хоча Secure Input позначено як вимкнений. Будь ласка, повідомте про це на GitHub.",
+        "verdictOk": "Події клавіш надходять до Handy нормально.",
+        "verdictNoEvents": "Подій не зафіксовано — ви натискали клавіші під час тесту?",
+        "failed": "Не вдалося виконати діагностику: {{error}}"
+      },
+      "whatsNewPreview": {
+        "title": "Попередній перегляд новин",
+        "description": "Відкрити останні вбудовані примітки до випуску, не позначаючи їх як переглянуті",
+        "button": "Перегляд",
+        "noNotes": "Вбудовані примітки до випуску не знайдено",
+        "error": "Не вдалося переглянути примітки до випуску"
       },
       "historyPostProcessToggle": {
         "label": "Post-process History",
@@ -622,11 +708,20 @@
       },
       "acknowledgments": {
         "title": "Подяки",
+        "ggml": {
+          "title": "ggml",
+          "description": "Високопродуктивний інференс моделі автоматичного розпізнавання мовлення Whisper від OpenAI",
+          "details": "Handy використовує ggml для швидкої локальної обробки мовлення в текст. Дякуємо за чудову роботу Георгію Герганову та контриб'юторам."
+        },
         "whisper": {
           "title": "Whisper.cpp",
           "description": "Високопродуктивний інференс моделі автоматичного розпізнавання мовлення Whisper від OpenAI",
           "details": "Handy використовує Whisper.cpp для швидкої локальної обробки мовлення в текст. Дякуємо за чудову роботу Георгію Герганову та контриб'юторам."
         }
+      },
+      "whatsNewUpdates": {
+        "label": "Показувати новини",
+        "description": "Показувати примітки до випуску після оновлень Handy"
       }
     },
     "insights": {
@@ -700,48 +795,52 @@
     }
   },
   "footer": {
-    "downloadingModel": "Завантаження {{model}}...",
     "checkingUpdates": "Перевірка оновлень...",
-    "updateAvailable": "Доступне оновлення: {{version}}",
     "updateAvailableShort": "Доступне оновлення",
     "upToDate": "Актуальна версія",
-    "downloadUpdate": "Завантажити оновлення",
-    "restart": "Перезапустити",
     "updateCheckingDisabled": "Перевірка оновлень вимкнена",
     "downloading": "Завантаження... {{progress}}%",
     "installing": "Встановлення...",
     "preparing": "Підготовка...",
     "checkForUpdates": "Перевірити оновлення",
-    "portableUpdateTitle": "Manual update required",
-    "portableUpdateMessage": "Portable installs cannot be updated automatically. To update: download the latest NSIS installer from GitHub Releases, install it to the same folder, then copy your Data/ folder (settings, models, recordings) from the old version to the new one.",
-    "portableUpdateButton": "Open GitHub Releases"
+    "portableUpdateTitle": "Потрібне ручне оновлення",
+    "portableUpdateMessage": "Портативні встановлення не можна оновити автоматично. Завантажте нижче інсталятор для вашої системи, запустіть його та встановіть у ту саму теку — ваша тека Data/ (налаштування, моделі, записи) залишиться на місці.",
+    "portableUpdateButton": "Завантажити інсталятор",
+    "portableUpdateBrowseMessage": "Портативні встановлення не можна оновити автоматично. Завантажте найновішу версію для вашої системи зі сторінки GitHub Releases та встановіть її в ту саму теку — ваша тека Data/ (налаштування, моделі, записи) залишиться на місці.",
+    "portableUpdateBrowseButton": "Відкрити GitHub Releases",
+    "downloadingModel": "Завантаження {{model}}...",
+    "updateAvailable": "Доступне оновлення: {{version}}",
+    "downloadUpdate": "Завантажити оновлення",
+    "restart": "Перезапустити"
   },
   "common": {
     "loading": "Завантаження...",
+    "delete": "Видалити",
+    "close": "Закрити",
+    "open": "Відкрити",
+    "copy": "Копіювати",
+    "clear": "Очистити",
+    "noOptionsFound": "Опцій не знайдено",
     "save": "Зберегти",
     "cancel": "Скасувати",
     "reset": "Скинути",
     "add": "Додати",
     "remove": "Видалити",
-    "delete": "Видалити",
     "edit": "Редагувати",
     "create": "Створити",
     "update": "Оновити",
-    "close": "Закрити",
-    "open": "Відкрити",
     "default": "За замовчуванням",
     "enabled": "Увімкнено",
     "disabled": "Вимкнено",
     "on": "Увімк.",
     "off": "Вимк.",
     "yes": "Так",
-    "no": "Ні",
-    "noOptionsFound": "Опцій не знайдено"
+    "no": "Ні"
   },
   "accessibility": {
-    "permissionsRequired": "Потрібні права доступу",
     "permissionsDescription": "Handy потребує дозволи доступності для введення транскрибованого тексту.",
     "openSettings": "Відкрити Системні налаштування",
+    "permissionsRequired": "Потрібні права доступу",
     "dismiss": "Закрити"
   },
   "errors": {
@@ -759,16 +858,40 @@
     "modelLoadFailed": "Не вдалося завантажити модель: {{model}}",
     "modelLoadFailedUnknown": "невідома модель",
     "pasteFailedTitle": "Не вдалося вставити текст",
-    "pasteFailed": "Не вдалося вставити текст до активної програми."
+    "pasteFailed": "Не вдалося вставити текст до активної програми.",
+    "transcriptionFailedTitle": "Помилка транскрипції"
   },
   "appLanguage": {
     "title": "Мова інтерфейсу",
     "description": "Змінити мову інтерфейсу Handy"
   },
+  "theme": {
+    "title": "Тема застосунку",
+    "description": "Виберіть, чи має Handy слідувати темі системи, чи залишатися світлою або темною",
+    "options": {
+      "system": "Системна",
+      "light": "Світла",
+      "dark": "Темна"
+    }
+  },
   "overlay": {
     "transcribing": "Обробка...",
     "processing": "Постобробка...",
     "transforming": "Transforming..."
+  },
+  "whatsNew": {
+    "title": "Нове в Handy v{{version}}"
+  },
+  "secureInput": {
+    "blockedWithCulprit_one": "{{name}} може блокувати 1 комбінацію клавіш",
+    "blockedWithCulprit_other": "{{name}} може блокувати {{count}} комбінацій клавіш",
+    "blockedNoCulprit_one": "macOS тимчасово блокує 1 комбінацію клавіш",
+    "blockedNoCulprit_other": "macOS тимчасово блокує {{count}} комбінацій клавіш",
+    "recorderBlockedWithCulprit": "{{name}} може блокувати зміну комбінацій клавіш",
+    "recorderBlockedNoCulprit": "macOS тимчасово блокує зміну комбінацій клавіш",
+    "learnMore": "Як це виправити",
+    "recorderBlocked": "Зараз неможливо записати комбінацію — Secure Input у macOS блокує події клавіш. Спершу усуньте попередження про Secure Input.",
+    "dismiss": "Приховати"
   },
   "textOps": {
     "title": "Text Operations",

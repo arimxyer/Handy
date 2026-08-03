@@ -1,12 +1,17 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
+/** A selectable entry. Non-selectable decorations are the other DropdownItem arms. */
+export type DropdownOption = {
+  value: string;
+  label: string;
+  disabled?: boolean;
+};
+
 export type DropdownItem =
-  | { value: string; label: string; disabled?: boolean }
+  | DropdownOption
   | { kind: "separator" }
   | { kind: "header"; label: string };
-
-export type DropdownOption = DropdownItem;
 
 interface DropdownProps {
   options: DropdownItem[];
@@ -68,7 +73,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
     <div className={`relative ${className}`} ref={dropdownRef}>
       <button
         type="button"
-        className={`w-full min-w-0 px-2 py-1 text-sm font-semibold bg-mid-gray/10 border border-mid-gray/80 rounded-md min-w-[200px] text-start flex items-center justify-between transition-all duration-150 ${
+        className={`px-2 py-[5px] text-sm font-semibold bg-mid-gray/10 border border-mid-gray/80 rounded-md min-w-[200px] w-full text-start grid grid-cols-[1fr_auto] gap-2 items-center transition-all duration-150 ${
           disabled
             ? "opacity-50 cursor-not-allowed"
             : "hover:bg-logo-primary/10 cursor-pointer hover:border-logo-primary"
@@ -81,7 +86,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
           {selectedOption?.label || placeholder}
         </span>
         <svg
-          className={`w-4 h-4 ms-2 shrink-0 transition-transform duration-200 ${isOpen ? "transform rotate-180" : ""}`}
+          className={`w-4 h-4 transition-transform duration-200 ${isOpen ? "transform rotate-180" : ""}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"

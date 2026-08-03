@@ -54,6 +54,13 @@ export const SECTIONS_CONFIG = {
     enabled: () => true,
     mode: "voice",
   },
+  history: {
+    labelKey: "sidebar.history",
+    icon: History,
+    component: HistorySettings,
+    enabled: () => true,
+    mode: "both",
+  },
   models: {
     labelKey: "sidebar.models",
     icon: Cpu,
@@ -74,13 +81,6 @@ export const SECTIONS_CONFIG = {
     component: PostProcessingSettings,
     enabled: (settings) => settings?.post_process_enabled ?? false,
     mode: "voice",
-  },
-  history: {
-    labelKey: "sidebar.history",
-    icon: History,
-    component: HistorySettings,
-    enabled: () => true,
-    mode: "both",
   },
   insights: {
     labelKey: "sidebar.insights",
