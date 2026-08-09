@@ -913,31 +913,6 @@ impl ShortcutAction for TestAction {
 // Text Operations Action
 struct TextOpsAction;
 
-/// Write text to clipboard using the best available method.
-fn write_text_to_clipboard(app: &AppHandle, text: &str) -> Result<(), String> {
-    #[cfg(target_os = "linux")]
-    {
-        if crate::utils::is_wayland() {
-            // Use wl-copy on Wayland for reliability
-            let status = std::process::Command::new("wl-copy")
-                .arg("--")
-                .arg(text)
-                .stdout(std::process::Stdio::null())
-                .stderr(std::process::Stdio::null())
-                .status()
-                .map_err(|e| format!("Failed to execute wl-copy: {}", e))?;
-            if status.success() {
-                return Ok(());
-            }
-            // Fall through to Tauri clipboard
-        }
-    }
-    use tauri_plugin_clipboard_manager::ClipboardExt;
-    app.clipboard()
-        .write_text(text)
-        .map_err(|e| format!("Failed to write clipboard: {}", e))
-}
-
 /// Get the currently selected text. On Wayland, reads the primary selection
 /// (which contains whatever is highlighted) without needing to simulate Ctrl+C.
 /// Falls back to Ctrl+C copy approach on other platforms.
@@ -1223,8 +1198,10 @@ impl ShortcutAction for TextOpsAction {
                         match output_behavior {
                             TextOpsOutputBehavior::CopyToClipboard => {
                                 // Write result to clipboard only
-                                if let Err(e) = write_text_to_clipboard(&app_for_task, &result_text)
-                                {
+                                if let Err(e) = crate::clipboard::write_text_to_clipboard(
+                                    &app_for_task,
+                                    &result_text,
+                                ) {
                                     error!("Text ops: failed to copy to clipboard: {}", e);
                                 } else {
                                     info!("Text ops: result copied to clipboard");

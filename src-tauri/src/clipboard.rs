@@ -28,7 +28,10 @@ fn with_enigo<T>(
     f(&mut enigo)
 }
 
-fn write_text_to_clipboard(app_handle: &AppHandle, text: &str) -> Result<(), String> {
+/// Write text to the clipboard, preferring `wl-copy` on Wayland (better with
+/// umlauts and other non-ASCII). Shared with the text-ops pipeline in
+/// `actions.rs` so both paths agree on how a clipboard write is performed.
+pub(crate) fn write_text_to_clipboard(app_handle: &AppHandle, text: &str) -> Result<(), String> {
     #[cfg(target_os = "linux")]
     if is_wayland() && is_wl_copy_available() {
         info!("Using wl-copy for clipboard write on Wayland");
