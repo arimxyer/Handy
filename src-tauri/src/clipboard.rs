@@ -120,43 +120,62 @@ fn paste_via_clipboard(
     })
 }
 
+/// A key-injection tool: display name, availability probe, sender.
+#[cfg(target_os = "linux")]
+type KeyComboTool = (
+    &'static str,
+    fn() -> bool,
+    fn(&PasteMethod) -> Result<(), String>,
+);
+
+/// Walks `candidates` in order and returns whether one of them sent the combo.
+///
+/// An installed tool can still fail at run time — revoked uinput access, a
+/// daemon that died mid-session, a compositor that dropped a protocol. Each
+/// failure is logged and the chain continues, so one broken tool no longer
+/// fails the paste outright; enigo remains the caller's fallback once every
+/// candidate is exhausted.
+#[cfg(target_os = "linux")]
+fn run_key_combo_chain(candidates: &[KeyComboTool], paste_method: &PasteMethod) -> bool {
+    for (name, is_available, send_key_combo) in candidates {
+        if !is_available() {
+            continue;
+        }
+        info!("Using {} for key combo", name);
+        match send_key_combo(paste_method) {
+            Ok(()) => return true,
+            Err(error) => log::warn!(
+                "{} could not send the key combo ({}); trying the next tool",
+                name,
+                error
+            ),
+        }
+    }
+
+    false
+}
+
 /// Attempts to send a key combination using Linux-native tools.
 /// Returns `Ok(true)` if a native tool handled it, `Ok(false)` to fall back to enigo.
 #[cfg(target_os = "linux")]
 fn try_send_key_combo_linux(paste_method: &PasteMethod) -> Result<bool, String> {
-    if is_wayland() {
-        // Wayland: prefer wtype (but not on KDE), then dotool, then ydotool
-        // Note: wtype doesn't work on KDE (no zwp_virtual_keyboard_manager_v1 support)
-        if !is_kde_wayland() && is_wtype_available() {
-            info!("Using wtype for key combo");
-            send_key_combo_via_wtype(paste_method)?;
-            return Ok(true);
-        }
-        if is_dotool_available() {
-            info!("Using dotool for key combo");
-            send_key_combo_via_dotool(paste_method)?;
-            return Ok(true);
-        }
-        if is_ydotool_available() {
-            info!("Using ydotool for key combo");
-            send_key_combo_via_ydotool(paste_method)?;
-            return Ok(true);
+    const WTYPE: KeyComboTool = ("wtype", is_wtype_available, send_key_combo_via_wtype);
+    const DOTOOL: KeyComboTool = ("dotool", is_dotool_available, send_key_combo_via_dotool);
+    const YDOTOOL: KeyComboTool = ("ydotool", is_ydotool_available, send_key_combo_via_ydotool);
+    const XDOTOOL: KeyComboTool = ("xdotool", is_xdotool_available, send_key_combo_via_xdotool);
+
+    let candidates: &[KeyComboTool] = if is_wayland() {
+        // wtype doesn't work on KDE (no zwp_virtual_keyboard_manager_v1 support).
+        if is_kde_wayland() {
+            &[DOTOOL, YDOTOOL]
+        } else {
+            &[WTYPE, DOTOOL, YDOTOOL]
         }
     } else {
-        // X11: prefer xdotool, then ydotool
-        if is_xdotool_available() {
-            info!("Using xdotool for key combo");
-            send_key_combo_via_xdotool(paste_method)?;
-            return Ok(true);
-        }
-        if is_ydotool_available() {
-            info!("Using ydotool for key combo");
-            send_key_combo_via_ydotool(paste_method)?;
-            return Ok(true);
-        }
-    }
+        &[XDOTOOL, YDOTOOL]
+    };
 
-    Ok(false)
+    Ok(run_key_combo_chain(candidates, paste_method))
 }
 
 /// Attempts to type text directly using Linux-native tools.
@@ -273,14 +292,34 @@ fn is_wtype_available() -> bool {
         .unwrap_or(false)
 }
 
-/// Check if dotool is available (another Wayland text input tool)
+/// Whether this process can actually open `/dev/uinput` for writing.
+///
+/// The node is usually `root:input` with an ACL granting the desktop user
+/// access, so a mode-bit check would report a false negative. Opening it is
+/// the only answer that honours ACLs, and it is harmless: creating a virtual
+/// device needs ioctls we never issue, and uinput allows concurrent opens.
+#[cfg(target_os = "linux")]
+fn is_uinput_writable() -> bool {
+    std::fs::OpenOptions::new()
+        .write(true)
+        .open("/dev/uinput")
+        .is_ok()
+}
+
+/// Check if dotool is available. Like ydotool, the binary on its own proves
+/// nothing — dotool writes directly to `/dev/uinput`, so without access there
+/// it is installed and useless.
 #[cfg(target_os = "linux")]
 fn is_dotool_available() -> bool {
-    Command::new("which")
+    let binary_exists = Command::new("which")
         .arg("dotool")
         .output()
         .map(|output| output.status.success())
-        .unwrap_or(false)
+        .unwrap_or(false);
+    if !binary_exists {
+        return false;
+    }
+    is_uinput_writable()
 }
 
 #[cfg(target_os = "linux")]
@@ -844,6 +883,105 @@ we're using raw keycodes now.
 Syntax: <keycode>:<pressed>
 e.g. 28:1 28:0 means pressing on the Enter button on a standard US keyboard.
 "#;
+
+    // Fall-through chain. Function pointers cannot capture, so the fakes
+    // record themselves in atomics that each test resets first. Tests that
+    // share these counters must not run concurrently, hence the mutex.
+    #[cfg(target_os = "linux")]
+    mod chain_probe {
+        use std::sync::atomic::{AtomicUsize, Ordering};
+        use std::sync::Mutex;
+
+        pub static SENDS: AtomicUsize = AtomicUsize::new(0);
+        pub static LAST: AtomicUsize = AtomicUsize::new(0);
+        pub static LOCK: Mutex<()> = Mutex::new(());
+
+        pub fn reset() {
+            SENDS.store(0, Ordering::SeqCst);
+            LAST.store(0, Ordering::SeqCst);
+        }
+        pub fn record(id: usize) {
+            SENDS.fetch_add(1, Ordering::SeqCst);
+            LAST.store(id, Ordering::SeqCst);
+        }
+        pub fn sends() -> usize {
+            SENDS.load(Ordering::SeqCst)
+        }
+        pub fn last() -> usize {
+            LAST.load(Ordering::SeqCst)
+        }
+    }
+
+    #[cfg(target_os = "linux")]
+    fn always_available() -> bool {
+        true
+    }
+    #[cfg(target_os = "linux")]
+    fn never_available() -> bool {
+        false
+    }
+    #[cfg(target_os = "linux")]
+    fn fails_first(_: &PasteMethod) -> Result<(), String> {
+        chain_probe::record(1);
+        Err("simulated runtime failure".into())
+    }
+    #[cfg(target_os = "linux")]
+    fn succeeds_second(_: &PasteMethod) -> Result<(), String> {
+        chain_probe::record(2);
+        Ok(())
+    }
+    #[cfg(target_os = "linux")]
+    fn must_not_run(_: &PasteMethod) -> Result<(), String> {
+        chain_probe::record(99);
+        Ok(())
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn chain_falls_through_when_an_available_tool_fails_at_runtime() {
+        let _guard = chain_probe::LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        chain_probe::reset();
+
+        let candidates: &[KeyComboTool] = &[
+            ("first", always_available, fails_first),
+            ("second", always_available, succeeds_second),
+        ];
+
+        assert!(run_key_combo_chain(candidates, &PasteMethod::CtrlV));
+        assert_eq!(chain_probe::sends(), 2, "both tools should have been tried");
+        assert_eq!(chain_probe::last(), 2, "the second tool should have won");
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn chain_skips_unavailable_tools_without_invoking_them() {
+        let _guard = chain_probe::LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        chain_probe::reset();
+
+        let candidates: &[KeyComboTool] = &[
+            ("unavailable", never_available, must_not_run),
+            ("available", always_available, succeeds_second),
+        ];
+
+        assert!(run_key_combo_chain(candidates, &PasteMethod::CtrlV));
+        assert_eq!(chain_probe::sends(), 1, "only the available tool runs");
+        assert_eq!(chain_probe::last(), 2);
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn chain_reports_false_so_the_caller_falls_back_to_enigo() {
+        let _guard = chain_probe::LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        chain_probe::reset();
+
+        let candidates: &[KeyComboTool] = &[
+            ("broken", always_available, fails_first),
+            ("missing", never_available, must_not_run),
+        ];
+
+        assert!(!run_key_combo_chain(candidates, &PasteMethod::CtrlV));
+        assert_eq!(chain_probe::sends(), 1);
+    }
 
     #[cfg(target_os = "linux")]
     #[test]
