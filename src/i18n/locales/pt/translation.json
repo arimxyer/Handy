@@ -231,7 +231,8 @@
         "allLanguages": "Todos os Idiomas",
         "all": "Todos",
         "multiLanguage": "Multi-idioma",
-        "translation": "Tradução"
+        "translation": "Filtrar modelos compatíveis com tradução para inglês",
+        "streaming": "Filtrar modelos compatíveis com transcrição ao vivo"
       },
       "noModelsMatch": "Nenhum modelo corresponde a este filtro.",
       "yourModels": "Modelos baixados",
@@ -265,6 +266,12 @@
       "volume": {
         "title": "Volume",
         "description": "Ajustar o volume dos sons de feedback de áudio"
+      },
+      "channel": {
+        "title": "Canal de entrada",
+        "description": "Selecione o canal de entrada que será gravado. Use esta opção se a sua interface de áudio tiver várias entradas.",
+        "average": "Média de todos os canais",
+        "channel": "Canal {{n}}"
       }
     },
     "advanced": {

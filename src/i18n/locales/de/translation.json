@@ -181,7 +181,8 @@
         "allLanguages": "Alle Sprachen",
         "all": "Alle",
         "multiLanguage": "Mehrsprachig",
-        "translation": "Übersetzung"
+        "translation": "Modelle filtern, die Übersetzungen ins Englische unterstützen",
+        "streaming": "Modelle filtern, die Live-Transkription unterstützen"
       },
       "noModelsMatch": "Keine Modelle entsprechen diesem Filter.",
       "yourModels": "Heruntergeladene Modelle",
@@ -265,6 +266,12 @@
       "volume": {
         "title": "Lautstärke",
         "description": "Lautstärke der Audio-Feedback-Töne anpassen"
+      },
+      "channel": {
+        "title": "Eingangskanal",
+        "description": "Wähle den Eingangskanal aus, von dem aufgenommen werden soll. Verwende diese Option, wenn dein Audio-Interface mehrere Eingänge hat.",
+        "average": "Alle Kanäle mitteln",
+        "channel": "Kanal {{n}}"
       }
     },
     "advanced": {

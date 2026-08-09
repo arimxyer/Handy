@@ -181,7 +181,8 @@
         "allLanguages": "Wszystkie języki",
         "all": "Wszystkie",
         "multiLanguage": "Wielojęzyczne",
-        "translation": "Tłumaczenie"
+        "translation": "Filtruj modele obsługujące tłumaczenie na język angielski",
+        "streaming": "Filtruj modele obsługujące transkrypcję na żywo"
       },
       "noModelsMatch": "Żadne modele nie pasują do tego filtra.",
       "yourModels": "Pobrane modele",
@@ -265,6 +266,12 @@
       "volume": {
         "title": "Głośność",
         "description": "Dostosuj głośność dźwięków informacyjnych"
+      },
+      "channel": {
+        "title": "Kanał wejściowy",
+        "description": "Wybierz kanał wejściowy, z którego chcesz nagrywać. Użyj tej opcji, jeśli interfejs audio ma wiele wejść.",
+        "average": "Uśrednij wszystkie kanały",
+        "channel": "Kanał {{n}}"
       }
     },
     "advanced": {

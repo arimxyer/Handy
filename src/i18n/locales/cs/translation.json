@@ -181,7 +181,8 @@
         "allLanguages": "Všechny jazyky",
         "all": "Vše",
         "multiLanguage": "Vícejazyčný",
-        "translation": "Překlad"
+        "translation": "Filtrovat modely podporující překlad do angličtiny",
+        "streaming": "Filtrovat modely podporující živý přepis"
       },
       "noModelsMatch": "Tomuto filtru neodpovídají žádné modely.",
       "yourModels": "Stažené modely",
@@ -265,6 +266,12 @@
       "volume": {
         "title": "Hlasitost",
         "description": "Upravte hlasitost zvukové odezvy"
+      },
+      "channel": {
+        "title": "Vstupní kanál",
+        "description": "Vyberte vstupní kanál, ze kterého se má nahrávat. Tuto možnost použijte, pokud má vaše zvukové rozhraní více vstupů.",
+        "average": "Průměr všech kanálů",
+        "channel": "Kanál {{n}}"
       }
     },
     "advanced": {

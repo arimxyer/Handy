@@ -234,7 +234,8 @@
         "allLanguages": "All Languages",
         "all": "All",
         "multiLanguage": "Multi-language",
-        "translation": "Translation"
+        "translation": "Filter models that support translation to English",
+        "streaming": "Filter models that support live streaming transcription"
       },
       "rescan": {
         "label": "Rescan",
@@ -265,6 +266,12 @@
       "volume": {
         "title": "Volume",
         "description": "Adjust the volume of audio feedback sounds"
+      },
+      "channel": {
+        "title": "Input Channel",
+        "description": "Select which input channel to record from. Use this if your audio interface has multiple inputs.",
+        "average": "Average all channels",
+        "channel": "Channel {{n}}"
       }
     },
     "advanced": {

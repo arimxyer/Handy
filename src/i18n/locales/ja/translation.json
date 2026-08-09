@@ -181,7 +181,8 @@
         "allLanguages": "すべての言語",
         "all": "すべて",
         "multiLanguage": "多言語",
-        "translation": "翻訳"
+        "translation": "英語への翻訳に対応するモデルを絞り込む",
+        "streaming": "リアルタイム文字起こしに対応するモデルを絞り込む"
       },
       "noModelsMatch": "このフィルターに一致するモデルがありません。",
       "yourModels": "ダウンロード済みモデル",
@@ -265,6 +266,12 @@
       "volume": {
         "title": "音量",
         "description": "オーディオフィードバックの音量を調整"
+      },
+      "channel": {
+        "title": "入力チャンネル",
+        "description": "録音に使用する入力チャンネルを選択します。オーディオインターフェースに複数の入力がある場合に使用してください。",
+        "average": "すべてのチャンネルの平均",
+        "channel": "チャンネル{{n}}"
       }
     },
     "advanced": {

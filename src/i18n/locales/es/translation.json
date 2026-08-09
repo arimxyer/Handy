@@ -181,7 +181,8 @@
         "allLanguages": "Todos los idiomas",
         "all": "Todos",
         "multiLanguage": "Multiidioma",
-        "translation": "Traducción"
+        "translation": "Filtrar modelos compatibles con la traducción al inglés",
+        "streaming": "Filtrar modelos compatibles con la transcripción en vivo"
       },
       "noModelsMatch": "Ningún modelo coincide con este filtro.",
       "yourModels": "Modelos descargados",
@@ -265,6 +266,12 @@
       "volume": {
         "title": "Volumen",
         "description": "Ajusta el volumen de los sonidos de retroalimentación de audio"
+      },
+      "channel": {
+        "title": "Canal de entrada",
+        "description": "Selecciona el canal de entrada desde el que se grabará. Usa esta opción si tu interfaz de audio tiene varias entradas.",
+        "average": "Promediar todos los canales",
+        "channel": "Canal {{n}}"
       }
     },
     "advanced": {

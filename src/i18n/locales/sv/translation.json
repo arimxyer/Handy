@@ -233,7 +233,8 @@
         "allLanguages": "Alla språk",
         "all": "Alla",
         "multiLanguage": "Flerspråkig",
-        "translation": "Översättning"
+        "translation": "Filtrera modeller som stöder översättning till engelska",
+        "streaming": "Filtrera modeller som stöder transkription i realtid"
       },
       "noModelsMatch": "Inga modeller matchar detta filter.",
       "searchPlaceholder": "Sök modeller efter namn…",
@@ -265,6 +266,12 @@
       "volume": {
         "title": "Volym",
         "description": "Justera volymen för ljudåterkopplingsljud"
+      },
+      "channel": {
+        "title": "Ingångskanal",
+        "description": "Välj vilken ingångskanal du vill spela in från. Använd detta om ditt ljudgränssnitt har flera ingångar.",
+        "average": "Medelvärde av alla kanaler",
+        "channel": "Kanal {{n}}"
       }
     },
     "advanced": {

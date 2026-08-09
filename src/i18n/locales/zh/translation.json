@@ -181,7 +181,8 @@
         "allLanguages": "所有语言",
         "all": "全部",
         "multiLanguage": "多语言",
-        "translation": "翻译"
+        "translation": "筛选支持翻译为英语的模型",
+        "streaming": "筛选支持实时转录的模型"
       },
       "noModelsMatch": "没有符合此筛选条件的模型。",
       "yourModels": "已下载的模型",
@@ -265,6 +266,12 @@
       "volume": {
         "title": "音量",
         "description": "调整音频反馈的音量"
+      },
+      "channel": {
+        "title": "输入通道",
+        "description": "选择要录制的输入通道。如果您的音频接口有多个输入，请使用此选项。",
+        "average": "所有通道的平均值",
+        "channel": "通道 {{n}}"
       }
     },
     "advanced": {

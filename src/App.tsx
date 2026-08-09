@@ -13,6 +13,7 @@ import AccessibilityPermissions from "./components/AccessibilityPermissions";
 import SecureInputWarning from "./components/SecureInputWarning";
 import Footer from "./components/footer";
 import Onboarding, { AccessibilityOnboarding } from "./components/onboarding";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import {
   Sidebar,
   SidebarSection,
@@ -332,7 +333,9 @@ function App() {
         dir={direction}
         className="h-screen flex flex-col select-none cursor-default"
       >
-        <WhatsNewGate />
+        <ErrorBoundary context="What's New">
+          <WhatsNewGate />
+        </ErrorBoundary>
         {/* Main content area that takes remaining space */}
         <div className="flex-1 flex min-h-0 overflow-hidden">
           <Sidebar

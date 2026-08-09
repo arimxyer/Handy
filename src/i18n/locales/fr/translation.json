@@ -181,7 +181,8 @@
         "allLanguages": "Toutes les langues",
         "all": "Tous",
         "multiLanguage": "Multilingue",
-        "translation": "Traduction"
+        "translation": "Filtrer les modèles prenant en charge la traduction vers l'anglais",
+        "streaming": "Filtrer les modèles prenant en charge la transcription en direct"
       },
       "noModelsMatch": "Aucun modèle ne correspond à ce filtre.",
       "yourModels": "Modèles téléchargés",
@@ -265,6 +266,12 @@
       "volume": {
         "title": "Volume",
         "description": "Ajuster le volume du signal sonore"
+      },
+      "channel": {
+        "title": "Canal d’entrée",
+        "description": "Sélectionnez le canal d’entrée à enregistrer. Utilisez cette option si votre interface audio possède plusieurs entrées.",
+        "average": "Moyenne de tous les canaux",
+        "channel": "Canal {{n}}"
       }
     },
     "advanced": {
