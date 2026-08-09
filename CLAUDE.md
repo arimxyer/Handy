@@ -6,14 +6,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Current Fork State
 
-- `insiders` is merged through upstream `v0.9.5` (merge `036b8a9` on `merge/upstream-v0.9.5`, 2026-08-09). `insiders-version.json` reads `0.9.5-insiders.1`, and that build is installed as of 2026-08-09.
+- `insiders` is merged through upstream `v0.9.5` (merge `036b8a9` on `merge/upstream-v0.9.5`, 2026-08-09). `insiders-version.json` reads `0.9.5-insiders.2`, and that build is installed as of 2026-08-09. `.2` is `insiders` plus branch `feat/upstream-paste-fixes` — two upstream paste commits cherry-picked ahead of their release, described below. The manifest is bumped per fork build precisely so two builds of the same upstream version stay distinguishable in the tray and in the backup inventory.
 - Upstream added **no** history migrations between v0.8.3 and v0.9.5, so the fork's migrations 5–12 append after upstream's 1–4 and the live profile stays at `user_version=12` — no conversion, no data touched.
 - v0.9.5 adds exactly one settings key, `selected_channel: Option<u16>` (input-channel selection for multi-channel interfaces), with `#[serde(default)]` and no `settings_schema_version` bump. Verified against a copied profile before installing: `user_version` stayed 12, `integrity_check` ok, row counts unchanged (556 history / 259 versions / 21 tabs), and `settings_store.json` came back byte-identical — unlike the 0.9.4 upgrade, 0.9.5 does not rewrite settings at all.
 - `settings.models.filters.translation` means upstream's tooltip ("Filter models that support translation to English"), not the fork's old chip label. The fork's `filters.all` / `filters.multiLanguage` keys are currently unreferenced — left in place only because the catalog union merge does not apply deletions, not because anything decided to keep them.
 - `check:translations` fails for `da`/`hi`/`ne`/`nl`: the fork's ~311 added keys were only ever written into the other 20 locales. Pre-existing, not caused by an upgrade.
 - The 0.9.4 upgrade rewrote settings in place: `whisper_accelerator`/`whisper_gpu_device` were renamed to `transcribe_*`, 11 keys were added (`settings_schema_version`, `overlay_style`, `theme`, `vad_enabled`, …), and the stale bare model id `turbo` was cleared and auto-replaced (`model.rs:1494`) because upstream 0.9.x moved to a 67-entry catalog of HuggingFace-style ids.
 - Rollback material in `/home/arimayer/backups`, newest first:
-  - `Handy_0.9.5-insiders.1_amd64.deb` — what is installed; reinstall from this.
+  - `Handy_0.9.5-insiders.2_amd64.deb` — what is installed; reinstall from this.
+  - `Handy_0.9.5-insiders.1_amd64.deb` — same upstream base without the cherry-picked paste fixes. This is the A/B partner for `.2`, not a rollback target in its own right.
   - `handy-premerge-20260809/` — settings + history.db taken immediately before the 0.9.5 install.
   - `handy-insiders-0.9.4-insiders.1` + `Handy_0.9.4-insiders.1_amd64.deb` — one release back. Roll back with the deb, not the bare binary: `/usr/lib/Handy` now holds 0.9.5's runtime libs and the binary cannot run without matching ones.
   - `handy-premerge-20260802/` (settings + history.db at the 0.9.4 upgrade) and `handy-insiders-0.8.3-insiders.1`.
@@ -180,4 +181,8 @@ The app uses platform-specific tools for text input and clipboard. On KDE Waylan
 
 See `src-tauri/src/clipboard.rs` for the full fallback chain.
 
-The fork's `is_ydotool_available()` additionally requires `pgrep ydotoold` to succeed, because the binary alone is useless without the daemon. Upstream has its own take on the same question in `e449f69` ("detect ydotool key syntax before paste"), unreleased as of v0.9.5. These are two independent implementations of "is ydotool usable"; expect them to collide on the next upgrade and resolve in upstream's favour.
+The fork's `is_ydotool_available()` additionally requires `pgrep ydotoold` to succeed, because the binary alone is useless without the daemon. Upstream's `e449f69` answers a neighbouring question — _which_ key syntax ydotool wants — by probing `ydotool key --help` and caching the verdict (0.1.x takes symbolic `ctrl+v`, 1.x takes raw keycodes `29:1 47:1 …`; Handy always sent raw). Both are cherry-picked onto `feat/upstream-paste-fixes` and they **compose rather than conflict**: the fork's daemon gate runs first, so upstream's probe only ever runs when ydotoold is up and can return real help text instead of a socket error.
+
+What actually runs on this machine, verified 2026-08-09 rather than inferred: `paste_method` is `None` and `clipboard_handling` is `CopyToClipboard`, so no key injection happens at all. If a paste method were enabled, KDE Wayland skips `wtype` (no `zwp_virtual_keyboard_manager_v1`) and **`dotool` wins** — `ydotoold` is disabled and inactive, so the ydotool branch is unreachable. `wtype`, `dotool`, `xdotool`, `ydotool` (1.0.4), `wl-copy`, and `wl-paste` are all installed; `kwtype` is not. `/dev/uinput` is group `input` but ACL-writable by the user.
+
+Known gap neither upstream commit fixes: in `try_send_key_combo_linux`, a `dotool` failure propagates with `?` instead of falling through to `ydotool`, and `is_dotool_available()` only runs `which dotool` without checking that uinput is reachable. That is the same hole the fork's `pgrep ydotoold` gate closed for ydotool, still open for dotool.
