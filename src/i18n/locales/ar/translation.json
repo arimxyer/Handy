@@ -398,6 +398,10 @@
       "completionNotifications": {
         "label": "Completion Notifications",
         "description": "Show a system notification after recording transcription or History enhancement completes."
+      },
+      "fillerWordRemoval": {
+        "title": "إزالة كلمات الحشو",
+        "description": "يزيل كلمات التردد الشائعة من النصوص. عطّل هذا الخيار للاحتفاظ بها."
       }
     },
     "postProcessing": {

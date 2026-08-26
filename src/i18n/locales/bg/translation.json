@@ -426,6 +426,10 @@
       "completionNotifications": {
         "label": "Completion Notifications",
         "description": "Show a system notification after recording transcription or History enhancement completes."
+      },
+      "fillerWordRemoval": {
+        "title": "Премахване на думи паразити",
+        "description": "Премахва често срещаните думи за колебание от транскрипциите. Изключете, за да ги запазите."
       }
     },
     "postProcessing": {

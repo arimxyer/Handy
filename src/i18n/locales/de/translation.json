@@ -426,6 +426,10 @@
       "completionNotifications": {
         "label": "Completion Notifications",
         "description": "Show a system notification after recording transcription or History enhancement completes."
+      },
+      "fillerWordRemoval": {
+        "title": "Füllwörter entfernen",
+        "description": "Entfernt häufige Verzögerungslaute aus Transkriptionen. Deaktivieren Sie diese Option, um sie beizubehalten."
       }
     },
     "postProcessing": {

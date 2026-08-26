@@ -426,6 +426,10 @@
       "completionNotifications": {
         "label": "Completion Notifications",
         "description": "Show a system notification after recording transcription or History enhancement completes."
+      },
+      "fillerWordRemoval": {
+        "title": "Удалять слова-паразиты",
+        "description": "Удаляет распространённые слова-заминки из расшифровок. Отключите, чтобы сохранить их."
       }
     },
     "postProcessing": {

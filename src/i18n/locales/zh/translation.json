@@ -426,6 +426,10 @@
       "completionNotifications": {
         "label": "Completion Notifications",
         "description": "Show a system notification after recording transcription or History enhancement completes."
+      },
+      "fillerWordRemoval": {
+        "title": "移除语气词",
+        "description": "从转录中移除常见的语气词。关闭此选项即可保留这些词。"
       }
     },
     "postProcessing": {

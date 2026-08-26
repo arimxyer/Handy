@@ -359,6 +359,14 @@ async changeVadEnabledSetting(enabled: boolean) : Promise<Result<null, string>> 
     else return { status: "error", error: e  as any };
 }
 },
+async changeFillerWordRemovalEnabledSetting(enabled: boolean) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("change_filler_word_removal_enabled_setting", { enabled }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
 async changeAppLanguageSetting(language: string) : Promise<Result<null, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("change_app_language_setting", { language }) };
@@ -435,7 +443,7 @@ async changeOrtAcceleratorSetting(accelerator: OrtAcceleratorSetting) : Promise<
     else return { status: "error", error: e  as any };
 }
 },
-async changeTranscribeGpuDevice(device: number) : Promise<Result<null, string>> {
+async changeTranscribeGpuDevice(device: string | null) : Promise<Result<null, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("change_transcribe_gpu_device", { device }) };
 } catch (e) {
@@ -1340,7 +1348,13 @@ selected_channel?: number | null; clamshell_microphone?: string | null; selected
  * after the target app actually reads the transcript, instead of after a
  * fixed delay. See `paste_tx`. macOS and Windows only.
  */
-reliable_paste?: boolean; typing_tool?: TypingTool; external_script_path?: string | null; custom_filler_words?: string[] | null; transcribe_accelerator?: TranscribeAcceleratorSetting; ort_accelerator?: OrtAcceleratorSetting; transcribe_gpu_device?: number; extra_recording_buffer_ms?: number; insights_provider_id?: string; insights_api_keys?: Partial<{ [key in string]: string }>; insights_models?: Partial<{ [key in string]: string }>; insights_entry_count?: number; insights_use_all_history?: boolean; insights_history?: InsightsResult[]; text_ops_enabled?: boolean; text_ops_provider_id?: string; text_ops_models?: Partial<{ [key in string]: string }>; text_ops_prompts?: LLMPrompt[]; text_ops_selected_prompt_id?: string | null; text_ops_pinned_prompt_id?: string | null; text_ops_output_behavior?: TextOpsOutputBehavior; text_ops_autosave_enabled?: boolean; text_ops_autosave_delay_ms?: number; text_ops_confirm_tab_close?: boolean; text_ops_auto_archive_on_close?: boolean; text_ops_shortcut_creates_tab?: boolean; text_ops_ai_position?: TextOpsAiPosition; text_ops_auto_label_enabled?: boolean; vad_enabled?: boolean; 
+reliable_paste?: boolean; typing_tool?: TypingTool; external_script_path?: string | null; filler_word_removal_enabled?: boolean; custom_filler_words?: string[] | null; transcribe_accelerator?: TranscribeAcceleratorSetting; ort_accelerator?: OrtAcceleratorSetting; 
+/**
+ * Stable transcribe.cpp device selector. This is derived from the backend's
+ * `device_id` when available (or its name for backends such as Metal),
+ * never from the process-local device registry index.
+ */
+transcribe_gpu_device?: string | null; extra_recording_buffer_ms?: number; insights_provider_id?: string; insights_api_keys?: Partial<{ [key in string]: string }>; insights_models?: Partial<{ [key in string]: string }>; insights_entry_count?: number; insights_use_all_history?: boolean; insights_history?: InsightsResult[]; text_ops_enabled?: boolean; text_ops_provider_id?: string; text_ops_models?: Partial<{ [key in string]: string }>; text_ops_prompts?: LLMPrompt[]; text_ops_selected_prompt_id?: string | null; text_ops_pinned_prompt_id?: string | null; text_ops_output_behavior?: TextOpsOutputBehavior; text_ops_autosave_enabled?: boolean; text_ops_autosave_delay_ms?: number; text_ops_confirm_tab_close?: boolean; text_ops_auto_archive_on_close?: boolean; text_ops_shortcut_creates_tab?: boolean; text_ops_ai_position?: TextOpsAiPosition; text_ops_auto_label_enabled?: boolean; vad_enabled?: boolean; 
 /**
  * Which recording overlay to show: None / Minimal / Live. Streaming mode is
  * not gated on this — that follows model capability. Migrated from the old
@@ -1361,7 +1375,7 @@ export type EngineType =
  * the file, so this one variant covers the whole transcribe-cpp family.
  */
 "TranscribeCpp" | "Parakeet" | "Moonshine" | "MoonshineStreaming" | "SenseVoice" | "GigaAM" | "Canary" | "Cohere"
-export type GpuDeviceOption = { id: number; name: string; total_vram_mb: number }
+export type GpuDeviceOption = { id: string; name: string; total_vram_mb: number }
 export type HistoryEntry = { id: number; file_name: string; timestamp: number; saved: boolean; title: string; transcription_text: string; post_processed_text: string | null; post_process_prompt: string | null; post_process_requested: boolean; version_count: number; source: string }
 export type HistoryUpdatePayload = { action: "added"; entry: HistoryEntry } | { action: "updated"; entry: HistoryEntry } | { action: "deleted"; id: number }
 /**

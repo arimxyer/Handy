@@ -426,6 +426,10 @@
       "completionNotifications": {
         "label": "Completion Notifications",
         "description": "Show a system notification after recording transcription or History enhancement completes."
+      },
+      "fillerWordRemoval": {
+        "title": "Supprimer les mots de remplissage",
+        "description": "Supprime les hésitations courantes des transcriptions. Désactivez cette option pour les conserver."
       }
     },
     "postProcessing": {

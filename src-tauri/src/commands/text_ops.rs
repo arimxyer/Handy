@@ -100,13 +100,13 @@ async fn process_text_with_prompt_impl(
     .await
     .map_err(|e| {
         crate::overlay::hide_recording_overlay(&app);
-        crate::tray::change_tray_icon(&app, crate::tray::TrayIconState::Idle);
+        crate::tray::set_tray_state(&app, crate::tray::TrayIconState::Idle);
         e
     })?;
 
     let result_text = result.ok_or_else(|| {
         crate::overlay::hide_recording_overlay(&app);
-        crate::tray::change_tray_icon(&app, crate::tray::TrayIconState::Idle);
+        crate::tray::set_tray_state(&app, crate::tray::TrayIconState::Idle);
         "No content returned from provider".to_string()
     })?;
 
@@ -318,7 +318,7 @@ pub async fn execute_picker_prompt(
     let system_prompt = prompt.prompt.replace("${output}", "").trim().to_string();
     // Show processing overlay
     crate::overlay::show_text_processing_overlay(&app);
-    crate::tray::change_tray_icon(&app, crate::tray::TrayIconState::Transcribing);
+    crate::tray::set_tray_state(&app, crate::tray::TrayIconState::Transcribing);
 
     let result = crate::llm_client::send_chat_completion_with_schema(
         &provider,
@@ -368,7 +368,7 @@ pub async fn execute_picker_prompt(
             let _ = app.clipboard().write_text(&result_text);
 
             crate::overlay::hide_recording_overlay(&app);
-            crate::tray::change_tray_icon(&app, crate::tray::TrayIconState::Idle);
+            crate::tray::set_tray_state(&app, crate::tray::TrayIconState::Idle);
         }
         TextOpsOutputBehavior::ReplaceSelection => {
             let ah = app.clone();
@@ -378,11 +378,11 @@ pub async fn execute_picker_prompt(
                     Err(e) => log::error!("Failed to paste picker text ops result: {}", e),
                 }
                 crate::overlay::hide_recording_overlay(&ah);
-                crate::tray::change_tray_icon(&ah, crate::tray::TrayIconState::Idle);
+                crate::tray::set_tray_state(&ah, crate::tray::TrayIconState::Idle);
             })
             .map_err(|e| {
                 crate::overlay::hide_recording_overlay(&app);
-                crate::tray::change_tray_icon(&app, crate::tray::TrayIconState::Idle);
+                crate::tray::set_tray_state(&app, crate::tray::TrayIconState::Idle);
                 format!("Failed to run paste on main thread: {:?}", e)
             })?;
         }

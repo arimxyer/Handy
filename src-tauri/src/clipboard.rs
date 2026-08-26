@@ -28,9 +28,9 @@ fn with_enigo<T>(
     f(&mut enigo)
 }
 
-/// Write text to the clipboard, preferring `wl-copy` on Wayland (better with
-/// umlauts and other non-ASCII). Shared with the text-ops pipeline in
-/// `actions.rs` so both paths agree on how a clipboard write is performed.
+/// Write text to the clipboard using the same Wayland-aware path as ordinary
+/// transcription output. Text operations share this helper so both features
+/// agree on Unicode-safe clipboard behavior.
 pub(crate) fn write_text_to_clipboard(app_handle: &AppHandle, text: &str) -> Result<(), String> {
     #[cfg(target_os = "linux")]
     if is_wayland() && is_wl_copy_available() {
@@ -407,7 +407,8 @@ fn is_ydotool_available() -> bool {
     if !binary_exists {
         return false;
     }
-    // ydotool requires the ydotoold daemon to be running
+
+    // The client binary cannot inject input without the daemon socket.
     Command::new("pgrep")
         .arg("ydotoold")
         .output()
@@ -471,6 +472,47 @@ fn type_text_via_xdotool(text: &str) -> Result<(), String> {
         .arg(text)
         .output()
         .map_err(|e| format!("Failed to execute xdotool: {}", e))?;
+
+    // `--clearmodifiers` restores the modifiers that were held when xdotool
+    // started. If the user releases one while xdotool is typing, that synthetic
+    // restore can leave the modifier latched on the XTEST keyboard (#1817).
+    // Release both sides of Handy's supported push-style modifiers to clear any
+    // stale restore. Lock keys are intentionally excluded because key events
+    // toggle them.
+    //
+    // The release is unconditional, so it can make a modifier that is still
+    // physically held appear released until the next physical event. This is
+    // preferable to leaving a synthetic modifier latched system-wide.
+    //
+    // Clean up before checking the typing status because xdotool may have
+    // changed modifier state before returning an error. Cleanup remains
+    // best-effort because the text may already have been partially or fully
+    // typed, but failures are logged so they can be diagnosed.
+    match Command::new("xdotool")
+        .arg("keyup")
+        .args([
+            "Control_L",
+            "Control_R",
+            "Shift_L",
+            "Shift_R",
+            "Alt_L",
+            "Alt_R",
+            "Super_L",
+            "Super_R",
+        ])
+        .output()
+    {
+        Ok(cleanup_output) if !cleanup_output.status.success() => {
+            let stderr = String::from_utf8_lossy(&cleanup_output.stderr);
+            log::warn!(
+                "xdotool modifier cleanup failed with status {:?}: {}",
+                cleanup_output.status.code(),
+                stderr.trim()
+            );
+        }
+        Err(error) => log::warn!("Failed to execute xdotool modifier cleanup: {}", error),
+        _ => {}
+    }
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
@@ -593,12 +635,13 @@ fn send_key_combo_via_wtype(paste_method: &PasteMethod) -> Result<(), String> {
 /// Send a key combination (e.g., Ctrl+V) via dotool.
 #[cfg(target_os = "linux")]
 fn send_key_combo_via_dotool(paste_method: &PasteMethod) -> Result<(), String> {
-    let command = match paste_method {
-        PasteMethod::CtrlV => "echo key ctrl+v | dotool",
-        PasteMethod::ShiftInsert => "echo key shift+insert | dotool",
-        PasteMethod::CtrlShiftV => "echo key ctrl+shift+v | dotool",
+    let command;
+    match paste_method {
+        PasteMethod::CtrlV => command = "echo key ctrl+v | dotool",
+        PasteMethod::ShiftInsert => command = "echo key shift+insert | dotool",
+        PasteMethod::CtrlShiftV => command = "echo key ctrl+shift+v | dotool",
         _ => return Err("Unsupported paste method".into()),
-    };
+    }
     use std::process::Stdio;
     let status = Command::new("sh")
         .arg("-c")
@@ -884,9 +927,8 @@ Syntax: <keycode>:<pressed>
 e.g. 28:1 28:0 means pressing on the Enter button on a standard US keyboard.
 "#;
 
-    // Fall-through chain. Function pointers cannot capture, so the fakes
-    // record themselves in atomics that each test resets first. Tests that
-    // share these counters must not run concurrently, hence the mutex.
+    // Function pointers cannot capture, so these fakes record calls in atomics.
+    // Tests sharing the counters serialize through the mutex.
     #[cfg(target_os = "linux")]
     mod chain_probe {
         use std::sync::atomic::{AtomicUsize, Ordering};
@@ -948,8 +990,8 @@ e.g. 28:1 28:0 means pressing on the Enter button on a standard US keyboard.
         ];
 
         assert!(run_key_combo_chain(candidates, &PasteMethod::CtrlV));
-        assert_eq!(chain_probe::sends(), 2, "both tools should have been tried");
-        assert_eq!(chain_probe::last(), 2, "the second tool should have won");
+        assert_eq!(chain_probe::sends(), 2);
+        assert_eq!(chain_probe::last(), 2);
     }
 
     #[cfg(target_os = "linux")]
@@ -964,7 +1006,7 @@ e.g. 28:1 28:0 means pressing on the Enter button on a standard US keyboard.
         ];
 
         assert!(run_key_combo_chain(candidates, &PasteMethod::CtrlV));
-        assert_eq!(chain_probe::sends(), 1, "only the available tool runs");
+        assert_eq!(chain_probe::sends(), 1);
         assert_eq!(chain_probe::last(), 2);
     }
 

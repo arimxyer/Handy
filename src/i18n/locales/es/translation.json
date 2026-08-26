@@ -426,6 +426,10 @@
       "completionNotifications": {
         "label": "Completion Notifications",
         "description": "Show a system notification after recording transcription or History enhancement completes."
+      },
+      "fillerWordRemoval": {
+        "title": "Eliminar muletillas",
+        "description": "Elimina las muletillas más comunes de las transcripciones. Desactívalo para conservarlas."
       }
     },
     "postProcessing": {

@@ -426,6 +426,10 @@
       "completionNotifications": {
         "label": "Completion Notifications",
         "description": "Show a system notification after recording transcription or History enhancement completes."
+      },
+      "fillerWordRemoval": {
+        "title": "Remover palavras de preenchimento",
+        "description": "Remove hesitações comuns das transcrições. Desative para mantê-las."
       }
     },
     "postProcessing": {

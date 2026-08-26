@@ -426,6 +426,10 @@
       "completionNotifications": {
         "label": "Completion Notifications",
         "description": "Show a system notification after recording transcription or History enhancement completes."
+      },
+      "fillerWordRemoval": {
+        "title": "הסרת מילות מילוי",
+        "description": "מסיר מילות היסוס נפוצות מתמלולים. השבת כדי להשאיר אותן."
       }
     },
     "postProcessing": {
