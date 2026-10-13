@@ -219,6 +219,20 @@
       "pushToTalk": {
         "label": "Утримувати для запису (Push To Talk)",
         "description": "Утримуйте для запису, відпустіть для зупинки"
+      },
+      "shortcutActivation": {
+        "title": "Поведінка комбінації клавіш",
+        "description": "Виберіть, як гаряча клавіша транскрипції запускає та зупиняє запис.",
+        "options": {
+          "holdOrToggle": "Автоматично",
+          "pushToTalk": "Утримання",
+          "toggle": "Перемикання"
+        },
+        "descriptions": {
+          "hold_or_toggle": "Утримуйте для запису або натисніть коротко для перемикання",
+          "push_to_talk": "Записує, поки комбінація клавіш утримується",
+          "toggle": "Натисніть комбінацію клавіш, щоб почати запис, натисніть ще раз, щоб зупинити"
+        }
       }
     },
     "models": {
@@ -430,6 +444,23 @@
       "fillerWordRemoval": {
         "title": "Видаляти слова-паразити",
         "description": "Видаляє поширені слова-вагання з транскрипцій. Вимкніть, щоб зберегти їх."
+      },
+      "vadBackend": {
+        "title": "Рушій виявлення голосу",
+        "description": "Виберіть детектор для фільтрації тиші. Earshot — експериментальний; поверніться до Silero, якщо мовлення обрізається або шум зберігається.",
+        "options": {
+          "silero": "Silero",
+          "earshot": "Earshot"
+        }
+      },
+      "chineseScript": {
+        "title": "Китайська писемність",
+        "description": "Записує транскрипції мандаринською та кантонською спрощеними або традиційними ієрогліфами. Інші мови не змінюються.",
+        "options": {
+          "asTranscribed": "Як розпізнано",
+          "simplified": "Спрощені",
+          "traditional": "Традиційні"
+        }
       }
     },
     "postProcessing": {
@@ -569,7 +600,8 @@
       "searchPlaceholder": "Search history...",
       "showInput": "Show input",
       "versions": "versions",
-      "rename": "Rename"
+      "rename": "Rename",
+      "copyError": "Не вдалося скопіювати транскрипцію в буфер обміну."
     },
     "debug": {
       "title": "Дебаг",
@@ -594,7 +626,8 @@
       },
       "updateChecks": {
         "label": "Перевірка оновлень",
-        "description": "Автоматично перевіряти наявність нових версій Handy"
+        "description": "Автоматично перевіряти наявність нових версій Handy",
+        "lockedDescription": "Вимкнено системною конфігурацією (HANDY_DISABLE_UPDATER)"
       },
       "soundTheme": {
         "label": "Звукова тема",
@@ -695,6 +728,17 @@
       "historyPostProcessToggle": {
         "label": "Post-process History",
         "description": "Add a button to enhance past transcriptions from the History tab"
+      },
+      "holdThreshold": {
+        "title": "Поріг утримання",
+        "description": "Лише для автоматичного режиму: скільки (у мілісекундах) потрібно утримувати комбінацію клавіш, щоб це вважалося утриманням, а не коротким натисканням. Зменште, якщо після короткого утримання запис триває; збільште, якщо навмисні короткі натискання сприймаються як утримання."
+      },
+      "onboardingPreview": {
+        "title": "Попередній перегляд початкового налаштування",
+        "description": "Перегляньте екрани початкового налаштування, не змінюючи дозволи, моделі чи стан завершення",
+        "permissionsButton": "Дозволи",
+        "modelsButton": "Вибір моделі",
+        "exitButton": "Вийти з перегляду"
       }
     },
     "about": {

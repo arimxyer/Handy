@@ -243,6 +243,20 @@
       "pushToTalk": {
         "label": "Appuyer pour parler",
         "description": "Maintenez pour enregistrer, relâchez pour arrêter"
+      },
+      "shortcutActivation": {
+        "title": "Comportement du raccourci",
+        "description": "Choisissez comment le raccourci de transcription démarre et arrête l’enregistrement.",
+        "options": {
+          "holdOrToggle": "Auto",
+          "pushToTalk": "Maintenir",
+          "toggle": "Basculer"
+        },
+        "descriptions": {
+          "hold_or_toggle": "Maintenez pour enregistrer ou appuyez brièvement pour basculer",
+          "push_to_talk": "Enregistre tant que le raccourci est maintenu",
+          "toggle": "Appuyez sur le raccourci pour démarrer l'enregistrement, appuyez à nouveau pour arrêter"
+        }
       }
     },
     "sound": {
@@ -430,6 +444,23 @@
       "fillerWordRemoval": {
         "title": "Supprimer les mots de remplissage",
         "description": "Supprime les hésitations courantes des transcriptions. Désactivez cette option pour les conserver."
+      },
+      "vadBackend": {
+        "title": "Backend de détection vocale",
+        "description": "Choisissez le détecteur utilisé pour filtrer le silence. Earshot est expérimental ; revenez à Silero si la parole est coupée ou si le bruit est conservé.",
+        "options": {
+          "silero": "Silero",
+          "earshot": "Earshot"
+        }
+      },
+      "chineseScript": {
+        "title": "Écriture chinoise",
+        "description": "Écrit les transcriptions en mandarin et en cantonais en caractères simplifiés ou traditionnels. Les autres langues ne sont pas modifiées.",
+        "options": {
+          "asTranscribed": "Tel que transcrit",
+          "simplified": "Simplifié",
+          "traditional": "Traditionnel"
+        }
       }
     },
     "postProcessing": {
@@ -569,7 +600,8 @@
       "searchPlaceholder": "Search history...",
       "showInput": "Show input",
       "versions": "versions",
-      "rename": "Rename"
+      "rename": "Rename",
+      "copyError": "Impossible de copier la transcription dans le presse-papiers."
     },
     "debug": {
       "title": "Débogage",
@@ -594,7 +626,8 @@
       },
       "updateChecks": {
         "label": "Vérifier les mises à jour",
-        "description": "Vérifier automatiquement les nouvelles versions de Handy"
+        "description": "Vérifier automatiquement les nouvelles versions de Handy",
+        "lockedDescription": "Désactivé par la configuration système (HANDY_DISABLE_UPDATER)"
       },
       "soundTheme": {
         "label": "Thème sonore",
@@ -695,6 +728,17 @@
       "historyPostProcessToggle": {
         "label": "Post-process History",
         "description": "Add a button to enhance past transcriptions from the History tab"
+      },
+      "holdThreshold": {
+        "title": "Seuil de maintien",
+        "description": "Mode Auto uniquement : durée (en millisecondes) pendant laquelle le raccourci doit rester enfoncé pour compter comme un maintien plutôt qu'une pression brève. Diminuez si l'enregistrement reste actif après un maintien court ; augmentez si des pressions brèves volontaires sont traitées comme un maintien."
+      },
+      "onboardingPreview": {
+        "title": "Aperçu de la configuration initiale",
+        "description": "Prévisualisez les écrans de configuration sans modifier les autorisations, les modèles ou l’état d’achèvement",
+        "permissionsButton": "Autorisations",
+        "modelsButton": "Sélection du modèle",
+        "exitButton": "Quitter l’aperçu"
       }
     },
     "about": {

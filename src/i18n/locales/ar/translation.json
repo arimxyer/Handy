@@ -215,6 +215,20 @@
       "pushToTalk": {
         "label": "اضغط للتحدث",
         "description": "استمر في الضغط للتسجيل، واترك للتوقف"
+      },
+      "shortcutActivation": {
+        "title": "سلوك الاختصار",
+        "description": "اختر كيفية بدء التسجيل وإيقافه باستخدام اختصار التفريغ الصوتي.",
+        "options": {
+          "holdOrToggle": "تلقائي",
+          "pushToTalk": "ضغط مطوّل",
+          "toggle": "تبديل"
+        },
+        "descriptions": {
+          "hold_or_toggle": "اضغط مطوّلًا للتسجيل أو انقر للتبديل",
+          "push_to_talk": "يسجّل أثناء الضغط على الاختصار",
+          "toggle": "انقر على الاختصار لبدء التسجيل، وانقر مرة أخرى للإيقاف"
+        }
       }
     },
     "sound": {
@@ -402,6 +416,23 @@
       "fillerWordRemoval": {
         "title": "إزالة كلمات الحشو",
         "description": "يزيل كلمات التردد الشائعة من النصوص. عطّل هذا الخيار للاحتفاظ بها."
+      },
+      "vadBackend": {
+        "title": "محرك كشف النشاط الصوتي",
+        "description": "اختر الكاشف المستخدم لتصفية الصمت. Earshot تجريبي؛ ارجع إلى Silero إذا تم اقتطاع الكلام أو الاحتفاظ بالضوضاء.",
+        "options": {
+          "silero": "Silero",
+          "earshot": "Earshot"
+        }
+      },
+      "chineseScript": {
+        "title": "الكتابة الصينية",
+        "description": "يكتب نصوص الماندرين والكانتونية بالأحرف المبسطة أو التقليدية. لا تتغير اللغات الأخرى.",
+        "options": {
+          "asTranscribed": "كما نُسخ",
+          "simplified": "مبسطة",
+          "traditional": "تقليدية"
+        }
       }
     },
     "postProcessing": {
@@ -541,7 +572,8 @@
       "searchPlaceholder": "Search history...",
       "showInput": "Show input",
       "versions": "versions",
-      "rename": "Rename"
+      "rename": "Rename",
+      "copyError": "تعذر نسخ التفريغ إلى الحافظة."
     },
     "debug": {
       "title": "تصحيح الأخطاء",
@@ -566,7 +598,8 @@
       },
       "updateChecks": {
         "label": "التحقق من وجود تحديثات",
-        "description": "التحقق تلقائياً من وجود إصدارات جديدة من Handy"
+        "description": "التحقق تلقائياً من وجود إصدارات جديدة من Handy",
+        "lockedDescription": "معطّل بواسطة إعدادات النظام (HANDY_DISABLE_UPDATER)"
       },
       "soundTheme": {
         "label": "سمة الصوت",
@@ -667,6 +700,17 @@
       "historyPostProcessToggle": {
         "label": "Post-process History",
         "description": "Add a button to enhance past transcriptions from the History tab"
+      },
+      "holdThreshold": {
+        "title": "حد الضغط المطوّل",
+        "description": "في الوضع التلقائي فقط: المدة (بالمللي ثانية) التي يجب الاستمرار في الضغط على الاختصار خلالها ليُعدّ ضغطًا مطوّلًا بدلًا من نقرة. قلّلها إذا ظلّ التسجيل مستمرًا بعد ضغطات مطوّلة قصيرة؛ وزدها إذا عُوملت النقرات المقصودة على أنها ضغط مطوّل."
+      },
+      "onboardingPreview": {
+        "title": "معاينة الإعداد الأولي",
+        "description": "عاين شاشات الإعداد الأولي دون تغيير الأذونات أو النماذج أو حالة الإكمال",
+        "permissionsButton": "الأذونات",
+        "modelsButton": "اختيار النموذج",
+        "exitButton": "إنهاء المعاينة"
       }
     },
     "about": {

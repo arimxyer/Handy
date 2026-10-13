@@ -47,6 +47,7 @@ import { Button } from "../../ui/Button";
 import { AudioPlayer, AudioPlayerGroup } from "../../ui/AudioPlayer";
 import { PostProcessDrawer } from "./PostProcessDrawer";
 import { VersionHistory } from "./VersionHistory";
+import { copyToClipboard } from "./clipboard";
 
 const PAGE_SIZE = 30;
 
@@ -574,19 +575,23 @@ const VoiceHistoryEntryComponent: React.FC<VoiceHistoryEntryProps> = ({
     [entry.file_name, getAudioUrl],
   );
 
-  const copyTextToClipboard = (text: string) => {
+  const copyTextToClipboard = async (text: string) => {
     if (!text.trim()) {
       return;
     }
-    navigator.clipboard.writeText(text).catch((error) => {
-      console.error("Failed to copy to clipboard:", error);
-    });
+
+    const copied = await copyToClipboard(text);
+    if (!copied) {
+      toast.error(t("settings.history.copyError"));
+      return;
+    }
+
     setShowCopied(true);
     setTimeout(() => setShowCopied(false), 2000);
   };
 
   const handleCopyText = () => {
-    copyTextToClipboard(displayText);
+    void copyTextToClipboard(displayText);
   };
 
   const handleDeleteEntry = async () => {
@@ -638,7 +643,7 @@ const VoiceHistoryEntryComponent: React.FC<VoiceHistoryEntryProps> = ({
         replaceEntry(result.data);
         setShowOriginal(false);
         if (autoCopyEnhanced && result.data.post_processed_text) {
-          copyTextToClipboard(result.data.post_processed_text);
+          await copyTextToClipboard(result.data.post_processed_text);
         }
         if (completionNotificationsEnabled) {
           sendCompletionNotification(
@@ -959,11 +964,18 @@ const TextHistoryEntryComponent: React.FC<TextHistoryEntryProps> = ({
     };
   }, []);
 
-  const handleCopy = () => {
+  const handleCopy = async () => {
     const text = entry.post_processed_text || entry.transcription_text;
-    navigator.clipboard.writeText(text).catch((error) => {
-      console.error("Failed to copy to clipboard:", error);
-    });
+    if (!text.trim()) {
+      return;
+    }
+
+    const copied = await copyToClipboard(text);
+    if (!copied) {
+      toast.error(t("settings.history.copyError"));
+      return;
+    }
+
     setShowCopied(true);
     setTimeout(() => setShowCopied(false), 2000);
   };

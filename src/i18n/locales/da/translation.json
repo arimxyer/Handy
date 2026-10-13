@@ -197,6 +197,20 @@
       "pushToTalk": {
         "label": "Tryk-for-at-tale",
         "description": "Hold nede for at optage, slip for at stoppe"
+      },
+      "shortcutActivation": {
+        "title": "Genvejens adfærd",
+        "description": "Vælg, hvordan transskriptionsgenvejen starter og stopper optagelsen.",
+        "options": {
+          "holdOrToggle": "Automatisk",
+          "pushToTalk": "Hold",
+          "toggle": "Skift"
+        },
+        "descriptions": {
+          "hold_or_toggle": "Hold nede for at optage, eller tryk kort for at slå til/fra",
+          "push_to_talk": "Optager, mens du holder genvejen nede",
+          "toggle": "Tryk på genvejen for at starte optagelsen, tryk igen for at stoppe"
+        }
       }
     },
     "models": {
@@ -380,6 +394,23 @@
       "fillerWordRemoval": {
         "title": "Fjern fyldord",
         "description": "Fjerner almindelige tøveord fra transskriptioner. Slå fra for at beholde dem."
+      },
+      "vadBackend": {
+        "title": "Stemmedetektions-backend",
+        "description": "Vælg den detektor, der bruges til at filtrere stilhed. Earshot er eksperimentel; skift tilbage til Silero, hvis tale klippes eller støj bevares.",
+        "options": {
+          "silero": "Silero",
+          "earshot": "Earshot"
+        }
+      },
+      "chineseScript": {
+        "title": "Kinesisk skrift",
+        "description": "Skriver mandarin- og kantonesisk-transskriptioner med forenklede eller traditionelle tegn. Andre sprog ændres ikke.",
+        "options": {
+          "asTranscribed": "Som transskriberet",
+          "simplified": "Forenklet",
+          "traditional": "Traditionel"
+        }
       }
     },
     "postProcessing": {
@@ -449,7 +480,8 @@
       "retranscribe": "Transskribér igen",
       "retranscribeError": "Kunne ikke transskribere igen. Prøv igen.",
       "transcribing": "Transskriberer...",
-      "transcriptionFailed": "Transskription mislykkedes. Du kan transskribere igen ved hjælp af genforsøgsikonet."
+      "transcriptionFailed": "Transskription mislykkedes. Du kan transskribere igen ved hjælp af genforsøgsikonet.",
+      "copyError": "Kunne ikke kopiere transskriptionen til udklipsholderen."
     },
     "debug": {
       "title": "Fejlfinding",
@@ -474,7 +506,8 @@
       },
       "updateChecks": {
         "label": "Tjek for opdateringer",
-        "description": "Tjek automatisk for nye versioner af Handy"
+        "description": "Tjek automatisk for nye versioner af Handy",
+        "lockedDescription": "Deaktiveret af systemkonfiguration (HANDY_DISABLE_UPDATER)"
       },
       "whatsNewPreview": {
         "title": "Forhåndsvisning af nyheder",
@@ -571,6 +604,17 @@
         "verdictOk": "Tastehændelser når frem til Handy som normalt.",
         "verdictNoEvents": "Ingen hændelser registreret — trykkede du på nogen taster under testen?",
         "failed": "Diagnostik mislykkedes: {{error}}"
+      },
+      "onboardingPreview": {
+        "title": "Forhåndsvis introduktion",
+        "description": "Forhåndsvis introduktionsskærmene uden at ændre tilladelser, modeller eller fuldførelsesstatus",
+        "permissionsButton": "Tilladelser",
+        "modelsButton": "Modelvalg",
+        "exitButton": "Afslut forhåndsvisning"
+      },
+      "holdThreshold": {
+        "title": "Holdetærskel",
+        "description": "Kun i automatisk tilstand: hvor længe (i millisekunder) genvejen skal holdes nede, før det tæller som et hold i stedet for et tryk. Sænk værdien, hvis korte hold lader optagelsen køre videre; hæv den, hvis bevidste tryk behandles som hold."
       }
     },
     "about": {

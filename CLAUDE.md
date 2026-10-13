@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Current Fork State
 
+- **Uninstalled candidate (2026-10-13):** `codex/insiders-v0.9.8` merges the exact upstream `v0.9.8` tag into the previous insiders tip. `insiders-version.json` identifies this candidate as `0.9.8-insiders.1`. This work does not install the candidate or advance `insiders`; the installed `0.9.6-insiders.1` build remains the rollback reference. See `UPGRADE-v0.9.8.md` for validation and remaining limits.
+
 - `insiders` is merged through the exact upstream `v0.9.6` tag (merge `c7be006`, integrated on isolated branch `upgrade/insiders-v0.9.6`, 2026-08-26). The six commits then on `upstream/main` after the tag were deliberately excluded. `insiders-version.json` reads `0.9.6-insiders.1`, and that build is installed as of 2026-08-26. The manifest is bumped per fork build precisely so two builds of the same upstream version stay distinguishable in the tray and in the backup inventory.
 - Upstream added **no** history migrations between v0.8.3 and v0.9.6, so the fork's migrations 5–12 append after upstream's 1–4 and the live profile stays at `user_version=12`. The v0.9.6 candidate was exercised against a copied live profile before installation and again after installation: `integrity_check` stayed `ok`, and row counts stayed unchanged at 724 history / 236 versions / 23 tabs.
 - v0.9.6 advances `settings_schema_version` from 1 to 2. The live and copied-profile migrations made exactly three expected settings changes: add `filler_word_removal_enabled: true`, stamp schema 2, and clear the legacy integer `transcribe_gpu_device: -1` to `null` because transcribe.cpp 0.2 uses opaque device handles. No other settings changed.

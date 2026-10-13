@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 export type DropdownOption = {
   value: string;
   label: string;
+  description?: string;
   disabled?: boolean;
 };
 
@@ -16,6 +17,7 @@ export type DropdownItem =
 interface DropdownProps {
   options: DropdownItem[];
   className?: string;
+  menuClassName?: string;
   selectedValue: string | null;
   onSelect: (value: string) => void;
   placeholder?: string;
@@ -28,6 +30,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
   selectedValue,
   onSelect,
   className = "",
+  menuClassName,
   placeholder = "Select an option...",
   disabled = false,
   onRefresh,
@@ -50,8 +53,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
   }, []);
 
   const selectableOptions = options.filter(
-    (option): option is { value: string; label: string; disabled?: boolean } =>
-      !("kind" in option),
+    (option): option is DropdownOption => !("kind" in option),
   );
 
   const selectedOption = selectableOptions.find(
@@ -100,7 +102,11 @@ export const Dropdown: React.FC<DropdownProps> = ({
         </svg>
       </button>
       {isOpen && !disabled && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-mid-gray/80 rounded-md shadow-lg z-50 max-h-60 overflow-y-auto">
+        <div
+          className={`absolute top-full mt-1 bg-background border border-mid-gray/80 rounded-md shadow-lg z-50 max-h-60 overflow-y-auto ${
+            menuClassName ?? "left-0 right-0"
+          }`}
+        >
           {options.length === 0 ? (
             <div className="px-2 py-1 text-sm text-mid-gray">
               {t("common.noOptionsFound")}
@@ -129,16 +135,29 @@ export const Dropdown: React.FC<DropdownProps> = ({
                 <button
                   key={option.value}
                   type="button"
-                  className={`w-full px-2 py-1 text-sm text-start hover:bg-logo-primary/10 transition-colors duration-150 ${
-                    selectedValue === option.value
-                      ? "bg-logo-primary/20 font-semibold"
-                      : ""
+                  className={`w-full text-sm text-start hover:bg-logo-primary/10 transition-colors duration-150 ${
+                    option.description ? "px-3 py-2" : "px-2 py-1"
+                  } ${
+                    selectedValue === option.value ? "bg-logo-primary/20" : ""
                   } ${option.disabled ? "opacity-50 cursor-not-allowed" : ""}`}
                   onClick={() => handleSelect(option.value)}
                   disabled={option.disabled}
                   title={option.label}
                 >
-                  <span className="block truncate">{option.label}</span>
+                  <span
+                    className={`block whitespace-normal break-words ${
+                      option.description || selectedValue === option.value
+                        ? "font-semibold"
+                        : ""
+                    }`}
+                  >
+                    {option.label}
+                  </span>
+                  {option.description && (
+                    <span className="mt-0.5 block whitespace-normal text-xs font-normal leading-snug text-mid-gray">
+                      {option.description}
+                    </span>
+                  )}
                 </button>
               );
             })

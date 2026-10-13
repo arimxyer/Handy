@@ -243,6 +243,20 @@
       "pushToTalk": {
         "label": "Naciśnij i mów",
         "description": "Przytrzymaj, aby nagrywać, puść, aby zatrzymać"
+      },
+      "shortcutActivation": {
+        "title": "Zachowanie skrótu",
+        "description": "Wybierz, jak skrót transkrypcji rozpoczyna i zatrzymuje nagrywanie.",
+        "options": {
+          "holdOrToggle": "Automatycznie",
+          "pushToTalk": "Przytrzymaj",
+          "toggle": "Przełączaj"
+        },
+        "descriptions": {
+          "hold_or_toggle": "Przytrzymaj, aby nagrywać, lub dotknij, aby przełączyć",
+          "push_to_talk": "Nagrywa, dopóki trzymasz skrót",
+          "toggle": "Dotknij skrótu, aby rozpocząć nagrywanie, dotknij ponownie, aby zatrzymać"
+        }
       }
     },
     "sound": {
@@ -430,6 +444,23 @@
       "fillerWordRemoval": {
         "title": "Usuń wyrazy wypełniające",
         "description": "Usuwa typowe słowa wyrażające wahanie z transkrypcji. Wyłącz, aby je zachować."
+      },
+      "vadBackend": {
+        "title": "Backend wykrywania głosu",
+        "description": "Wybierz detektor używany do filtrowania ciszy. Earshot jest eksperymentalny; wróć do Silero, jeśli mowa jest ucinana lub szum jest zachowywany.",
+        "options": {
+          "silero": "Silero",
+          "earshot": "Earshot"
+        }
+      },
+      "chineseScript": {
+        "title": "Pismo chińskie",
+        "description": "Zapisuje transkrypcje w języku mandaryńskim i kantońskim znakami uproszczonymi lub tradycyjnymi. Inne języki pozostają bez zmian.",
+        "options": {
+          "asTranscribed": "Jak w transkrypcji",
+          "simplified": "Uproszczone",
+          "traditional": "Tradycyjne"
+        }
       }
     },
     "postProcessing": {
@@ -569,7 +600,8 @@
       "searchPlaceholder": "Search history...",
       "showInput": "Show input",
       "versions": "versions",
-      "rename": "Rename"
+      "rename": "Rename",
+      "copyError": "Nie udało się skopiować transkrypcji do schowka."
     },
     "debug": {
       "title": "Debugowanie",
@@ -594,7 +626,8 @@
       },
       "updateChecks": {
         "label": "Sprawdzaj aktualizacje",
-        "description": "Automatycznie sprawdzaj nowe wersje Handy"
+        "description": "Automatycznie sprawdzaj nowe wersje Handy",
+        "lockedDescription": "Wyłączone przez konfigurację systemową (HANDY_DISABLE_UPDATER)"
       },
       "soundTheme": {
         "label": "Motyw dźwiękowy",
@@ -695,6 +728,17 @@
       "historyPostProcessToggle": {
         "label": "Post-process History",
         "description": "Add a button to enhance past transcriptions from the History tab"
+      },
+      "holdThreshold": {
+        "title": "Próg przytrzymania",
+        "description": "Tylko w trybie automatycznym: jak długo (w milisekundach) skrót musi być przytrzymany, aby liczył się jako przytrzymanie, a nie dotknięcie. Zmniejsz, jeśli po krótkim przytrzymaniu nagrywanie pozostaje włączone; zwiększ, jeśli celowe dotknięcia są traktowane jako przytrzymanie."
+      },
+      "onboardingPreview": {
+        "title": "Podgląd konfiguracji początkowej",
+        "description": "Wyświetl ekrany konfiguracji początkowej bez zmiany uprawnień, modeli ani stanu ukończenia",
+        "permissionsButton": "Uprawnienia",
+        "modelsButton": "Wybór modelu",
+        "exitButton": "Zakończ podgląd"
       }
     },
     "about": {
