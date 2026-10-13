@@ -441,6 +441,44 @@ pub fn create_recording_overlay(app_handle: &AppHandle) {
         Ok(window) => {
             #[cfg(target_os = "linux")]
             {
+                // Diagnostic only: force complete native damage while visible.
+                // A successful control identifies invalidation/presentation behavior;
+                // it is not a production repaint policy.
+                #[cfg(debug_assertions)]
+                if utils::env_flag_enabled("HANDY_DEBUG_FULL_OVERLAY_REDRAW") {
+                    use gtk::prelude::*;
+                    if let Ok(gtk_window) = window.gtk_window() {
+                        let frames = std::cell::Cell::new(0_u64);
+                        gtk_window.connect_draw(move |widget, context| {
+                            let frame = frames.get() + 1;
+                            frames.set(frame);
+                            if frame <= 5 || frame.is_multiple_of(30) {
+                                eprintln!(
+                                    "[overlay-native] draw={} allocation={}x{} clip={:?}",
+                                    frame,
+                                    widget.allocated_width(),
+                                    widget.allocated_height(),
+                                    context.clip_extents()
+                                );
+                            }
+                            gtk::glib::Propagation::Proceed
+                        });
+                        let weak_window = gtk_window.downgrade();
+                        gtk::glib::timeout_add_local(
+                            std::time::Duration::from_millis(33),
+                            move || {
+                                let Some(gtk_window) = weak_window.upgrade() else {
+                                    return gtk::glib::ControlFlow::Break;
+                                };
+                                if gtk_window.is_visible() {
+                                    gtk_window.queue_draw();
+                                }
+                                gtk::glib::ControlFlow::Continue
+                            },
+                        );
+                    }
+                }
+
                 // Try to initialize GTK layer shell, ignore errors if compositor doesn't support it
                 if init_gtk_layer_shell(&window) {
                     debug!("GTK layer shell initialized for overlay window");

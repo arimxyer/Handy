@@ -18,6 +18,15 @@ applyTheme(getStoredTheme());
 syncThemeFromSettings();
 listen<Theme>("theme-changed", (event) => applyTheme(event.payload));
 
+// Development control: fill web content while retaining native transparency.
+if (
+  import.meta.env.DEV &&
+  import.meta.env.VITE_HANDY_DEBUG_OPAQUE_DOCUMENT === "1"
+) {
+  document.documentElement.style.backgroundColor = "#202020";
+  document.body.style.backgroundColor = "#202020";
+}
+
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <RecordingOverlay />

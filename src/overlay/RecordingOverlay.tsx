@@ -317,7 +317,10 @@ const RecordingOverlay: React.FC = () => {
     probe.append(cap);
     document.body.append(probe);
     const metadata = {
-      build: "overlay-mask-test-v1",
+      build: "overlay-render-controls-v2",
+      documentBackground: getComputedStyle(document.documentElement)
+        .backgroundColor,
+      bodyBackground: getComputedStyle(document.body).backgroundColor,
       url: window.location.href,
       cardWillChange: getComputedStyle(probe).willChange,
       textMask: getComputedStyle(cap).getPropertyValue("mask-image"),
