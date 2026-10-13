@@ -400,6 +400,15 @@ pub fn create_recording_overlay(app_handle: &AppHandle) {
         }
     }
 
+    // Diagnostic control: disable native alpha only in Linux development builds.
+    // Keep production overlay behavior unchanged.
+    #[cfg(all(target_os = "linux", debug_assertions))]
+    let overlay_transparent = !utils::env_flag_enabled("HANDY_DEBUG_OPAQUE_OVERLAY");
+    #[cfg(not(all(target_os = "linux", debug_assertions)))]
+    let overlay_transparent = true;
+
+    debug!("Overlay native transparency: {}", overlay_transparent);
+
     // Position starts unset — update_overlay_position() sets the correct
     // LogicalPosition before the overlay is shown.
     let mut builder = WebviewWindowBuilder::new(
@@ -418,7 +427,7 @@ pub fn create_recording_overlay(app_handle: &AppHandle) {
     .decorations(false)
     .always_on_top(true)
     .skip_taskbar(true)
-    .transparent(true)
+    .transparent(overlay_transparent)
     .focusable(false)
     .focused(false)
     .visible(false);
