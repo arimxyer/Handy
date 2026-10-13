@@ -1,5 +1,11 @@
-import { listen } from "@tauri-apps/api/event";
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { listen, type UnlistenFn } from "@tauri-apps/api/event";
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 import "./RecordingOverlay.css";
 import { commands, events } from "@/bindings";
@@ -22,6 +28,42 @@ type OverlayState =
 // Number of reactive bars in the waveform (the simple, smoothed style shared by
 // every overlay form). Mic levels arrive as 16 FFT buckets; we take the first N.
 const WAVE_BARS = 9;
+
+const diagnosticNodeIds = new WeakMap<Element, number>();
+let nextDiagnosticNodeId = 1;
+
+const describeOverlayElement = (element: Element | null) => {
+  if (!element) return null;
+  let nodeId = diagnosticNodeIds.get(element);
+  if (nodeId === undefined) {
+    nodeId = nextDiagnosticNodeId++;
+    diagnosticNodeIds.set(element, nodeId);
+  }
+  const style = getComputedStyle(element);
+  const rect = element.getBoundingClientRect();
+  return {
+    nodeId,
+    tag: element.tagName,
+    classes: element.className,
+    opacity: style.opacity,
+    visibility: style.visibility,
+    display: style.display,
+    backgroundColor: style.backgroundColor,
+    color: style.color,
+    transform: style.transform,
+    overflow: style.overflow,
+    maskImage: style.getPropertyValue("mask-image"),
+    webkitMaskImage: style.getPropertyValue("-webkit-mask-image"),
+    gridTemplateRows: style.gridTemplateRows,
+    willChange: style.willChange,
+    rect: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
+    clientWidth: element.clientWidth,
+    clientHeight: element.clientHeight,
+    scrollWidth: element.scrollWidth,
+    scrollHeight: element.scrollHeight,
+    scrollTop: element.scrollTop,
+  };
+};
 
 const RecordingOverlay: React.FC = () => {
   const { t } = useTranslation();
@@ -57,87 +99,219 @@ const RecordingOverlay: React.FC = () => {
   const pinnedRef = useRef(true);
   const direction = getLanguageDirection(i18n.language);
 
-  useEffect(() => {
-    const setupEventListeners = async () => {
-      const unlistenShow = await listen("show-overlay", async (event) => {
-        const overlayState = event.payload as OverlayState;
-        // Reset synchronously before settings I/O. A fast microphone can emit
-        // recording-ready while the awaits below are in flight; resetting after
-        // them would overwrite that event and leave the overlay stuck arming.
-        if (overlayState === "recording" || overlayState === "streaming") {
-          setCaptureReady(false);
-          smoothedLevelsRef.current = Array(16).fill(0);
-          setLevels(Array(WAVE_BARS).fill(0));
-          setStreamText({ committed: "", tentative: "" });
-        }
+  const diagnosticSnapshotRef = useRef({
+    isVisible,
+    state,
+    session,
+    phase,
+    workKind,
+    captureReady,
+    elapsed,
+    position,
+    overflowing,
+    committedLength: streamText.committed.length,
+    tentativeLength: streamText.tentative.length,
+  });
+  diagnosticSnapshotRef.current = {
+    isVisible,
+    state,
+    session,
+    phase,
+    workKind,
+    captureReady,
+    elapsed,
+    position,
+    overflowing,
+    committedLength: streamText.committed.length,
+    tentativeLength: streamText.tentative.length,
+  };
 
-        await syncLanguageFromSettings();
-        // The Live panel flows downward from a top overlay and upward from a
-        // bottom one; read the placement so the layout can flip to match.
-        try {
-          const settings = await commands.getAppSettings();
-          if (settings.status === "ok") {
-            setPosition(
-              settings.data.overlay_position === "top" ? "top" : "bottom",
-            );
-          }
-        } catch {
-          // Keep the previous/default placement if settings can't be read.
-        }
-        setState(overlayState);
-        if (overlayState === "streaming") {
-          setPhase("listening");
-          setWorkKind("transcribing");
-          setElapsed(0);
-          setSession((s) => s + 1); // remount the card fresh for this session
-        }
-        setIsVisible(true);
-      });
-
-      const unlistenHide = await listen("hide-overlay", () => {
-        setIsVisible(false);
-        setCaptureReady(false);
-      });
-
-      const unlistenReady = await listen("recording-ready", () => {
-        setElapsed(0);
-        setCaptureReady(true);
-      });
-
-      const unlistenLevel = await listen<number[]>("mic-level", (event) => {
-        const newLevels = event.payload as number[];
-        // Exponential smoothing across the 16 buckets, then take the first N
-        // bars for the shared waveform.
-        const smoothed = smoothedLevelsRef.current.map((prev, i) => {
-          const target = newLevels[i] || 0;
-          return prev * 0.7 + target * 0.3;
-        });
-        smoothedLevelsRef.current = smoothed;
-        setLevels(smoothed.slice(0, WAVE_BARS));
-      });
-
-      const unlistenStream = await events.streamTextEvent.listen((event) => {
-        setStreamText(event.payload);
-      });
-
-      const unlistenPhase = await events.streamPhaseEvent.listen((event) => {
-        const payload: StreamPhaseEvent = event.payload;
-        setPhase(payload.phase);
-        if (payload.kind) setWorkKind(payload.kind);
-      });
-
-      return () => {
-        unlistenShow();
-        unlistenHide();
-        unlistenReady();
-        unlistenLevel();
-        unlistenStream();
-        unlistenPhase();
+  const postDiagnostics = useCallback(
+    (
+      event: string,
+      metadata: Record<string, string | number | boolean> = {},
+    ) => {
+      if (!import.meta.env.DEV) return;
+      const card = document.querySelector(".scard");
+      const bars = Array.from(document.querySelectorAll(".swave i"));
+      const barHeights = bars.map((bar) => bar.getBoundingClientRect().height);
+      const ancestors: ReturnType<typeof describeOverlayElement>[] = [];
+      for (
+        let ancestor = card?.parentElement;
+        ancestor;
+        ancestor = ancestor.parentElement
+      ) {
+        ancestors.push(describeOverlayElement(ancestor));
+      }
+      const payload = {
+        event,
+        metadata,
+        timestamp: Date.now(),
+        performanceTime: performance.now(),
+        snapshot: diagnosticSnapshotRef.current,
+        viewport: {
+          width: window.innerWidth,
+          height: window.innerHeight,
+          devicePixelRatio: window.devicePixelRatio,
+        },
+        card: describeOverlayElement(card),
+        text: describeOverlayElement(document.querySelector(".stext")),
+        textClip: describeOverlayElement(document.querySelector(".stext-clip")),
+        textCap: describeOverlayElement(document.querySelector(".stext-cap")),
+        waveform: describeOverlayElement(document.querySelector(".swave")),
+        dot: describeOverlayElement(document.querySelector(".sdot")),
+        waveBars: {
+          count: bars.length,
+          minHeight: barHeights.length ? Math.min(...barHeights) : null,
+          maxHeight: barHeights.length ? Math.max(...barHeights) : null,
+          bars: bars.map(describeOverlayElement),
+        },
+        cardAncestors: ancestors,
       };
+      void fetch("/__overlay_diagnostics", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }).catch(() => {});
+    },
+    [],
+  );
+
+  useEffect(() => {
+    let disposed = false;
+    let showGeneration = 0;
+    const unlisteners: UnlistenFn[] = [];
+    const registerListener = async (subscribe: () => Promise<UnlistenFn>) => {
+      if (disposed) return;
+      const unlisten = await subscribe();
+      if (disposed) unlisten();
+      else unlisteners.push(unlisten);
+    };
+    const setupEventListeners = async () => {
+      await registerListener(() =>
+        listen("show-overlay", async (event) => {
+          if (disposed) return;
+          const generation = ++showGeneration;
+          const overlayState = event.payload as OverlayState;
+          postDiagnostics("show-overlay", {
+            overlayState,
+            eventId: event.id,
+            generation,
+          });
+          // Reset before settings I/O so recording-ready cannot be overwritten.
+          if (overlayState === "recording" || overlayState === "streaming") {
+            setCaptureReady(false);
+            smoothedLevelsRef.current = Array(16).fill(0);
+            setLevels(Array(WAVE_BARS).fill(0));
+            setStreamText({ committed: "", tentative: "" });
+          }
+          // Event order controls the UI. Settings reads must not restore an old
+          // state after a newer show, hide, readiness, or working-phase event.
+          setState(overlayState);
+          if (overlayState === "streaming") {
+            pinnedRef.current = true;
+            setOverflowing(false);
+            setPhase("listening");
+            setWorkKind("transcribing");
+            setElapsed(0);
+            setSession((s) => s + 1);
+          }
+          setIsVisible(true);
+
+          await syncLanguageFromSettings();
+          if (disposed || generation !== showGeneration) return;
+          try {
+            const settings = await commands.getAppSettings();
+            if (disposed || generation !== showGeneration) return;
+            if (settings.status === "ok") {
+              setPosition(
+                settings.data.overlay_position === "top" ? "top" : "bottom",
+              );
+            }
+          } catch {
+            // Keep the previous/default placement if settings can't be read.
+          }
+        }),
+      );
+
+      await registerListener(() =>
+        listen("hide-overlay", (event) => {
+          if (disposed) return;
+          ++showGeneration;
+          postDiagnostics("hide-overlay", {
+            eventId: event.id,
+            generation: showGeneration,
+          });
+          setIsVisible(false);
+          setCaptureReady(false);
+        }),
+      );
+
+      await registerListener(() =>
+        listen("recording-ready", (event) => {
+          if (disposed) return;
+          postDiagnostics("recording-ready", { eventId: event.id });
+          setElapsed(0);
+          setCaptureReady(true);
+        }),
+      );
+
+      await registerListener(() =>
+        listen<number[]>("mic-level", (event) => {
+          if (disposed) return;
+          const newLevels = event.payload as number[];
+          const smoothed = smoothedLevelsRef.current.map((prev, i) => {
+            const target = newLevels[i] || 0;
+            return prev * 0.7 + target * 0.3;
+          });
+          smoothedLevelsRef.current = smoothed;
+          setLevels(smoothed.slice(0, WAVE_BARS));
+        }),
+      );
+
+      await registerListener(() =>
+        events.streamTextEvent.listen((event) => {
+          if (disposed) return;
+          postDiagnostics("stream-text", {
+            eventId: event.id,
+            committedLength: event.payload.committed.length,
+            tentativeLength: event.payload.tentative.length,
+          });
+          setStreamText(event.payload);
+        }),
+      );
+
+      await registerListener(() =>
+        events.streamPhaseEvent.listen((event) => {
+          if (disposed) return;
+          const payload: StreamPhaseEvent = event.payload;
+          postDiagnostics("stream-phase", {
+            eventId: event.id,
+            phase: payload.phase,
+            kind: payload.kind ?? "",
+          });
+          setPhase(payload.phase);
+          if (payload.kind) setWorkKind(payload.kind);
+        }),
+      );
     };
 
-    setupEventListeners();
-  }, []);
+    void setupEventListeners().catch((error) => {
+      console.error("Failed to set up overlay listeners:", error);
+    });
+    return () => {
+      disposed = true;
+      ++showGeneration;
+      for (const unlisten of unlisteners) unlisten();
+    };
+  }, [postDiagnostics]);
+
+  useEffect(() => {
+    if (!import.meta.env.DEV || !isVisible) return;
+    postDiagnostics("visible");
+    const id = setInterval(() => postDiagnostics("sample"), 1000);
+    return () => clearInterval(id);
+  }, [isVisible, postDiagnostics]);
 
   // Elapsed capture timer starts only once microphone samples are flowing.
   useEffect(() => {
@@ -154,13 +328,7 @@ const RecordingOverlay: React.FC = () => {
     // Fade the top edge only once text actually overflows the cap.
     setOverflowing(el.scrollHeight > el.clientHeight + 1);
     if (pinnedRef.current) el.scrollTop = el.scrollHeight;
-  }, [streamText]);
-
-  // Each fresh streaming session starts pinned to the bottom, fade cleared.
-  useEffect(() => {
-    pinnedRef.current = true;
-    setOverflowing(false);
-  }, [session]);
+  }, [streamText, isVisible, state, session, position]);
 
   if (!isVisible) return null;
 

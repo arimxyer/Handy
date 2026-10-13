@@ -1032,6 +1032,17 @@ impl TranscriptionManager {
                                     update.audio_committed_ms,
                                     update.buffered_ms,
                                 );
+                                // Finalize can revise the last feed's preview. Emit
+                                // that snapshot before replying to the pipeline,
+                                // using the same script conversion as feed events.
+                                let text = stream.text();
+                                let (committed, tentative) = preview_script.convert(
+                                    &text.committed,
+                                    &text.tentative,
+                                    &languages,
+                                );
+                                perf.record_emit();
+                                self.emit_stream_text(&committed, &tentative);
                                 // In auto mode the model's own LID is the best
                                 // remaining evidence; the snapshot is only
                                 // materialized when it can change the outcome.
@@ -1045,7 +1056,7 @@ impl TranscriptionManager {
                                     resolved => resolved.clone(),
                                 };
                                 Some(FinalizedStreamText {
-                                    text: stream.text().full,
+                                    text: text.full,
                                     output_language,
                                     supported_languages: languages.clone(),
                                 })
