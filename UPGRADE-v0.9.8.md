@@ -97,7 +97,7 @@ The hidden workspace and its owned processes stopped after QA. Host Handy remain
 
 The detailed runtime report and initial migration JSON remain in `src-tauri/target/upgrade-evidence/`.
 
-## Limits
+## Limits of initial upgrade validation
 
 Microphone capture, streaming, live overlay, Wayland placement, global shortcuts, paste injection, external AI providers, and update actions remain untested.
 
@@ -120,3 +120,28 @@ Independent live checks pass: integrity `ok`, schema 12, exact schema and ordere
 The backup's `post-repair-verification.json` records the successful checks separately from the failed initial report. The tested deb also remains at `/home/arimayer/backups/Handy_0.9.8-insiders.1_amd64.deb`.
 
 No live-profile migration or installation occurred during candidate validation.
+
+## Insiders.2 renderer repair installation
+
+On 2026-10-13, source commit `b4462f7f` built `0.9.8-insiders.2` after repair `0b0b5013`.
+Origin accepted the source update on `insiders`.
+The repaired native replay captured 2,103 frames with zero detected card or text dropouts.
+Renderer policy tests, the production build, and copied-profile startup validation passed.
+
+Package SHA-256: `c82603ffc56847184bcf0052854f89f567de39d50f061adb6190e00691500ec9`.
+Installed binary SHA-256: `d49617bf9f7d2fb3dc0af3d5c1081f80def771f313651bb731913ecaaf16a0e4`.
+The binary embeds `0.9.8-insiders.2` and exactly matches the tested package.
+
+The installer backed up the already stopped live profile and the complete `.1` installation.
+Backup: `/home/arimayer/backups/handy-preupgrade-v0.9.8-insiders.2-20261013-172206-lvklfalu/`.
+Its `verification.json` reports successful installation and restart.
+
+Live database schema and ordered content hashes are exactly unchanged.
+Integrity remains `ok`, schema 12, with 681 history entries, 186 versions, and 23 tabs.
+All settings are exactly unchanged. This repair requires no migration.
+Runtime directories have mode `0755`, and library checks pass as the desktop user.
+
+The installed `/usr/bin/handy` runs as the desktop user on native Wayland with the normal live profile.
+Its WebKit subprocess inherits `WEBKIT_DISABLE_DMABUF_RENDERER=0` from automatic renderer selection.
+The normal GTK layer-shell path is enabled. No debug replay or layer-shell bypass remains.
+The tested deb also remains at `/home/arimayer/backups/Handy_0.9.8-insiders.2_amd64.deb`.

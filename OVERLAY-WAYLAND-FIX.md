@@ -54,6 +54,7 @@ Evidence on this host:
 ## Remaining scope
 
 The pixel acceptance used the regular-window diagnostic overlay.
-The normal dev launch restores GTK layer shell and the copied profile.
+The normal installed launch restores GTK layer shell and the live profile.
 The repair does not establish equivalent GPU behavior on Intel, NVIDIA, mixed-vendor, or X11 systems.
-The installed package remains unchanged until a separate build and installation step.
+`0.9.8-insiders.2` is now installed. Its binary and live-profile checks passed.
+See `UPGRADE-v0.9.8.md` for the package hash and stopped backup record.
