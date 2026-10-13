@@ -7,7 +7,38 @@ const host = process.env.TAURI_DEV_HOST;
 
 // https://vitejs.dev/config/
 export default defineConfig(async () => ({
-  plugins: [react(), tailwindcss()],
+  plugins: [
+    react(),
+    tailwindcss(),
+    {
+      name: "overlay-diagnostics",
+      apply: "serve",
+      configureServer(server) {
+        server.middlewares.use("/__overlay_diagnostics", (req, res) => {
+          if (req.method !== "POST") {
+            res.statusCode = 405;
+            res.end();
+            return;
+          }
+          let body = "";
+          req.on("data", (chunk: Buffer) => {
+            body += chunk.toString();
+            if (body.length > 16384) req.destroy();
+          });
+          req.on("end", () => {
+            try {
+              const packet: unknown = JSON.parse(body);
+              console.log("[overlay-diag]", JSON.stringify(packet));
+              res.statusCode = 204;
+            } catch {
+              res.statusCode = 400;
+            }
+            res.end();
+          });
+        });
+      },
+    },
+  ],
 
   // Path aliases
   resolve: {

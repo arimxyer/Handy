@@ -307,6 +307,28 @@ const RecordingOverlay: React.FC = () => {
   }, [postDiagnostics]);
 
   useEffect(() => {
+    if (!import.meta.env.DEV) return;
+    const probe = document.createElement("div");
+    probe.className = "scard";
+    probe.style.cssText =
+      "position:fixed;visibility:hidden;pointer-events:none";
+    const cap = document.createElement("div");
+    cap.className = "stext-cap";
+    probe.append(cap);
+    document.body.append(probe);
+    const metadata = {
+      build: "overlay-mask-test-v1",
+      url: window.location.href,
+      cardWillChange: getComputedStyle(probe).willChange,
+      textMask: getComputedStyle(cap).getPropertyValue("mask-image"),
+      textWebkitMask:
+        getComputedStyle(cap).getPropertyValue("-webkit-mask-image"),
+    };
+    probe.remove();
+    postDiagnostics("build-ready", metadata);
+  }, [postDiagnostics]);
+
+  useEffect(() => {
     if (!import.meta.env.DEV || !isVisible) return;
     postDiagnostics("visible");
     const id = setInterval(() => postDiagnostics("sample"), 1000);
