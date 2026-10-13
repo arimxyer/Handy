@@ -18,6 +18,10 @@ class CardAnalyzer:
         self.text_region = np.zeros(eligible.shape, dtype=bool)
         self.text_region[y0:max(y0 + 1, y1 - round(40 * baseline.shape[1] / 400)), x0:x1] = True
         self.ink_reference = self.ink_count(baseline)
+        if x1 - x0 < baseline.shape[1] * .75 or self.mask.sum() < baseline.shape[1] * 12:
+            raise ValueError('The reference does not contain a complete live card')
+        if self.ink_reference < 20:
+            raise ValueError('The reference does not contain readable fixed text')
 
     def ink_count(self, frame):
         rgb = frame[:, :, :3].astype(np.int16)
@@ -52,6 +56,12 @@ def selftest():
     assert failed['card_loss_ratio'] > .95
     assert failed['text_ink_ratio'] == 0
     assert failed['accent_pixels'] == clean['accent_pixels'] > 0
+    try:
+        CardAnalyzer(erased)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError('A dot-only image must not become the card baseline')
     print({'fixture': 'erased card, retained accent dot', 'baseline': clean, 'erased': failed})
 
 if __name__ == '__main__':

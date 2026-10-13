@@ -86,6 +86,8 @@ pub fn start_if_requested(handle: &AppHandle) {
             std::thread::sleep(Duration::from_millis(33));
         }
         eprintln!("[overlay-replay] complete timestamp_ms={}", timestamp_ms());
+        // Keep the target alive until the 35-second capture closes normally.
+        std::thread::sleep(Duration::from_secs(5));
         overlay::hide_recording_overlay(&handle);
     });
 }

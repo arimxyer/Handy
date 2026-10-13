@@ -211,13 +211,16 @@ def capture(args, output, fd=None, node=None, properties=None):
                'pts_gap_ms': None if pts is None or previous_pts is None else (pts - previous_pts) / 1e6,
                'discontinuity': bool(buffer.has_flags(Gst.BufferFlags.DISCONT))}
         row['replay_phase'] = 'warmup'
-        if first is not None and analyzer is None and now - first >= 1_000_000_000:
-            try:
-                analyzer = CardAnalyzer(frame)
-                log('pixel_baseline', bounds=analyzer.bounds, ink_pixels=analyzer.ink_reference)
-            except ValueError as error:
-                log('pixel_baseline_error', error=str(error))
-            if args.trigger:
+        if first is not None and now - first >= 1_000_000_000:
+            if analyzer is None:
+                try:
+                    analyzer = CardAnalyzer(frame)
+                    log('pixel_baseline', bounds=analyzer.bounds, ink_pixels=analyzer.ink_reference)
+                except ValueError:
+                    # A missing card cannot calibrate its own dropout detector.
+                    # Keep the video and wait for a complete reference frame.
+                    pass
+            if args.trigger and trigger_ns is None:
                 args.trigger.parent.mkdir(parents=True, exist_ok=True)
                 trigger_ns = time.monotonic_ns()
                 args.trigger.write_text(json.dumps({'wall_ns': time.time_ns(), 'monotonic_ns': trigger_ns}) + '\n')
@@ -230,8 +233,8 @@ def capture(args, output, fd=None, node=None, properties=None):
             row['replay_phase'] = ('moving_wave_fixed_text' if t < 10 else
                 'silent_fixed_text' if t < 20 else 'moving_wave_changing_text' if t < 30 else 'complete')
             stable = 1 < t < 29.5 and all(abs(t - edge) > .5 for edge in [10, 20])
-            row['card_loss_candidate'] = bool(stable and row.get('card_loss_ratio', 0) > .6)
-            row['text_loss_candidate'] = bool(stable and t < 19.5 and row.get('text_ink_ratio', 1) < .3)
+            row['card_loss_candidate'] = bool(analyzer is not None and stable and row.get('card_loss_ratio', 0) > .6)
+            row['text_loss_candidate'] = bool(analyzer is not None and stable and t < 19.5 and row.get('text_ink_ratio', 1) < .3)
         else:
             row['card_loss_candidate'] = False
             row['text_loss_candidate'] = False
@@ -287,6 +290,7 @@ def capture(args, output, fd=None, node=None, properties=None):
         'expected_frames_if_continuous': round(args.seconds * args.fps),
         'phases': {},
         'replay_trigger_monotonic_ns': trigger_ns,
+        'baseline_valid': analyzer is not None,
         'card_loss_candidates': [row['frame'] for row in rows if row['card_loss_candidate']],
         'text_loss_candidates': [row['frame'] for row in rows if row['text_loss_candidate']],
         'limitations': ['Window capture does not include final monitor scanout or HDR display output.',
