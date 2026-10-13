@@ -15,6 +15,8 @@ mod llm_client;
 mod managers;
 mod memory;
 mod overlay;
+#[cfg(all(target_os = "linux", debug_assertions))]
+mod overlay_diagnostics;
 mod paste_tx;
 mod picker;
 pub mod portable;
@@ -391,6 +393,8 @@ fn initialize_core_logic(app_handle: &AppHandle) {
 
     // Create the recording overlay window (hidden by default)
     utils::create_recording_overlay(app_handle);
+    #[cfg(all(target_os = "linux", debug_assertions))]
+    overlay_diagnostics::start_if_requested(app_handle);
 
     // Create the prompt picker window (hidden by default)
     picker::create_prompt_picker(app_handle);

@@ -409,6 +409,13 @@ pub fn create_recording_overlay(app_handle: &AppHandle) {
 
     debug!("Overlay native transparency: {}", overlay_transparent);
 
+    // KDE's window capture chooser excludes skip-taskbar windows. Make only
+    // the explicit development replay selectable through the normal portal.
+    #[cfg(all(target_os = "linux", debug_assertions))]
+    let skip_taskbar = std::env::var_os("HANDY_DEBUG_OVERLAY_REPLAY_TRIGGER").is_none();
+    #[cfg(not(all(target_os = "linux", debug_assertions)))]
+    let skip_taskbar = true;
+
     // Position starts unset — update_overlay_position() sets the correct
     // LogicalPosition before the overlay is shown.
     let mut builder = WebviewWindowBuilder::new(
@@ -426,7 +433,7 @@ pub fn create_recording_overlay(app_handle: &AppHandle) {
     .accept_first_mouse(true)
     .decorations(false)
     .always_on_top(true)
-    .skip_taskbar(true)
+    .skip_taskbar(skip_taskbar)
     .transparent(overlay_transparent)
     .focusable(false)
     .focused(false)

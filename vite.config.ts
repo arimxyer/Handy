@@ -68,13 +68,17 @@ export default defineConfig(async () => ({
     port: 1420,
     strictPort: true,
     host: host || false,
-    hmr: host
-      ? {
-          protocol: "ws",
-          host,
-          port: 1421,
-        }
-      : undefined,
+    // Freeze the diagnostic replay while capture is active. A full reload
+    // would discard the event-driven overlay state before the trigger arrives.
+    hmr: process.env.HANDY_DEBUG_OVERLAY_REPLAY_TRIGGER
+      ? false
+      : host
+        ? {
+            protocol: "ws",
+            host,
+            port: 1421,
+          }
+        : undefined,
     watch: {
       // 3. tell vite to ignore watching `src-tauri`
       ignored: ["**/src-tauri/**"],
