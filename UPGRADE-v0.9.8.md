@@ -8,7 +8,7 @@ Branch: `codex/insiders-v0.9.8`.
 
 Candidate version: `0.9.8-insiders.1`. The deb package version remains `0.9.8`.
 
-The work does not advance `insiders`, push to a remote, install the candidate, or change the live profile.
+Initial candidate validation did not advance `insiders`, push to a remote, install the candidate, or change the live profile.
 
 ## Conflict resolution
 
@@ -105,4 +105,10 @@ The browser tests cover HTTP response and HTML structure. Native screenshots pro
 
 Clippy completes with warnings. The translation check retains the four pre-existing failures described above.
 
-The candidate remains uninstalled. No remote push or branch integration follows this isolated merge.
+## Delivery status
+
+On 2026-10-13, `insiders` advanced to tested merge `6f822c51`, and origin accepted the push. The merge has exact `v0.9.8` as its second parent. The original checkout remains clean after integration.
+
+The installed binary still identifies itself as `0.9.6-insiders.1`. Installation requires host sudo authentication. A prepared installer will create a fresh stopped-profile backup before changing system files.
+
+No live-profile migration or installation occurred during candidate validation.
