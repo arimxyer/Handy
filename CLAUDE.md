@@ -6,9 +6,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Current Fork State
 
-- **Integrated, uninstalled build (2026-10-13):** `insiders` now includes merge `6f822c51` of exact upstream `v0.9.8`, and origin contains that merge. `insiders-version.json` identifies the build as `0.9.8-insiders.1`. The installed binary still identifies itself as `0.9.6-insiders.1`. Installation awaits host sudo authentication. See `UPGRADE-v0.9.8.md` for validation and remaining limits.
+- **Installed build (2026-10-13):** `insiders` includes merge `6f822c51` of exact upstream `v0.9.8`, and origin contains that merge. The installed and running binary is `0.9.8-insiders.1`, with the same hash as the tested deb. After a runtime directory permission repair, live database schema, contents, and counts match the stopped backup: integrity `ok`, schema 12, 678 history entries, 186 versions, and 23 tabs. Settings retain schema 2 and change only through the expected upstream migrations. See `UPGRADE-v0.9.8.md` for validation and remaining limits.
 
-- The previous installed upgrade used exact upstream `v0.9.6` (merge `c7be006`, isolated branch `upgrade/insiders-v0.9.6`, 2026-08-26). That upgrade excluded the six commits then on `upstream/main` after the tag. The installed build remains `0.9.6-insiders.1` from 2026-08-26. The manifest is bumped per fork build precisely so two builds of the same upstream version stay distinguishable in the tray and in the backup inventory.
+- The previous installed upgrade used exact upstream `v0.9.6` (merge `c7be006`, isolated branch `upgrade/insiders-v0.9.6`, 2026-08-26). That upgrade excluded the six commits then on `upstream/main` after the tag. That build was installed on 2026-08-26 and preceded the verified `0.9.8-insiders.1` installation. The manifest is bumped per fork build precisely so two builds of the same upstream version stay distinguishable in the tray and in the backup inventory.
 - Upstream added **no** history migrations between v0.8.3 and v0.9.6, so the fork's migrations 5–12 append after upstream's 1–4 and the live profile stays at `user_version=12`. The v0.9.6 candidate was exercised against a copied live profile before installation and again after installation: `integrity_check` stayed `ok`, and row counts stayed unchanged at 724 history / 236 versions / 23 tabs.
 - v0.9.6 advances `settings_schema_version` from 1 to 2. The live and copied-profile migrations made exactly three expected settings changes: add `filler_word_removal_enabled: true`, stamp schema 2, and clear the legacy integer `transcribe_gpu_device: -1` to `null` because transcribe.cpp 0.2 uses opaque device handles. No other settings changed.
 - The insiders updater is intentionally **notification-only**. It still checks upstream's update feed, but clicking an available update opens the matching `cjpais/Handy` GitHub release page; it never downloads, installs, or relaunches into an official upstream artifact. Insiders upgrades continue through this merge/build/install workflow.
@@ -16,7 +16,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `check:translations` fails for `da`/`hi`/`ne`/`nl`: the fork's ~311 added keys were only ever written into the other 20 locales. Pre-existing, not caused by an upgrade.
 - The 0.9.4 upgrade rewrote settings in place: `whisper_accelerator`/`whisper_gpu_device` were renamed to `transcribe_*`, 11 keys were added (`settings_schema_version`, `overlay_style`, `theme`, `vad_enabled`, …), and the stale bare model id `turbo` was cleared and auto-replaced (`model.rs:1494`) because upstream 0.9.x moved to a HuggingFace-style model catalog. The v0.9.6 catalog contains 69 entries.
 - Rollback material in `/home/arimayer/backups`, newest first:
-  - `Handy_0.9.6-insiders.1_amd64.deb` — what is installed; reinstall from this. The deb's internal package version remains upstream-compatible `0.9.6`; the filename and embedded insiders manifest distinguish the fork build.
+  - `Handy_0.9.8-insiders.1_amd64.deb` — current installed build, copied from the tested package.
+  - `handy-preupgrade-v0.9.8-20261013-145357-keze1eh4/` — complete stopped pre-upgrade profile plus matching 0.9.6 binary and runtime. Its database is schema 12, integrity `ok`, with 678 history / 186 versions / 23 tabs. `post-repair-verification.json` records the successful live upgrade checks.
+  - `Handy_0.9.6-insiders.1_amd64.deb` — previous installed build and normal rollback target. The deb's internal package version remains upstream-compatible `0.9.6`; the filename and embedded insiders manifest distinguish the fork build.
   - `handy-preupgrade-20260826/` — complete stopped pre-upgrade profile plus the matching installed 0.9.5 binary and `/usr/lib/Handy` runtime. Its database is v12/integrity-ok with 724 history / 236 versions / 23 tabs.
   - `Handy_0.9.5-insiders.3_amd64.deb` — one release back and the normal binary/runtime rollback target.
   - `Handy_0.9.5-insiders.2_amd64.deb` and `Handy_0.9.5-insiders.1_amd64.deb` — same upstream base, progressively fewer paste changes (`.2` drops the dotool fix, `.1` drops the upstream cherry-picks too). A/B partners for `.3`, not rollback targets in their own right.
@@ -167,6 +169,8 @@ sudo chown -R root:root /usr/lib/Handy /usr/share/applications/Handy.desktop /us
 ```
 
 After rebuilding, only the binary needs re-copying: `sudo cp src-tauri/target/release/handy /usr/bin/`
+
+**Runtime permissions:** the local v0.9.8 deb stores `/usr/lib/Handy` with mode `0700`. After root installs the bundle, normalize runtime directories to `0755` and make regular files readable while preserving executable bits. Check library loading as the desktop user before restart. The first upgrade attempt failed this check; `sudo chmod -R a+rX /usr/lib/Handy` repaired it without changing user data.
 
 **AppImage bundling** may fail on rolling-release distros (Arch, CachyOS) because linuxdeploy's bundled `strip` is too old for newer system libraries. The deb/rpm bundles and the binary itself still build fine. Use `mise run build:local` to skip the AppImage step and updater signing for local installs.
 

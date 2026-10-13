@@ -109,6 +109,14 @@ Clippy completes with warnings. The translation check retains the four pre-exist
 
 On 2026-10-13, `insiders` advanced to tested merge `6f822c51`, and origin accepted the push. The merge has exact `v0.9.8` as its second parent. The original checkout remains clean after integration.
 
-The installed binary still identifies itself as `0.9.6-insiders.1`. Installation requires host sudo authentication. A prepared installer will create a fresh stopped-profile backup before changing system files.
+The installer created stopped backup `/home/arimayer/backups/handy-preupgrade-v0.9.8-20261013-145357-keze1eh4/` and installed the full deb. Its first restart failed because the archive runtime directory had mode `0700` after root ownership transfer. The original `verification.json` records that failure.
+
+A desktop password helper authorized `sudo chmod -R a+rX /usr/lib/Handy`. The installed runtime now has mode `0755`, and the desktop user can load `libtranscribe.so.0.2`. The repaired installer normalizes permissions and checks shared libraries as the desktop user before restart.
+
+The restarted `/usr/bin/handy` process runs as the desktop user and matches the tested binary SHA-256 `0398db639a31600db96bb11209f334d68019811d624e5b6d67caa7c35b9ca4b8`. Its embedded version is `0.9.8-insiders.1`.
+
+Independent live checks pass: integrity `ok`, schema 12, exact schema and ordered content hashes unchanged, 678 history entries, 186 versions, and 23 tabs. Settings match the expected migration exactly and retain schema 2. Changed keys are `push_to_talk`, `shortcut_activation`, `hold_threshold_ms`, `vad_backend`, and `chinese_script`.
+
+The backup's `post-repair-verification.json` records the successful checks separately from the failed initial report. The tested deb also remains at `/home/arimayer/backups/Handy_0.9.8-insiders.1_amd64.deb`.
 
 No live-profile migration or installation occurred during candidate validation.
